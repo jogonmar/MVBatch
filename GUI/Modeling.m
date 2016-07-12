@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 23-Sep-2014 10:46:17
+% Last Modified by GUIDE v2.5 11-Jul-2016 14:18:54
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -1560,8 +1560,71 @@ if ok,
     end
 
     guidata(hObject,handles);
-    
+else
+    cprint(handles.console,'Check the input for errors.');  
 end
 
 
 
+
+
+% --- Executes on button press in pushbutton21.
+function pushbutton21_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton21 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.man.fint = edit_man_fint_Callback(handles.edit_man_fint, eventdata, handles);
+
+% Checking arguments
+ok=true;
+if find(isnan(handles.man.pcs)), ok=false; end;
+if find(isnan(handles.man.lmvs)), ok=false; end;
+if find(isnan(handles.man.init)), ok=false; end;
+if find(isnan(handles.man.fint)), ok=false; end;
+n_phases = length(handles.man.pcs);
+if n_phases ~= length(handles.man.lmvs), ok=false; end;
+if n_phases ~= length(handles.man.init), ok=false; end;
+if n_phases ~= length(handles.man.fint), ok=false; end;
+if ok,
+    pcs=handles.man.pcs;
+    lmvs=handles.man.lmvs;
+    init=handles.man.init;
+    fint=handles.man.fint;
+    
+    d=init(2:end)-fint(1:end-1);
+    if ~isempty(d) && ~isempty(find(d~=1)), ok=false; end;
+    d=init(2:end)-lmvs(2:end);
+    if ~isempty(find(d<1)), ok=false; end;
+end
+
+%Main code
+if ok,
+    arg=struct('xini',handles.data.x,'cross',handles.data.cross,'prep',handles.data.prep); 
+    
+    [ccs,av,st] = preprocess3D(handles.data.x,handles.data.prep);
+    
+    txt = cprint(handles.console,'Computing, please wait...',[],0);
+    figure;
+    for i=1:length(pcs),
+        c_2D = unfold(ccs(init(i):fint(i),:,:),lmvs(i));
+        [v{i},cross{i}] = mpvar_pca(c_2D,[],0);
+        subplot(length(pcs),2,2*i-1);
+        plot(v{i},'LineWidth', 2, 'Color', 'b');
+        xlabel('#PCs');
+        axis tight
+        ylabel(sprintf('Phase %d',i),'FontWeight','bold');
+        title('% residual variance','FontWeight','normal');
+        subplot(length(pcs),2,2*i);
+        plot(cross{i},'LineWidth', 2, 'Color', 'r');
+        xlabel('#PCs');
+        axis tight
+        title('ckf','FontWeight','normal');
+        txt = cprint(handles.console,'.',txt,2);
+    end
+    
+    cprint(handles.console,'Done.',txt,1);
+
+else
+    cprint(handles.console,'Check the input for errors.');
+end
