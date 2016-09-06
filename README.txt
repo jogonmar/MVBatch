@@ -1,7 +1,7 @@
 ﻿MVBatch for its use in MATLAB. 
 
 Contact: José María González Martínez (J.Gonzalez-Martinez@shell.com) & José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 11/Jul/16
+Last modification of this document: 06/Sep/16
 
 Installation
 
@@ -11,6 +11,7 @@ Installation
 		- <directory_path>
 		- <directory_path>/modeling
 		- <directory_path>/synchronization
+		- <directory_path>/MEDA-Toolbox
 		- <directory_path>/GUI
 
 

@@ -1608,19 +1608,7 @@ if ok,
     figure;
     for i=1:length(pcs),
         c_2D = unfold(ccs(init(i):fint(i),:,:),lmvs(i));
-        [v{i},cross{i}] = mpvar_pca(c_2D,[],0);
-        subplot(length(pcs),2,2*i-1);
-        plot(v{i},'LineWidth', 2, 'Color', 'b');
-        xlabel('#PCs');
-        axis tight
-        ylabel(sprintf('Phase %d',i),'FontWeight','bold');
-        title('% residual variance','FontWeight','normal');
-        subplot(length(pcs),2,2*i);
-        plot(cross{i},'LineWidth', 2, 'Color', 'r');
-        xlabel('#PCs');
-        axis tight
-        title('ckf','FontWeight','normal');
-        txt = cprint(handles.console,'.',txt,2);
+        var_pca(c_2D); % MEDA Toolbox routine
     end
     
     cprint(handles.console,'Done.',txt,1);
