@@ -1605,10 +1605,13 @@ if ok,
     [ccs,av,st] = preprocess3D(handles.data.x,handles.data.prep);
     
     txt = cprint(handles.console,'Computing, please wait...',[],0);
-    figure;
     for i=1:length(pcs),
         c_2D = unfold(ccs(init(i):fint(i),:,:),lmvs(i));
-        var_pca(c_2D); % MEDA Toolbox routine
+        % ----- MEDA Toolbox ----- %
+        [x_var,cumpress] = var_pca(c_2D,[],0,0); 
+        plot_vec([x_var cumpress/cumpress(1)],0:length(x_var)-1,[],{'#PCs',sprintf('Phase %d',i)},[],0,{'% Res. Var','ckf PRESS'});
+        legend('show');
+        % ----- MEDA Toolbox ----- %
     end
     
     cprint(handles.console,'Done.',txt,1);
