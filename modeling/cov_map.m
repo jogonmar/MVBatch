@@ -69,7 +69,7 @@ xu_ref = preprocess2D(unfold(x_ref,Inf),1);
 s = size(xu);
 so = size(x);
        
-cprint(console,'Processing.... Please, be patient.',[],0);
+cprintMV(console,'Processing.... Please, be patient.',[],0);
                
 switch type,
     
@@ -230,5 +230,5 @@ if opt,
     %set(tit_h,'FontSize',18);
     axis([1,s(2)+1,1,s(2)+1]);
 
-    cprint(console,'',[],-1);
+    cprintMV(console,'',[],-1);
 end

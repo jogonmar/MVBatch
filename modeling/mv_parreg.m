@@ -47,7 +47,7 @@ function [ncpr,npr,cpr,pr] = mv_parreg(x,lag,type,p_min,opt,cumul,console)
 %
 %
 % codified by: José Camacho Páez.
-% last modification: 10/Feb/09.
+% last modification: 08/Sep/16.
 
 % Parameters checking
 
@@ -75,7 +75,7 @@ so = size(x);
 pr = zeros(so(2),lag);
 cpr = zeros(1,lag);
 
-cprint(console,'Processing.... Please, be patient.',[],0);
+cprintMV(console,'Processing.... Please, be patient.',[],0);
                
 switch type,
  
@@ -175,7 +175,7 @@ npr = pr./(tot*ones(1,lag+type-1));
 tot=sum(tot)/so(2);
 ncpr = cpr/tot;
 
-cprint(console,'',[],-1);
+cprintMV(console,'',[],-1);
 
 if opt,
     fig_h = figure;
@@ -190,14 +190,14 @@ if opt,
             axes_h = get(b,'Parent'); 
             set(axes_h,'XTickLabel',strvcat(num2str((1:lag)'),'Res')); 
         end
-        set(axes_h,'FontSize',14);
+        set(axes_h,'FontSize',12);
         xl_h=get(axes_h,'XLabel');
         set(xl_h,'String','LMVs');
-        set(xl_h,'FontSize',18);
+        set(xl_h,'FontSize',14);
         yl_h=get(axes_h,'YLabel');
         set(yl_h,'String','Normalized Mean Sum of Squares');
-        set(yl_h,'FontSize',18);
-%         tit_h=get(axes_h,'Title');    
+        set(yl_h,'FontSize',14);
+        tit_h=get(axes_h,'Title');    
 %         set(tit_h,'FontSize',18);
         axis([0,length(cpr)+1-(type~=1),0,1]);
     else  
@@ -212,18 +212,18 @@ if opt,
             set(axes_h,'XTickLabel',strvcat(num2str((1:lag)'),'Res')); 
         end
 
-        set(axes_h,'FontSize',14);
-%         tit_h=get(axes_h,'Title');
+        set(axes_h,'FontSize',12);
+        tit_h=get(axes_h,'Title');
 %         set(tit_h,'FontSize',20);
         xl_h=get(axes_h,'XLabel');
         set(xl_h,'String','LMVs');
-        set(xl_h,'FontSize',18);
+        set(xl_h,'FontSize',14);
         yl_h=get(axes_h,'YLabel');
         set(yl_h,'String','Variables');
-        set(yl_h,'FontSize',18);
+        set(yl_h,'FontSize',14);
         zl_h=get(axes_h,'ZLabel');
         set(zl_h,'String','Normalized Sum of Squares');
-        set(zl_h,'FontSize',18);     
+        set(zl_h,'FontSize',14);     
         axis([0,length(cpr)+1.5,0.5,so(2)+0.5,0,1]);
         a=get(axes_h,'View');
         set(axes_h,'View',[-a(1),a(2)]);

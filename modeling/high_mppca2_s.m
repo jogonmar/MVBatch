@@ -105,7 +105,7 @@ tree = [cross,pc,arg.lag,phase(1),phase(end)];
 % Repite loop
 
 while repite,
-    text_tot = cprint(console,sprintf('Phase [%d, %d] with %d LVs ....',phase(1),phase(end),pc),text_tot);
+    text_tot = cprintMV(console,sprintf('Phase [%d, %d] with %d LVs ....',phase(1),phase(end),pc),text_tot);
     
     % Add a new PC
     if pc<s(2)*(arg.lag+1),
@@ -147,7 +147,7 @@ while repite,
     if imp1 >= imp2,
         if imp1 > arg.T,
             % Add a PC         
-            text_tot = cprint(console,'Add new PC',text_tot,2);
+            text_tot = cprintMV(console,'Add new PC',text_tot,2);
             
             cross = cross1;
             if ~arg.absolute, baseline = cross1; end;
@@ -160,7 +160,7 @@ while repite,
         repite = false;
         if imp2 > arg.T,
                   
-            text_tot = cprint(console,'Add new Phases',text_tot,2);
+            text_tot = cprintMV(console,'Add new Phases',text_tot,2);
             
             % Recursive call for phase 1
             indx_a = find(clu2==1);

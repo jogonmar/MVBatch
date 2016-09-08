@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 08-Sep-2016 08:45:20
+% Last Modified by GUIDE v2.5 08-Sep-2016 09:21:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -416,7 +416,7 @@ for i_lags=1:length(handles.data.lags),
             for i_minLs=1:length(handles.data.minLs),
                 for i_as=1:length(handles.data.as),
                     text = sprintf('Generating model: LMVs = %d, T = %g, k = %d, minL = %d, a = %d, %s, %s.',handles.data.lags(i_lags),handles.data.Ts(i_Ts),handles.data.ks(i_ks),handles.data.minLs(i_minLs),handles.data.as(i_as),handles.data.preptxt,handles.data.cross.leave_m);
-                    handles.data.text = cprint(handles.console,text,handles.data.text,0);  
+                    handles.data.text = cprintMV(handles.console,text,handles.data.text,0);  
                     [mp_group{i},handles.data.text] = mppca2_s(handles.data.x,handles.data.lags(i_lags),handles.data.Ts(i_Ts),true,handles.data.ks(i_ks),handles.data.minLs(i_minLs),handles.data.as(i_as),handles.data.prep,handles.data.cross,handles.console,handles.data.text);
                     i = 1+i;
                 end
@@ -425,13 +425,12 @@ for i_lags=1:length(handles.data.lags),
     end
 end
 
-handles.data.text = cprint(handles.console,sprintf('%d models generated.',length(mp_group)),handles.data.text,0,2);
+handles.data.text = cprintMV(handles.console,sprintf('%d models generated.',length(mp_group)),handles.data.text,0,2);
 
 handles.data.mp_group = mp_group;
 
 set(handles.pushbuttonMod,'Enable','on');
 set(handles.pushbuttonMon,'Enable','on');
-set(handles.pushbuttonExp,'Enable','on');
 set(handles.popupmenuMod,'Enable','on');
 set(handles.textMod,'Enable','on');
 set(handles.popupmenuPhase,'Enable','on');
@@ -493,12 +492,12 @@ function pushbutton_SS_Callback(hObject, eventdata, handles)
 mp_group2={};
 s = size(handles.data.x);
 
-handles.data.text = cprint(handles.console,' Merging. Please, be patient.',handles.data.text,0);
+handles.data.text = cprintMV(handles.console,' Merging. Please, be patient.',handles.data.text,0);
 
 for i_Tms=1:length(handles.data.Tms),
-    handles.data.text = cprint(handles.console,sprintf('Merging model %d...',i_Tms),handles.data.text);
+    handles.data.text = cprintMV(handles.console,sprintf('Merging model %d...',i_Tms),handles.data.text);
     mp_group2{i_Tms} = fastmix_MP(reduce_group(handles.data.mp_group),handles.data.Tms(i_Tms),handles.data.criterium,true,handles.data.cross);
-    handles.data.text = cprint(handles.console,'Done.',handles.data.text,2);
+    handles.data.text = cprintMV(handles.console,'Done.',handles.data.text,2);
 end
  
 mp_group2 = reduce_group(mp_group2);
@@ -510,7 +509,7 @@ for o=1:length(mp_group2),
 end
 rows=(1:s(3))';
 
-handles.data.text = cprint(handles.console,sprintf('%d different models generated.',length(mp_group2)),handles.data.text);
+handles.data.text = cprintMV(handles.console,sprintf('%d different models generated.',length(mp_group2)),handles.data.text);
 
 contents = get(handles.popupmenuMod,'String');
 set(handles.popupmenuMod,'Value',1);
@@ -783,27 +782,27 @@ contents = get(handles.popupmenuMod,'String');
 model = get(handles.popupmenuMod,'Value');
 line = deblank(contents(model,:));
 
-cprint(handles.console,sprintf(cat(2,'Displaying ',line,': ')),' ',0);
+cprintMV(handles.console,sprintf(cat(2,'Displaying ',line,': ')),' ',0);
 
 if model <= length(handles.data.man_mp_group),          
     model = handles.data.man_mp_group{model};
-    cprint(handles.console,sprintf('PRESS = %g',model.cumpress),' ',2);
+    cprintMV(handles.console,sprintf('PRESS = %g',model.cumpress),' ',2);
 elseif model <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
     model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
-    cprint(handles.console,sprintf('PRESS = %g',model.cumpress),' ',2);
-    cprint(handles.console,' ');
-    cprint(handles.console,sprintf('LMVs = %d, T = %g, k = %d, minL = %d, a = %d, %s, %s.',model.arg.lag,model.arg.T,model.arg.gamma,model.arg.minsize,model.arg.n,handles.data.preptxt,handles.data.cross.leave_m));                       
+    cprintMV(handles.console,sprintf('PRESS = %g',model.cumpress),' ',2);
+    cprintMV(handles.console,' ');
+    cprintMV(handles.console,sprintf('LMVs = %d, T = %g, k = %d, minL = %d, a = %d, %s, %s.',model.arg.lag,model.arg.T,model.arg.gamma,model.arg.minsize,model.arg.n,handles.data.preptxt,handles.data.cross.leave_m));                       
 else
     model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
-    cprint(handles.console,sprintf('PRESS = %g',model.cumpress),' ',2);
-    cprint(handles.console,' ');
-    cprint(handles.console,sprintf('Tm = %g, %s, %s',model.arg.Tm,handles.data.preptxt,handles.data.cross.leave_m)); 
+    cprintMV(handles.console,sprintf('PRESS = %g',model.cumpress),' ',2);
+    cprintMV(handles.console,' ');
+    cprintMV(handles.console,sprintf('Tm = %g, %s, %s',model.arg.Tm,handles.data.preptxt,handles.data.cross.leave_m)); 
 end
-cprint(handles.console,' ');
+cprintMV(handles.console,' ');
 
 sp = size(model.phases);
 for i=1:sp(1),
-    cprint(handles.console,sprintf('From %d to %d, %d PC(s) and %d LMV(s), PRESS = %g',model.phases(i,4),model.phases(i,5),model.phases(i,2),model.phases(i,3),model.phases(i,1)));
+    cprintMV(handles.console,sprintf('From %d to %d, %d PC(s) and %d LMV(s), PRESS = %g',model.phases(i,4),model.phases(i,5),model.phases(i,2),model.phases(i,3),model.phases(i,1)));
 end
 
 
@@ -835,9 +834,9 @@ guidata(hObject, handles);
 
 delete(handles.figure1);
 
-% --- Executes on button press in pushbuttonMVAuto.
-function pushbuttonMVAuto_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonMVAuto (see GCBO)
+% --- Executes on button press in pushbuttonDyn.
+function pushbuttonDyn_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonDyn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -1535,13 +1534,13 @@ if ok,
  
     contents = get(handles.popupmenuMod,'String');
     line = deblank(contents(length(handles.data.man_mp_group),:));
-    cprint(handles.console,sprintf(cat(2,'Displaying ',line,': ')),' ',0);
-    cprint(handles.console,sprintf('PRESS = %g',mp_model.cumpress),' ',2);
-    cprint(handles.console,' ');
+    cprintMV(handles.console,sprintf(cat(2,'Displaying ',line,': ')),' ',0);
+    cprintMV(handles.console,sprintf('PRESS = %g',mp_model.cumpress),' ',2);
+    cprintMV(handles.console,' ');
     
     sp = size(mp_model.phases);
     for i=1:sp(1),
-        cprint(handles.console,sprintf('From %d to %d, %d PC(s) and %d LMV(s), PRESS = %g',mp_model.phases(i,4),mp_model.phases(i,5),mp_model.phases(i,2),mp_model.phases(i,3),mp_model.phases(i,1)));
+        cprintMV(handles.console,sprintf('From %d to %d, %d PC(s) and %d LMV(s), PRESS = %g',mp_model.phases(i,4),mp_model.phases(i,5),mp_model.phases(i,2),mp_model.phases(i,3),mp_model.phases(i,1)));
     end
 
     contents = get(handles.popupmenuCM,'String');
@@ -1562,16 +1561,16 @@ if ok,
 
     guidata(hObject,handles);
 else
-    cprint(handles.console,'Check the input for errors.');  
+    cprintMV(handles.console,'Check the input for errors.');  
 end
 
 
 
 
 
-% --- Executes on button press in pushbuttonPCs.
+% --- Executes on button press in pushbutton21.
 function pushbuttonPCs_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonPCs (see GCBO)
+% hObject    handle to pushbutton21 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -1605,7 +1604,7 @@ if ok,
     
     [ccs,av,st] = preprocess3D(handles.data.x,handles.data.prep);
     
-    txt = cprint(handles.console,'Computing, please wait...',[],0);
+    txt = cprintMV(handles.console,'Computing, please wait...',[],0);
     for i=1:length(pcs),
         c_2D = unfold(ccs(init(i):fint(i),:,:),lmvs(i));
         % ----- MEDA Toolbox ----- %
@@ -1615,21 +1614,45 @@ if ok,
         % ----- MEDA Toolbox ----- %
     end
     
-    cprint(handles.console,'Done.',txt,1);
+    cprintMV(handles.console,'Done.',txt,1);
 
 else
-    cprint(handles.console,'Check the input for errors.');
+    cprintMV(handles.console,'Check the input for errors.');
 end
 
 
-
-
-
-
-
-
-% --- Executes on button press in pushbutton23.
-function pushbutton23_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton23 (see GCBO)
+% --- Executes on button press in pushbuttonExp.
+function pushbuttonExp_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonExp (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+data=handles.data;
+mv=handles.mv;
+no_plot = false;
+if get(handles.radiobutton1,'Value'),    
+   
+    model = get(handles.popupmenuMod,'value');
+    if model <= length(handles.data.man_mp_group),             
+        model = handles.data.man_mp_group{model};
+    elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
+        model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
+    else
+        model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
+    end
+    
+    phase = get(handles.popupmenuPhase,'value');
+    phase = model.phases(phase,:);
+    
+    if phase(4)>phase(5),
+        errordlg('Initial sampling time is posterior to final sampling time.');
+    end
+    xu = unfold(data.x(phase(4):phase(5),:,:),phase(3));
+else
+    if mv.init>mv.fint,
+        errordlg('Initial sampling time is posterior to final sampling time.');
+    end
+    xu = unfold(data.x(mv.init:mv.fint,:,:),0);
+end
+
+PCA(xu);
