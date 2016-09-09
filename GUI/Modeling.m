@@ -1627,6 +1627,15 @@ function pushbuttonExp_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+r2 = get(handles.radiobutton2,'Value');
+
+edit_init2_Callback(handles.edit_init2, eventdata, handles)
+handles=guidata(hObject);
+edit_fint2_Callback(handles.edit_fint2, eventdata, handles)
+handles=guidata(hObject);
+
+set(handles.radiobutton2,'Value',r2);
+
 data=handles.data;
 mv=handles.mv;
 no_plot = false;
