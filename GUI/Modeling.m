@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 08-Sep-2016 09:21:37
+% Last Modified by GUIDE v2.5 12-Sep-2016 06:57:19
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -1627,16 +1627,8 @@ function pushbuttonExp_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-r2 = get(handles.radiobutton2,'Value');
-
-edit_init2_Callback(handles.edit_init2, eventdata, handles)
-handles=guidata(hObject);
-edit_fint2_Callback(handles.edit_fint2, eventdata, handles)
-handles=guidata(hObject);
-
-set(handles.radiobutton2,'Value',r2);
-
 data=handles.data;
+x = preprocess3D(data.x,data.prep);
 mv=handles.mv;
 no_plot = false;
 if get(handles.radiobutton1,'Value'),    
@@ -1656,12 +1648,14 @@ if get(handles.radiobutton1,'Value'),
     if phase(4)>phase(5),
         errordlg('Initial sampling time is posterior to final sampling time.');
     end
-    xu = unfold(data.x(phase(4):phase(5),:,:),phase(3));
+    
+    xu = unfold(x(phase(4):phase(5),:,:),phase(3));
+    PCA(xu,1:phase(2),0);    
 else
     if mv.init>mv.fint,
         errordlg('Initial sampling time is posterior to final sampling time.');
     end
-    xu = unfold(data.x(mv.init:mv.fint,:,:),0);
+    xu = unfold(x(mv.init:mv.fint,:,:),0);
+    PCA(xu,[],0);  
 end
 
-PCA(xu);
