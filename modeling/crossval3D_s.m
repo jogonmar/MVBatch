@@ -164,7 +164,7 @@ for i=1:blocks_r,
     
                 % Leave-n-batches-out cross_validation
                 case 'rkf',
-                    p = pca(c_2D,'Centered',false,'NumComponents',pc);
+                    p =  pcamv(c_2D,'Centered',false,'NumComponents',pc);
                     t_est = s_2D*p;
                     srec_2D = t_est*p';                   
                     srec_3D = scs(indx2,:,:)-fold(srec_2D,length(ind_i),lag,fold_m); 
@@ -172,7 +172,7 @@ for i=1:blocks_r,
                 % Leave-n-samples-out cross_validation based on zero
                 % values.
                 case 'skf',
-                    p = pca(c_2D,'Centered',false,'NumComponents',pc);
+                    p =  pcamv(c_2D,'Centered',false,'NumComponents',pc);
                     t_est = s_2D*p;
                     srec_2D = t_est*p';
                     erec_2D = s_2D - srec_2D;
@@ -185,7 +185,7 @@ for i=1:blocks_r,
                 % Leave-n-samples-out cross_validation based on zero
                 % values until convergence.
                 case 'iskf',
-                    p = pca(c_2D,'Centered',false,'NumComponents',pc);
+                    p =  pcamv(c_2D,'Centered',false,'NumComponents',pc);
                     t_est = s_2D*p;
                     srec_2D = t_est*p';
                     erec_2D = s_2D - srec_2D;
@@ -199,7 +199,7 @@ for i=1:blocks_r,
                 % values 
                 case 'cskf',
 
-                    [p,t] = pca(c_2D,pc);
+                    [p,t] =  pcamv(c_2D,pc);
                     [rec,av] = preprocess2D(t);
 
                     rec_sam=s_2D*p;
@@ -207,7 +207,7 @@ for i=1:blocks_r,
                         rec_sam(j,:) = (rec_sam(j,:)-av);
                     end
 
-                    p2 = pca([c_2D rec],pc);
+                    p2 =  pcamv([c_2D rec],pc);
                     s_2D2 = [s_2D rec_sam];
                     t_est = s_2D2*p2;
                     srec_2D = t_est*p2';
