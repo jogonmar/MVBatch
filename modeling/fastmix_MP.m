@@ -46,15 +46,31 @@ function [best,mp_group2] = fastmix_MP(mp_group,Tm,criterium,cross_group,cross)
 %
 % OUTPUTS:
 %
-% best: (structure) MP model (use the command "help MP_toolbox_h" for
+% best: (structure) MP model (use the command "help info" for
 %       more info) resulting from the best mixture of MPPCA models.
 %
 % mp_group2: (cell) total set of MPPCA models generated.
 %
 %
-% codified by: José Camacho Páez.
-% version: 1.0
-% last modification: 09/Feb/09.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 09/Feb/09
+%
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 % Parameters checking
 

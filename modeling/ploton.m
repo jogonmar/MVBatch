@@ -2,14 +2,14 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 
 % Plots the D-statistic and SPE charts for on-line monitoring. 
 %
-% [hi95,ri95,hi,ri]=ploteaon(hotelling,residuals,resmod,lotes,tg,pc,opt) 
+% [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt) 
 %   % call with standard parameters
 %
-% [hi95,ri95,hi,ri]=ploteaon(hotelling,residuals,resmod,lotes,tg,pc,opt,
+% [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,
 %   alph,alpr,alph95,alpr95) % output in MATLAB console
 %
-% [hi95,ri95,hi,ri]=ploteaon(hotelling,residuals,resmod,lotes,tg,pc,opt,
-%   alph,alpr,alph95,alpr95,axes1,axes2) % complete call
+% [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,
+%   alph,alpr,alph95,alpr95,s_sBn,axes1,axes2) % complete call
 %
 %
 % INPUTS:
@@ -66,11 +66,26 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 %   batch exceeds the 99% control limit and 0s in the rest.
 %
 %
-% codified by: José Camacho Páez.
-% version: 0.0
-% last modification: 13/Dic/11 by José M. González Martínez. The input
-% parameter 's_sBn' has been added to control the number of samples to be
-% plotted.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+%           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
+% last modification: 13/Sep/16
+%
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 % Parameters checking
 
@@ -153,15 +168,15 @@ limbr=[];
 for i=1:s(1),   
    
    % Estimation of the SPE control limits following Box's approximation
-    sumRes = sum(resmod(:,:,i).^2,2);    
-    m = mean(sumRes);
-    v = var(sumRes);
+%     sumRes = sum(resmod(:,:,i).^2,2);    
+%     m = mean(sumRes);
+%     v = var(sumRes);
     %limar=[limar (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v)];         
     %limbr=[limbr (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)];             
    % Estimation of the SPE control limits following Jackson & Mudholkar's
    % approach
-     limar=[limar spe_lim(resmod(:,:,i),0.05)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
-     limbr=[limbr spe_lim(resmod(:,:,i),0.01)]; % limite al 99% de conf.
+     limar=[limar spe_lim(resmod(:,:,i),alpr95)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
+     limbr=[limbr spe_lim(resmod(:,:,i),alpr)]; % limite al 99% de conf.
 end
 
 res = residuals;

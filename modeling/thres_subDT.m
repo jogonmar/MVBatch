@@ -7,7 +7,7 @@ function  mp_model2 = thres_subDT(mp_model,Tm)
 %
 % INPUTS:
 %
-% mp_model: (structure) input MP model (use the command "help MP_toolbox_h" for
+% mp_model: (structure) input MP model (use the command "help info" for
 %       more info)
 %
 % Tm: (1x1) improvement threshold for subdivision.
@@ -15,13 +15,28 @@ function  mp_model2 = thres_subDT(mp_model,Tm)
 %
 % OUTPUTS:
 %
-% mp_model2: (structure) output MP model (use the command "help MP_toolbox_h" for
+% mp_model2: (structure) output MP model (use the command "help info" for
 %       more info)
 %
 %
-% codified by: José Camacho Páez.
-% version: 2.0
-% last modification: 09/Feb/2009.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 09/Feb/2009
+%
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Parameters checking
 

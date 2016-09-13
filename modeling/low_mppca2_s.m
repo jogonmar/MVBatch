@@ -42,9 +42,24 @@ function q2 = low_mppca2_s(x,pc,lag,minsize,prep,leave_m)
 % q2: (Kx1) Index of convenience of division in each sampling time.
 %
 %
-% codified by: José Camacho Páez.
-% version: 2.0
-% last modification: 20/May/09.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 20/May/09
+%
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Parameters checking
 

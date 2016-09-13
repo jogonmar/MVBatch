@@ -9,7 +9,8 @@ function [pdet,ph,pr,detect,h,r,ph95,pr95,h95,r95,t,q]=plot_onstat(xini, test, p
 %   prep, opt, alph, alpr, alph95, alpr95) % output in MATLAB console
 %
 % [pdet,ph,pr,detect,h,r,ph95,pr95,h95,r95,t,q] = plot_onstat(xini, test, phases, 
-%   prep, opt, alph, alpr, alph95, alpr95, axes1, axes2) % complete call
+%   prep, opt, alph, alpr, alph95, alpr95, axes1, axes2, alpoh, alpor, alpoh95, 
+%   alpor95, axes3, axes4, posTest) % complete call
 %
 %
 % INPUTS:
@@ -73,7 +74,8 @@ function [pdet,ph,pr,detect,h,r,ph95,pr95,h95,r95,t,q]=plot_onstat(xini, test, p
 % axes4: handle to the axes where the overall SPE chart is plotted.
 %
 % postTest: position on the graph of the values estimated for the test batch. 
-
+%
+%
 % OUTPUTS:
 %
 % pdet: (1x1) percentage of sampling times where either the D-statistic
@@ -113,11 +115,25 @@ function [pdet,ph,pr,detect,h,r,ph95,pr95,h95,r95,t,q]=plot_onstat(xini, test, p
 % q: (1xK) SPE values for the test batch.
 %
 %
-% codified by: José Camacho Páez.
-% version: 0.0
-% last modification: 13/Dic/11 by José M. González Martínez. The input
-% parameter 's_sBn' has been added to control the number of samples to be
-% plotted.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+%           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
+% last modification: 13/Dic/11
+%
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
 % Parameters checking

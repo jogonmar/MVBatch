@@ -6,8 +6,8 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 % [alph,alpr,alph95,alpr95]=plot_distcv(xini, phases, prep, opt) 
 %    % call with standard parameters
 %
-% [alph,alpr,alph95,alpr95]=plot_distcv(xini, phases, prep, opt, axes1, 
-%   axes2) % complete call
+% [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plot_distcv(xini, phases, prep, opt, axes1, 
+%   axes2,axes3,axes4) % complete call
 %
 %
 % INPUTS:
@@ -41,6 +41,7 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 %
 % axes4: handle to the axes where the offline SPE chart is plotted.
 %
+%
 % OUTPUTS:
 %
 % alph: suggested imposed significance level (alpha) for the 99% confidence 
@@ -66,10 +67,27 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 %
 % alpor95: suggested imposed significance level (alpha) for the 95% confidence 
 %   limit in the overall SPE.
+%
 % 
-% codified by: J. Camacho and J.M. Gonzalez-Martinez.
-% version: 0.1
-% last modification: August/14.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+%           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
+% last modification: 1/Aug/14
+%
+% Copyright (C) 2014  University of Granada, Granada
+% Copyright (C) 2014  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Parameters checking
 
