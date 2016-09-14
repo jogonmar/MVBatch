@@ -32,9 +32,10 @@ function q2 = low_mppca2_s(x,pc,lag,minsize,prep,leave_m)
 %       5: 4 + variable-scaling. 
 % leave_m: (text) cross-validation procedure:
 %   'rkf': row-wise k-fold cross-validation.
-%   'skf': sample-wise k-fold cross-validation (by default).
-%   'iskf': iterative sample-wise k-fold cross-validation.
-%   'cskf': cross-corrected sample-wise k-fold cross-validation. 
+%   'ekf': sample-wise k-fold cross-validation.
+%   'iekf': iterative sample-wise k-fold cross-validation.
+%   'cekf': cross-corrected sample-wise k-fold cross-validation. 
+%   'ckf': column-wise k-fold cross-validation (by default). 
 %
 %
 % OUTPUTS:
@@ -43,7 +44,7 @@ function q2 = low_mppca2_s(x,pc,lag,minsize,prep,leave_m)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/May/09
+% last modification: 14/Sep/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -67,7 +68,7 @@ if nargin < 2, error('Error in the number of arguments.'); end;
 if nargin < 3, lag = 0; end;
 if nargin < 4, minsize = 1; end;
 if nargin < 5, prep = 2; end;
-if nargin < 6, leave_m = 'skf'; end;
+if nargin < 6, leave_m = 'ckf'; end;
 
 if ndims(x)~=3, error('Incorrect number of dimensions of x.'); end;
 s = size(x);

@@ -11,9 +11,10 @@ function cross=cross_parameters(leave_m,blocks_r,blocks_c,fold_m,order)
 %
 % leave_m: (text) cross-validation procedure:
 %   'rkf': row-wise k-fold cross-validation.
-%   'skf': sample-wise k-fold cross-validation (by default).
-%   'iskf': iterative sample-wise k-fold cross-validation.
-%   'cskf': cross-corrected sample-wise k-fold cross-validation. 
+%   'ekf': sample-wise k-fold cross-validation (by default).
+%   'iekf': iterative sample-wise k-fold cross-validation.
+%   'cekf': cross-corrected sample-wise k-fold cross-validation. 
+%   'ckf': column-wise k-fold cross-validation (by default). 
 %
 % blocks_r: (1x1) maximum number of blocks of samples (Inf by default)
 %
@@ -50,7 +51,7 @@ function cross=cross_parameters(leave_m,blocks_r,blocks_c,fold_m,order)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/May/09
+% last modification: 14/Sep/09
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -70,7 +71,7 @@ function cross=cross_parameters(leave_m,blocks_r,blocks_c,fold_m,order)
 
 % Parameters checking
 
-if nargin < 1, leave_m = 'skf'; end;
+if nargin < 1, leave_m = 'ckf'; end;
 if nargin < 2, blocks_r = Inf; end;
 if nargin < 3, blocks_c = Inf; end;
 if nargin < 4, fold_m = 'first'; end;

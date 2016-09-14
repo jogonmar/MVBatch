@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 12-Sep-2016 06:57:19
+% Last Modified by GUIDE v2.5 14-Sep-2016 08:05:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -1257,10 +1257,7 @@ function LnBOMenuItem_Callback(hObject, eventdata, handles)
 handles.data.cross.leave_m = 'rkf';
 guidata(hObject,handles);
 
-set(handles.LnBOMenuItem,'Checked','on')
-set(handles.LnSOMenuItem,'Checked','off')
-set(handles.LnSO2MenuItem,'Checked','off')
-set(handles.CCLnSOMenuItem,'Checked','off')
+
 
 % --------------------------------------------------------------------
 function LnSOMenuItem_Callback(hObject, eventdata, handles)
@@ -1268,42 +1265,10 @@ function LnSOMenuItem_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles.data.cross.leave_m = 'skf';
+handles.data.cross.leave_m = 'ekf';
 guidata(hObject,handles);
 
-set(handles.LnBOMenuItem,'Checked','off')
-set(handles.LnSOMenuItem,'Checked','on')
-set(handles.LnSO2MenuItem,'Checked','off')
-set(handles.CCLnSOMenuItem,'Checked','off')
 
-
-% --------------------------------------------------------------------
-function LnSO2MenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to LnSO2MenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-handles.data.cross.leave_m = 'iskf';
-guidata(hObject,handles);
-
-set(handles.LnBOMenuItem,'Checked','off')
-set(handles.LnSOMenuItem,'Checked','off')
-set(handles.LnSO2MenuItem,'Checked','on')
-set(handles.CCLnSOMenuItem,'Checked','off')
-
-% --------------------------------------------------------------------
-function CCLnSOMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to CCLnSOMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-handles.data.cross.leave_m = 'cskf';
-guidata(hObject,handles);
-
-set(handles.LnBOMenuItem,'Checked','off')
-set(handles.LnSOMenuItem,'Checked','off')
-set(handles.LnSO2MenuItem,'Checked','off')
-set(handles.CCLnSOMenuItem,'Checked','on')
 
 
 % --------------------------------------------------------------------
@@ -1659,3 +1624,14 @@ else
     PCA(xu,[],0);  
 end
 
+
+
+
+% --------------------------------------------------------------------
+function ckfMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to ckfMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.data.cross.leave_m = 'ckf';
+guidata(hObject,handles);

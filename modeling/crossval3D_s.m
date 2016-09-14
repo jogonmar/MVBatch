@@ -23,9 +23,10 @@ function [cumpress,press,pem] = crossval3D_s(x,pc,lag,clu,leave_m,blocks_r,block
 %
 % leave_m: (text) cross-validation procedure:
 %   'rkf': row-wise k-fold cross-validation.
-%   'skf': sample-wise k-fold cross-validation (by default).
-%   'iskf': iterative sample-wise k-fold cross-validation.
-%   'cskf': cross-corrected sample-wise k-fold cross-validation. 
+%   'ekf': sample-wise k-fold cross-validation.
+%   'iekf': iterative sample-wise k-fold cross-validation.
+%   'cekf': cross-corrected sample-wise k-fold cross-validation. 
+%   'ckf': column-wise k-fold cross-validation (by default). 
 %
 % blocks_r: (1x1) maximum number of blocks of samples (min(I,30) by default)
 %
@@ -65,7 +66,7 @@ function [cumpress,press,pem] = crossval3D_s(x,pc,lag,clu,leave_m,blocks_r,block
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 20/May/09
+% last modification: 14/Sep/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -94,17 +95,17 @@ s = size(x);
 if find(s<1), error('Incorrect content of x.'); end;
 
 if nargin < 4, clu = ones(s(1),1); end;
-if nargin < 5, leave_m = 'skf'; end;
+if nargin < 5, leave_m = 'ckf'; end;
 if nargin < 6, blocks_r = min(s(3),30); end;
 if nargin < 7, blocks_c = Inf; end;
 if nargin < 8, fold_m = 'first'; end;
 if nargin < 9, prep = 2; end;
 if nargin < 10, order.input = false; end;
 
-if ~isequal(leave_m,'skf'),
+if ~isequal(leave_m,'ekf'),
     error(-1)
     disp('Not all the functionality is avaiable in this version')
-    leave_m = 'skf'
+    leave_m = 'ekf'
 end;
 
 if pc<0, error('Incorrect value of pc.'); end;
@@ -136,134 +137,160 @@ end
 elem_r=s(3)/blocks_r;
 
 % Cross-validation
-for i=1:blocks_r,
-    ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection %COMPROBAR
-    i2 = ones(s(3),1);
-    i2(ind_i)=0;
-    sample = x(:,:,ind_i);
-    calibr = x(:,:,find(i2)); 
+if isequal(lower(leave_m),'ckf')
     
-    [ccs,av,st] = preprocess3D(calibr,prep);
+    [ccs,av,st] = preprocess3D(x,prep);
     
-    sc=sample;
-    scs=sample;
-    for j=1:length(ind_i),
-        scs(:,:,j) = (sc(:,:,j)-av)./st;
-    end
-            
     if pc > 0, % PCA Modelling
         m = max(clu);
-        srec_3D = zeros(size(sample));
-            
-        for o=1:m, % Phases
+
+        for o=1:m,
             indx = find(clu==o);
             indx2 = [(max(1,indx(1)-lag):indx(1)-1)';indx];
-         
-            c_2D =unfold(ccs(indx2,:,:),lag);
-            sizc=size(c_2D);
-            s_2D = unfold(scs(indx2,:,:),lag);
-            sizs=size(s_2D);
-            
-            avc_prep=ones(sizc(1),1)*mean(c_2D);
-            avs_prep=ones(sizs(1),1)*mean(c_2D);
-            
-            if ~order.input,
-                cols = rand(1,sizs(2));
-            else
-                cols = order.cols(1:sizs(2));
-            end            
-            [a,c_ind]=sort(cols);
-            elem_c=sizs(2)/blocks_c;
-            
-            srec_2D=[];
-            pem_2D=[];    
-            switch lower(leave_m)
-    
-                % Leave-n-batches-out cross_validation
-                case 'rkf',
-                    p =  pcamv(c_2D,'Centered',false,'NumComponents',pc);
-                    t_est = s_2D*p;
-                    srec_2D = t_est*p';                   
-                    srec_3D = scs(indx2,:,:)-fold(srec_2D,length(ind_i),lag,fold_m); 
-                    
-                % Leave-n-samples-out cross_validation based on zero
-                % values.
-                case 'skf',
-                    p =  pcamv(c_2D,'Centered',false,'NumComponents',pc);
-                    t_est = s_2D*p;
-                    srec_2D = t_est*p';
-                    erec_2D = s_2D - srec_2D;
-                    for j=1:blocks_c,
-                        ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection                                  
-                        pem_2D(1:sizs(1),ind_j) = (s_2D(:,ind_j)-avs_prep(:,ind_j))*(p(ind_j,:)*p(ind_j,:)') + erec_2D(:,ind_j);
-                    end
-                    srec_3D = fold(pem_2D,length(ind_i),lag,fold_m);
-
-                % Leave-n-samples-out cross_validation based on zero
-                % values until convergence.
-                case 'iskf',
-                    p =  pcamv(c_2D,'Centered',false,'NumComponents',pc);
-                    t_est = s_2D*p;
-                    srec_2D = t_est*p';
-                    erec_2D = s_2D - srec_2D;
-                    for j=1:blocks_c,
-                        ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection    
-                        pem_2D(1:sizs(1),ind_j) = (inv(eye(length(ind_j))-p(ind_j,:)*p(ind_j,:)') * erec_2D(:,ind_j)')';
-                    end
-                    srec_3D = fold(pem_2D,length(ind_i),lag,fold_m);
                 
-                % Cross-valiadtion corrected-leave-n-samples-out cross_validation based on zero
-                % values 
-                case 'cskf',
-
-                    [p,t] =  pcamv(c_2D,pc);
-                    [rec,av] = preprocess2D(t);
-
-                    rec_sam=s_2D*p;
-                    for j=1:length(ind_i),
-                        rec_sam(j,:) = (rec_sam(j,:)-av);
-                    end
-
-                    p2 =  pcamv([c_2D rec],pc);
-                    s_2D2 = [s_2D rec_sam];
-                    t_est = s_2D2*p2;
-                    srec_2D = t_est*p2';
-                    erec_2D = s_2D2 - srec_2D;
-                    for j=1:blocks_c,                    
-                        ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
-                        pem_2D(1:sizs(1),ind_j) = (s_2D2(:,ind_j)-avs_prep(:,ind_j))*(p2(ind_j,:)*p2(ind_j,:)') + erec_2D(:,ind_j);
-                    end
+            c_2D =unfold(ccs(indx2,:,:),lag);
+            
+            [P,T] =  pcamv(c_2D,pc);
+            cumpressP(o) = ckf(c_2D,T,P);
+        end
+        
+        cumpress = sum(cumpressP);
+        
+   else % Modelling with the average
+            pem = ccs;
+            press = sum(sum(pem.^2,3),2);
+            cumpress = sum(press(find(clu)));
+   end
+else
+    for i=1:blocks_r,
+        ind_i = r_ind(round((i-1)*elem_r+1):round(i*elem_r)); % Sample selection %COMPROBAR
+        i2 = ones(s(3),1);
+        i2(ind_i)=0;
+        sample = x(:,:,ind_i);
+        calibr = x(:,:,find(i2));
+        
+        [ccs,av,st] = preprocess3D(calibr,prep);
+        
+        sc=sample;
+        scs=sample;
+        for j=1:length(ind_i),
+            scs(:,:,j) = (sc(:,:,j)-av)./st;
+        end
+        
+        if pc > 0, % PCA Modelling
+            m = max(clu);
+            srec_3D = zeros(size(sample));
+            
+            for o=1:m, % Phases
+                indx = find(clu==o);
+                indx2 = [(max(1,indx(1)-lag):indx(1)-1)';indx];
+                
+                c_2D =unfold(ccs(indx2,:,:),lag);
+                sizc=size(c_2D);
+                s_2D = unfold(scs(indx2,:,:),lag);
+                sizs=size(s_2D);
+                
+                avc_prep=ones(sizc(1),1)*mean(c_2D);
+                avs_prep=ones(sizs(1),1)*mean(c_2D);
+                
+                if ~order.input,
+                    cols = rand(1,sizs(2));
+                else
+                    cols = order.cols(1:sizs(2));
+                end
+                [a,c_ind]=sort(cols);
+                elem_c=sizs(2)/blocks_c;
+                
+                srec_2D=[];
+                pem_2D=[];
+                switch lower(leave_m)
                     
-                    srec_3D = fold(pem_2D,length(ind_i),lag,fold_m);
-                    
-                otherwise
-                    error('Incorrect leave_m.');
-
-            end
-              
-            ini=find(indx2==indx(1));
-            pem(indx,:,ind_i) = srec_3D(ini:end,:,:);
-                 
-            if isequal(lower(fold_m),'mean'), % Error correction between phases
-                if indx(1)>lag+1,
-                    w_ind=(indx(1)-lag:indx(1)-1);    
-                    w1=(length(w_ind):-1:1)'*ones(1,s(2));
-                    w2=(1:length(w_ind))'*ones(1,s(2));
-                    w2=min(w2,length(indx));
-                    
-                    for j=1:length(ind_i); 
-                        pem(w_ind,:,ind_i(j)) = (w1.*pem(w_ind,:,ind_i(j)) + w2.*srec_3D(1:ini-1,:,j))./(w1+w2);
+                    % Leave-n-batches-out cross_validation
+                    case 'rkf',
+                        p =  pcamv(c_2D,pc);
+                        t_est = s_2D*p;
+                        srec_2D = t_est*p';
+                        srec_3D = scs(indx2,:,:)-fold(srec_2D,length(ind_i),lag,fold_m);
+                        
+                        % Leave-n-samples-out cross_validation based on zero
+                        % values.
+                    case 'ekf',
+                        p =  pcamv(c_2D,pc);
+                        t_est = s_2D*p;
+                        srec_2D = t_est*p';
+                        erec_2D = s_2D - srec_2D;
+                        for j=1:blocks_c,
+                            ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
+                            pem_2D(1:sizs(1),ind_j) = (s_2D(:,ind_j)-avs_prep(:,ind_j))*(p(ind_j,:)*p(ind_j,:)') + erec_2D(:,ind_j);
+                        end
+                        srec_3D = fold(pem_2D,length(ind_i),lag,fold_m);
+                        
+                        % Leave-n-samples-out cross_validation based on zero
+                        % values until convergence.
+                    case 'iekf',
+                        p =  pcamv(c_2D,pc);
+                        t_est = s_2D*p;
+                        srec_2D = t_est*p';
+                        erec_2D = s_2D - srec_2D;
+                        for j=1:blocks_c,
+                            ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
+                            pem_2D(1:sizs(1),ind_j) = (inv(eye(length(ind_j))-p(ind_j,:)*p(ind_j,:)') * erec_2D(:,ind_j)')';
+                        end
+                        srec_3D = fold(pem_2D,length(ind_i),lag,fold_m);
+                        
+                        % Cross-valiadtion corrected-leave-n-samples-out cross_validation based on zero
+                        % values
+                    case 'cekf',
+                        
+                        [p,t] =  pcamv(c_2D,pc);
+                        [rec,av] = preprocess2D(t);
+                        
+                        rec_sam=s_2D*p;
+                        for j=1:length(ind_i),
+                            rec_sam(j,:) = (rec_sam(j,:)-av);
+                        end
+                        
+                        p2 =  pcamv([c_2D rec],pc);
+                        s_2D2 = [s_2D rec_sam];
+                        t_est = s_2D2*p2;
+                        srec_2D = t_est*p2';
+                        erec_2D = s_2D2 - srec_2D;
+                        for j=1:blocks_c,
+                            ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
+                            pem_2D(1:sizs(1),ind_j) = (s_2D2(:,ind_j)-avs_prep(:,ind_j))*(p2(ind_j,:)*p2(ind_j,:)') + erec_2D(:,ind_j);
+                        end
+                        
+                        srec_3D = fold(pem_2D,length(ind_i),lag,fold_m);
+                        
+                    otherwise
+                        error('Incorrect leave_m.');
+                        
+                end
+                
+                ini=find(indx2==indx(1));
+                pem(indx,:,ind_i) = srec_3D(ini:end,:,:);
+                
+                if isequal(lower(fold_m),'mean'), % Error correction between phases
+                    if indx(1)>lag+1,
+                        w_ind=(indx(1)-lag:indx(1)-1);
+                        w1=(length(w_ind):-1:1)'*ones(1,s(2));
+                        w2=(1:length(w_ind))'*ones(1,s(2));
+                        w2=min(w2,length(indx));
+                        
+                        for j=1:length(ind_i);
+                            pem(w_ind,:,ind_i(j)) = (w1.*pem(w_ind,:,ind_i(j)) + w2.*srec_3D(1:ini-1,:,j))./(w1+w2);
+                        end
                     end
                 end
             end
-        end 
-
-    else % Modelling with the average
-        pem(:,:,ind_i) = scs;
+            
+        else % Modelling with the average
+            pem(:,:,ind_i) = scs;
+        end
+        
     end
 
+    press = sum(sum(pem.^2,3),2);
+
+    cumpress = sum(press(find(clu)));
 end
-
-press = sum(sum(pem.^2,3),2);
-
-cumpress = sum(press(find(clu)));
