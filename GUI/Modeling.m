@@ -78,7 +78,7 @@ if length(varargin)>0,
         cross.order.cols=rand(1,s(2)*s(1));
         cross.order.rows=rand(1,s(3)); 
     end
-    cross.leave_m = 'skf';
+    cross.leave_m = 'ckf';
     handles.data.cross = cross;
    
     if ~isempty(find(isnan(handles.data.x))), 
@@ -1248,25 +1248,6 @@ set(handles.VCVSMenuItem,'Checked','on')
 
 
 
-% --------------------------------------------------------------------
-function LnBOMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to LnBOMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-handles.data.cross.leave_m = 'rkf';
-guidata(hObject,handles);
-
-
-
-% --------------------------------------------------------------------
-function LnSOMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to LnSOMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-handles.data.cross.leave_m = 'ekf';
-guidata(hObject,handles);
 
 
 
@@ -1626,6 +1607,31 @@ end
 
 
 
+% --------------------------------------------------------------------
+function LnBOMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to LnBOMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.data.cross.leave_m = 'rkf';
+guidata(hObject,handles);
+
+set(handles.LnBOMenuItem,'Checked','on')
+set(handles.LnSOMenuItem,'Checked','off')
+set(handles.ckfMenuItem,'Checked','off')
+
+% --------------------------------------------------------------------
+function LnSOMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to LnSOMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+handles.data.cross.leave_m = 'ekf';
+guidata(hObject,handles);
+
+set(handles.LnBOMenuItem,'Checked','off')
+set(handles.LnSOMenuItem,'Checked','on')
+set(handles.ckfMenuItem,'Checked','off')
 
 % --------------------------------------------------------------------
 function ckfMenuItem_Callback(hObject, eventdata, handles)
@@ -1635,3 +1641,7 @@ function ckfMenuItem_Callback(hObject, eventdata, handles)
 
 handles.data.cross.leave_m = 'ckf';
 guidata(hObject,handles);
+
+set(handles.LnBOMenuItem,'Checked','off')
+set(handles.LnSOMenuItem,'Checked','off')
+set(handles.ckfMenuItem,'Checked','on')

@@ -127,7 +127,6 @@ pc = n;
 clu = [ones(s(1),1)];
 mp_model=struct('type','SW-Div','arg',arg,'pcs',n,'clu',clu);
 
-
 % Greedy search
 
 cumpress = crossval3D_s(x,n,lag,clu,cross.leave_m,cross.blocks_r,cross.blocks_c,cross.fold_m,prep,cross.order);

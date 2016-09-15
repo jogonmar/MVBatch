@@ -66,7 +66,7 @@ function [cumpress,press,pem] = crossval3D_s(x,pc,lag,clu,leave_m,blocks_r,block
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 14/Sep/16
+% last modification: 15/Sep/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -101,12 +101,6 @@ if nargin < 7, blocks_c = Inf; end;
 if nargin < 8, fold_m = 'first'; end;
 if nargin < 9, prep = 2; end;
 if nargin < 10, order.input = false; end;
-
-if ~isequal(leave_m,'ekf'),
-    error(-1)
-    disp('Not all the functionality is avaiable in this version')
-    leave_m = 'ekf'
-end;
 
 if pc<0, error('Incorrect value of pc.'); end;
 if lag<0, error('Incorrect value of lag.'); end;
@@ -151,15 +145,29 @@ if isequal(lower(leave_m),'ckf')
             c_2D =unfold(ccs(indx2,:,:),lag);
             
             [P,T] =  pcamv(c_2D,pc);
-            cumpressP(o) = ckf(c_2D,T,P);
+            [cpress,press,term1,term2,term3] = ckf(c_2D,T,P,0);
+            pem_2D = term1 + term2 + term3;
+            srec_3D = fold(pem_2D,s(3),lag,fold_m);
+                        
+            ini=find(indx2==indx(1));
+            pem(indx,:,:) = srec_3D(ini:end,:,:);
+            
+            if isequal(lower(fold_m),'mean'), % Error correction between phases
+                if indx(1)>lag+1,
+                    w_ind=(indx(1)-lag:indx(1)-1);
+                    w1=(length(w_ind):-1:1)'*ones(1,s(2));
+                    w2=(1:length(w_ind))'*ones(1,s(2));
+                    w2=min(w2,length(indx));
+                    
+                    for j=1:length(ind_i);
+                        pem(w_ind,:,ind_i(j)) = (w1.*pem(w_ind,:,ind_i(j)) + w2.*srec_3D(1:ini-1,:,j))./(w1+w2);
+                    end
+                end
+            end
         end
-        
-        cumpress = sum(cumpressP);
-        
+              
    else % Modelling with the average
-            pem = ccs;
-            press = sum(sum(pem.^2,3),2);
-            cumpress = sum(press(find(clu)));
+       pem = ccs;
    end
 else
     for i=1:blocks_r,
@@ -289,8 +297,8 @@ else
         end
         
     end
-
-    press = sum(sum(pem.^2,3),2);
-
-    cumpress = sum(press(find(clu)));
 end
+
+press = sum(sum(pem.^2,3),2);
+
+cumpress = sum(press(find(clu)));
