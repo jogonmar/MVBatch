@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 14-Sep-2016 08:05:02
+% Last Modified by GUIDE v2.5 16-Sep-2016 13:47:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -1645,3 +1645,11 @@ guidata(hObject,handles);
 set(handles.LnBOMenuItem,'Checked','off')
 set(handles.LnSOMenuItem,'Checked','off')
 set(handles.ckfMenuItem,'Checked','on')
+
+
+% --- If Enable == 'on', executes on mouse press in 5 pixel border.
+% --- Otherwise, executes on mouse press in 5 pixel border or over console.
+function console_ButtonDownFcn(hObject, eventdata, handles)
+% hObject    handle to console (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)

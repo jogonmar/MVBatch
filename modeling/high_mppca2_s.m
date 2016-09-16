@@ -67,7 +67,7 @@ function [mp_model,text_tot] = high_mppca2_s(arg,clu_ini,pc_ini,cumpress,console
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 15/Sep/16
+% last modification: 16/Sep/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -164,7 +164,7 @@ while repite,
         repite = false;
         if imp2 > arg.T,
                   
-            text_tot = cprintMV(console,'Add new Phases',text_tot,2);
+            text_tot = cprintMV(console,'Add new Division in Phases',text_tot,2);
             
             % Recursive call for phase 1
             indx_a = find(clu2==1);

@@ -1,11 +1,11 @@
-function [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cross,console,text_tot)
+function [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cumpress,console,text_tot)
 
 % Top-Down step, high-level procedure of MPPCA.
 % Division in the samples of the unfolded data. The improvement measure is
 % the summed square error. 
 %
-% [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cross) % Output in MATLAB console
-% [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cross,console,text_tot) % Complete call
+% [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cumpress) % Output in MATLAB console
+% [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cumpress,console,text_tot) % Complete call
 %
 %
 % INPUTS:
@@ -51,18 +51,7 @@ function [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cross,console,tex
 %
 % pc_ini: (1x1) initial number of PCs.
 %
-% cross: (structure) the parameters.  
-%   cross.leave_m: (text) cross-validation procedure
-%   cross.blocks_r: (1x1) maximum number of blocks of samples
-%   cross.blocks_c: (1x1) maximum number of blocks of variables
-%   cross.fold_m: (text) folding method
-%   cross.order: (structure) to define a constant random ordering of columns and
-%       rows.
-%       cross.order.input: (boolean)
-%           true: take ordering from the structure.
-%           false: compute it ramdomly (by default).
-%       cross.order.cols: (1xn_cols) columns ordering.
-%       cross.order.rows: (1xn_rows) rows ordering.
+% cumpress: (1x1) reference cummulative press.
 %
 % console: (1x1) handle of the EditText of the interface, 0 stands for the
 %   MATLAB console (by default)
@@ -79,7 +68,7 @@ function [mp_model,text_tot] = high_mppca_s(arg,clu_ini,pc_ini,cross,console,tex
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 31/Oct/08
+% last modification: 16/Sep/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -109,7 +98,7 @@ if nargin < 6, text_tot = []; end;
 if arg.absolute
     baseline = crossval3D_s(arg.xini,0,arg.lag,clu_ini,arg.cross.leave_m,arg.cross.blocks_r,arg.cross.blocks_c,arg.cross.fold_m,arg.prep,arg.cross.order);
 else
-    baseline = cross;
+    baseline = cumpress;
 end
 
 repite = true;
@@ -117,7 +106,7 @@ pc = pc_ini;
 clu = clu_ini;
 s = size(arg.xini);
 phase=find(clu_ini);
-tree = [cross,pc,arg.lag,phase(1),phase(end)]; 
+tree = [cumpress,pc,arg.lag,phase(1),phase(end)]; 
 
 % Repite loop
 
@@ -126,27 +115,27 @@ while repite,
     
     % Add a new PC
     if pc<s(2)*(arg.lag+1),
-        cross1 = crossval3D_s(arg.xini,pc+1,arg.lag,clu_ini,arg.cross.leave_m,arg.cross.blocks_r,arg.cross.blocks_c,arg.cross.fold_m,arg.prep,arg.cross.order);
+        cumpress1 = crossval3D_s(arg.xini,pc+1,arg.lag,clu_ini,arg.cross.leave_m,arg.cross.blocks_r,arg.cross.blocks_c,arg.cross.fold_m,arg.prep,arg.cross.order);
     else
-        cross1 = Inf;
+        cumpress1 = Inf;
     end
     
     % Add a subdivision
     zone = find(clu);
     if length(zone) < 2*arg.minsize + arg.lag || pc==0,
-        cross2=Inf;
+        cumpress2=Inf;
     else
         clu2 = clu;
         zone2 = (max(1,zone(1)-arg.lag):zone(end))';
         
         [clu2(zone2(arg.lag+1:end)),q1,q2,indc] = low_mppca_s(arg.xini(zone2,:,:),pc,arg.lag,arg.minsize,arg.prep);
-        [cross2,press2] = crossval3D_s(arg.xini,pc,arg.lag,clu2,arg.cross.leave_m,arg.cross.blocks_r,arg.cross.blocks_c,arg.cross.fold_m,arg.prep,arg.cross.order);
+        [cumpress2,press2] = crossval3D_s(arg.xini,pc,arg.lag,clu2,arg.cross.leave_m,arg.cross.blocks_r,arg.cross.blocks_c,arg.cross.fold_m,arg.prep,arg.cross.order);
     end
     
     % Compute improvements
     
-    imp1 = (cross - cross1)/baseline;
-    imp2 = arg.gamma * (cross - cross2)/baseline;
+    imp1 = (cumpress - cumpress1)/baseline;
+    imp2 = arg.gamma * (cumpress - cumpress2)/baseline;
     
     if isnan(imp2),
         imp2=0;
@@ -159,10 +148,10 @@ while repite,
             % Add a PC         
             text_tot = cprintMV(console,'Add new PC',text_tot,2);
             
-            cross = cross1;
-            if ~arg.absolute, baseline = cross1; end;
+            cumpress = cumpress1;
+            if ~arg.absolute, baseline = cumpress1; end;
             pc = pc+1;
-            tree = [tree;cross,pc,arg.lag,phase(1),phase(end)]; 
+            tree = [tree;cumpress,pc,arg.lag,phase(1),phase(end)]; 
         else
             repite = false;
         end
@@ -170,13 +159,13 @@ while repite,
         repite = false;
         if imp2 > arg.T,
                   
-            text_tot = cprintMV(console,'Add new Division',text_tot,2);
+            text_tot = cprintMV(console,'Add new Division in Phases',text_tot,2);
             
             % Recursive call for phase 1
             indx_a = find(clu2==1);
             clu_a = zeros(size(clu2));
             clu_a(indx_a) = 1;
-            [cross2,press2b] = crossval3D_s(arg.xini,pc,arg.lag,clu_a,arg.cross.leave_m,arg.cross.blocks_r,arg.cross.blocks_c,arg.cross.fold_m,arg.prep,arg.cross.order);
+            [cumpress2,press2b] = crossval3D_s(arg.xini,pc,arg.lag,clu_a,arg.cross.leave_m,arg.cross.blocks_r,arg.cross.blocks_c,arg.cross.fold_m,arg.prep,arg.cross.order);
             [mp_model_a,text_tot] = high_mppca_s(arg,clu_a,pc,sum(press2b(indx_a)),console,text_tot);
             
             % Recursive call for phase 2
