@@ -58,6 +58,8 @@ function Modeling_OpeningFcn(hObject, eventdata, handles, varargin)
 
 handles.output = hObject;
 
+handles.PCAh = 0;
+    
 handles.ParentsWindow=varargin{1};
 handles.ParentFigure = guidata(handles.ParentsWindow);
 
@@ -197,19 +199,19 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-function edit_init2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_init2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_init2 as text
-%        str2double(get(hObject,'String')) returns contents of edit_init2 as a double
-
-init =  str2num(get(hObject,'String'));
-handles.mv.init = init;
-guidata(hObject,handles);
-
-radiobutton2_Callback(hObject, eventdata, handles)
+% function edit_init2_Callback(hObject, eventdata, handles)
+% % hObject    handle to edit_init2 (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% % Hints: get(hObject,'String') returns contents of edit_init2 as text
+% %        str2double(get(hObject,'String')) returns contents of edit_init2 as a double
+% 
+% init =  str2num(get(hObject,'String'));
+% handles.mv.init = init;
+% guidata(hObject,handles);
+% 
+% radiobutton2_Callback(hObject, eventdata, handles)
 
 % --- Executes during object creation, after setting all properties.
 function edit_init2_CreateFcn(hObject, eventdata, handles)
@@ -225,24 +227,25 @@ end
 
 
 
-function edit_fint2_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_fint2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
+% function edit_fint2_Callback(hObject, eventdata, handles)
+% % hObject    handle to edit_fint2 (see GCBO)
+% % eventdata  reserved - to be defined in a future version of MATLAB
+% % handles    structure with handles and user data (see GUIDATA)
+% 
+% % Hints: get(hObject,'String') returns contents of edit_fint2 as text
+% %        str2double(get(hObject,'String')) returns contents of edit_fint2 as a double
+% 
+% val = get(hObject,'String');
+% if length(val)>2 && isequal(val(end-2:end),'end'),
+%     val = [val(1:end-3) num2str(size(handles.data.x,1))];
+% end
+% 
+% handles.mv.fint = str2num(val);
+% guidata(hObject,handles);
+% 
+% radiobutton2_Callback(hObject, eventdata, handles)
 
-% Hints: get(hObject,'String') returns contents of edit_fint2 as text
-%        str2double(get(hObject,'String')) returns contents of edit_fint2 as a double
 
-val = get(hObject,'String');
-if length(val)>2 && isequal(val(end-2:end),'end'),
-    val = [val(1:end-3) num2str(size(handles.data.x,1))];
-end
-
-handles.mv.fint = str2num(val);
-
-radiobutton2_Callback(hObject, eventdata, handles)
-
-guidata(hObject,handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -840,20 +843,7 @@ function pushbuttonDyn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-r1 = get(handles.radiobutton1,'Value');
-r2 = get(handles.radiobutton2,'Value');
-
-edit_init2_Callback(handles.edit_init2, eventdata, handles)
-handles=guidata(hObject);
-edit_fint2_Callback(handles.edit_fint2, eventdata, handles)
-handles=guidata(hObject);
-
-set(handles.radiobutton1,'Value',r1);
-set(handles.radiobutton2,'Value',r2);
-
 data=handles.data;
-mv=handles.mv;
-no_plot = false;
 if get(handles.radiobutton1,'Value'),    
    
     model = get(handles.popupmenuMod,'value');
@@ -880,6 +870,18 @@ if get(handles.radiobutton1,'Value'),
         end
     end
 else
+    init =  str2num(get(handles.edit_init2,'String'));
+    handles.mv.init = init;
+    val = get(handles.edit_fint2,'String');
+    
+    if length(val)>2 && isequal(val(end-2:end),'end'),
+        val = [val(1:end-3) num2str(size(handles.data.x,1))];
+    end
+    
+    handles.mv.fint = str2num(val);
+    
+    mv=handles.mv;
+
     if mv.init>mv.fint,
         errordlg('Initial sampling time is posterior to final sampling time.')
     else
@@ -1575,10 +1577,8 @@ function pushbuttonExp_Callback(hObject, eventdata, handles)
 
 data=handles.data;
 x = preprocess3D(data.x,data.prep);
-mv=handles.mv;
-no_plot = false;
 if get(handles.radiobutton1,'Value'),    
-   
+  
     model = get(handles.popupmenuMod,'value');
     if model <= length(handles.data.man_mp_group),             
         model = handles.data.man_mp_group{model};
@@ -1596,14 +1596,34 @@ if get(handles.radiobutton1,'Value'),
     end
     
     xu = unfold(x(phase(4):phase(5),:,:),phase(3));
-    PCA(xu,1:phase(2),0);    
+    if handles.PCAh~=0 & ishandle(handles.PCAh), 
+        close(handles.PCAh); 
+    end
+    handles.PCAh = PCA(xu,1:phase(2),0);    
 else
+    
+    init =  str2num(get(handles.edit_init2,'String'));
+    handles.mv.init = init;
+    val = get(handles.edit_fint2,'String');
+    
+    if length(val)>2 && isequal(val(end-2:end),'end'),
+        val = [val(1:end-3) num2str(size(handles.data.x,1))];
+    end
+    
+    handles.mv.fint = str2num(val);
+    mv=handles.mv;
+    
     if mv.init>mv.fint,
         errordlg('Initial sampling time is posterior to final sampling time.');
     end
     xu = unfold(x(mv.init:mv.fint,:,:),0);
-    PCA(xu,[],0);  
+    if handles.PCAh~=0 & ishandle(handles.PCAh), 
+        close(handles.PCAh); 
+    end
+    handles.PCAh = PCA(xu,[],0);  
 end
+
+guidata(hObject,handles);
 
 
 
