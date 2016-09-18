@@ -1,0 +1,3 @@
+This text file aims to enumerate the actions to take in the next release to improve the software package. 
+
+1.- Arguments checking #14: Standardization of the input parameter check in all the MVBatch fucntions, in accordance with the format of the MEDA toolbox.
