@@ -1762,8 +1762,6 @@ for i=1:length(handles.data.synchronization)
     end
 end
 
-plot3D(handles.data.alg_batches,stg);
-
 handles.ParentFigure.s_alignment = handles.data;
 guidata(handles.ParentsWindow,handles.ParentFigure)
 delete(handles.figure1);
