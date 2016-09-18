@@ -1,14 +1,17 @@
 ﻿MVBatch for its use in MATLAB. 
 
 Contact: José María González Martínez (J.Gonzalez-Martinez@shell.com) & José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 06/Sep/16
+Last modification of this document: 18/Sep/16
 
 Installation
 
 	- Extract the rar file in a directory of your choice <directory_path>
 
+	- Download the sofware dependency MEDA toolbox from the GitHub repository: https://github.com/josecamachop/MEDA-Toolbox
+
 	- Add to the MATLAB path the following directories (use command addpath, e.g. addpath '<path>'):
 		- <directory_path>
+		- <directory_path>/examples
 		- <directory_path>/modeling
 		- <directory_path>/synchronization
 		- <directory_path>/MEDA-Toolbox
@@ -28,10 +31,11 @@ Items in the folder:
 
 - LICENSE.txt: software license.
 
+- examples: data sets 
+
 - modeling: modeling routines.
 
 - synchronization: synchronization routines.
 
 - GUI: Graphical User Interface routines.
-
 
