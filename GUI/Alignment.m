@@ -324,7 +324,7 @@ switch txt
         set(handles.uite_DTW_Reference,'Enable','off');
         handles.data.synchronization{handles.Stage2Syn}.Bref = -1;
         set(handles.uite_DTW_Reference,'String',' ');
-         cprint(handles.uite_DTW_Window,[],[],-1);
+         cprintMV(handles.uite_DTW_Window,[],[],-1);
         %set(handles.uite_DTW_Window,'String',' ');
         set(handles.editConstraintVariables,'String',num2str(zeros(1,nVariables)));
         handles.data.synchronization{handles.Stage2Syn}.W = ones(nVariables);
@@ -371,7 +371,7 @@ switch txt
         set(handles.uipu_DTW_Reference,'Value',1);
         set(handles.uite_DTW_Reference,'Enable','off');
         set(handles.uite_DTW_Reference,'String',' ');
-         cprint(handles.uite_DTW_Window,[],[],-1);
+         cprintMV(handles.uite_DTW_Window,[],[],-1);
 %         set(handles.uite_DTW_Window,'String',' ');
         set(handles.editConstraintVariables,'String',num2str(zeros(1,nVariables)));
         
@@ -1226,7 +1226,7 @@ enable_MultiSynchro('off',handles);
 handles.data.synchronization{handles.Stage2Syn}.cv = 0;
 set(handles.uib_RGTW,'Enable','off');
 % Removing the information shown in the information window
- cprint(handles.uite_DTW_Window,[],[],-1);
+ cprintMV(handles.uite_DTW_Window,[],[],-1);
 % set(handles.uite_DTW_Window,'String',' ');
 
 % Setting the parameters for IV synchronization
@@ -1288,7 +1288,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     switch handles.data.synchronization{handles.Stage2Syn}.method
         case 'kass'
             
-            cprint(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
+            cprintMV(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
                         
 %             set(handles.uite_DTW_Window,'String','');
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing...Be patient, please.', get(handles.uite_DTW_Window,'String')));
@@ -1304,14 +1304,14 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
                      handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,i)= [handles.data.synchronization{handles.Stage2Syn}.warp(:,i) squeeze(alg_batches(:,:,i))];
             end
             
-            cprint(handles.uite_DTW_Window,'Synchronization finished');
+            cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
 %             pause(0.01);
         case 'ram'
             
-            cprint(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
+            cprintMV(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
 %             set(handles.uite_DTW_Window,'String','');
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing...Be patient, please.', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
@@ -1324,14 +1324,14 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             for i=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)
                      handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,i)= [handles.data.synchronization{handles.Stage2Syn}.warp(:,i) squeeze(alg_batches(:,:,i))];
             end
-            cprint(handles.uite_DTW_Window,'Synchronization finished');
+            cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
 %             pause(0.01);
         case 'geo'
-            cprint(handles.uite_DTW_Window,'It takes some time. Please, be patient.',[],0);
-            cprint(handles.uite_DTW_Window,'Synchronizing... (Kassidas approach)');
+            cprintMV(handles.uite_DTW_Window,'It takes some time. Please, be patient.',[],0);
+            cprintMV(handles.uite_DTW_Window,'Synchronizing... (Kassidas approach)');
 %             set(handles.uite_DTW_Window,'String','');
 %             set(handles.uite_DTW_Window,'String',strvcat('It takes some time. Please, be patient.', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
@@ -1342,13 +1342,13 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
              % Synchronize the batch trajectories using the classical DTW with the weights estimated as the geometric mean of Kassidas et al. and Ramaker et al.'s approach
             Wkass = DTW_Kassidas(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref);
             
-            cprint(handles.uite_DTW_Window,'Synchronization (Kassidas approach) finished');
+            cprintMV(handles.uite_DTW_Window,'Synchronization (Kassidas approach) finished');
             
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronization (Kassidas approach) finished', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
 %             pause(0.01);
 
-            cprint(handles.uite_DTW_Window,'Synchronizing... (Ramaker approach)');
+            cprintMV(handles.uite_DTW_Window,'Synchronizing... (Ramaker approach)');
             
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing... (Ramaker approach)', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
@@ -1356,7 +1356,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
 
             Wram  = DTW_Ramaker(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref);
 
-            cprint(handles.uite_DTW_Window,'Synchronization (Ramaker approach) finished');
+            cprintMV(handles.uite_DTW_Window,'Synchronization (Ramaker approach) finished');
 %             set(handles.uite_DTW_Window,'String',strvcat( 'Synchronization (Ramaker approach) finished', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
 %             pause(0.01);
@@ -1368,7 +1368,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             [X,handles.data.synchronization{handles.Stage2Syn}.rng]= scale_(handles.data.synchronization{handles.Stage2Syn}.nor_batches);
 
             % Synchronizing the batch trajectories using DTW and the weight matrix W
-            cprint(handles.uite_DTW_Window,'Synchronizing... (classical DTW)');
+            cprintMV(handles.uite_DTW_Window,'Synchronizing... (classical DTW)');
             
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing... (classical DTW)', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), '')); pause(0.01);
@@ -1380,7 +1380,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             handles.data.synchronization{handles.Stage2Syn}.warp = warp;
             handles.data.synchronization{handles.Stage2Syn}.warpingOri = warpingOri;
             
-            cprint(handles.uite_DTW_Window,'Synchronization finished');
+            cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));  pause(0.01);
@@ -1402,7 +1402,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
              % Scaling all batches at mean range, including the reference batch
             [X handles.data.synchronization{handles.Stage2Syn}.rng]= scale_(handles.data.synchronization{handles.Stage2Syn}.nor_batches);
 
-            cprint(handles.uite_DTW_Window,'Synchronizing... (classical DTW)',[],0);
+            cprintMV(handles.uite_DTW_Window,'Synchronizing... (classical DTW)',[],0);
             
 %             set(handles.uite_DTW_Window,'String','');
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing... (classical DTW)', get(handles.uite_DTW_Window,'String')));
@@ -1423,7 +1423,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
                 handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,i) = [handles.data.synchronization{handles.Stage2Syn}.warp(:,i) alg_batches{i}];
             end
             
-            cprint(handles.uite_DTW_Window,'Synchronization finished');
+            cprintMV(handles.uite_DTW_Window,'Synchronization finished');
 %             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
 %             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));  pause(0.01);      
     end
@@ -1503,8 +1503,8 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     % Store the reference batch that is going to be used for synchronization
     handles.data.synchronization{handles.Stage2Syn}.Xref = handles.data.synchronization{handles.Stage2Syn}.nor_batches{handles.data.synchronization{handles.Stage2Syn}.Bref};
     
-    cprint(handles.uite_DTW_Window,'Synchronizing... (Multi-synchro)',[],0);
-    cprint(handles.uite_DTW_Window,'Synchronizing... Phase I: asynchronisms detection');
+    cprintMV(handles.uite_DTW_Window,'Synchronizing... (Multi-synchro)',[],0);
+    cprintMV(handles.uite_DTW_Window,'Synchronizing... Phase I: asynchronisms detection');
     % Execute the high-level routine of Multisynchro    
     if get(handles.radiobuttonManual,'Value'),
         asynDetection.batchcI_II.I = [];
@@ -1529,7 +1529,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
         [handles.data.synchronization{handles.Stage2Syn}.warpAsynDetection,handles.data.synchronization{handles.Stage2Syn}.asynDetection] = high_multisynchro(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.W,handles.data.synchronization{handles.Stage2Syn}.Wconstr,handles.data.synchronization{handles.Stage2Syn}.param.k,handles.data.synchronization{handles.Stage2Syn}.param.psih,handles.data.synchronization{handles.Stage2Syn}.param.psiv);
     end
     
-    cprint(handles.uite_DTW_Window,'Synchronizing... Phase II: specific synchronization');
+    cprintMV(handles.uite_DTW_Window,'Synchronizing... Phase II: specific synchronization');
     [alg_batches,handles.data.synchronization{handles.Stage2Syn}.warp,handles.data.synchronization{handles.Stage2Syn}.specSynchronization] = low_multisychro(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.asynDetection,handles.data.synchronization{handles.Stage2Syn}.Wconstr,handles.data.synchronization{handles.Stage2Syn}.param.pcsMon,[],handles.uite_DTW_Window);   
    
     handles.data.synchronization{handles.Stage2Syn}.alg_batches = zeros(size(alg_batches,1),size(alg_batches,2)+1,size(alg_batches,3));
@@ -1541,25 +1541,25 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     set(handles.listboxAsynchronisms,'String','');
              
     if ~isempty(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I),
-        cprint(handles.uite_DTW_Window,['Batches with class I or II asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I')]);
+        cprintMV(handles.uite_DTW_Window,['Batches with class I or II asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I')]);
         content = get(handles.listboxAsynchronisms,'String');
         set(handles.listboxAsynchronisms,'String',strvcat(content,'Asyn. I-II'));
         handles.data.synchronization{handles.Stage2Syn}.asynchronisms(1)=1;
     end
     if ~isempty(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I),
-        cprint(handles.uite_DTW_Window,['Batches with class III asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I')]); 
+        cprintMV(handles.uite_DTW_Window,['Batches with class III asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I')]); 
         content = get(handles.listboxAsynchronisms,'String');
         set(handles.listboxAsynchronisms,'String',strvcat(content,'Asyn. III'));
         handles.data.synchronization{handles.Stage2Syn}.asynchronisms(2)=1;
     end
     if ~isempty(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I),
-        cprint(handles.uite_DTW_Window,['Batches with class IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I')]); 
+        cprintMV(handles.uite_DTW_Window,['Batches with class IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I')]); 
         content = get(handles.listboxAsynchronisms,'String');
         set(handles.listboxAsynchronisms,'String',strvcat(content,'Asyn. IV'));
         handles.data.synchronization{handles.Stage2Syn}.asynchronisms(3)=1;
     end
     if ~isempty(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I),
-        cprint(handles.uite_DTW_Window,['Batches with class III or IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I')]);
+        cprintMV(handles.uite_DTW_Window,['Batches with class III or IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I')]);
         content = get(handles.listboxAsynchronisms,'String');
         set(handles.listboxAsynchronisms,'String',strvcat(content,'Asyn. III-IV'));
         handles.data.synchronization{handles.Stage2Syn}.asynchronisms(4)=1;
@@ -1987,13 +1987,13 @@ asyn = find(handles.data.synchronization{handles.Stage2Syn}.asynchronisms==1);
 
 switch asyn(handles.selectedAsyn)
     case 1
-         cprint(handles.uite_DTW_Window,['Batches with class I or II asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I')],[],0);
+         cprintMV(handles.uite_DTW_Window,['Batches with class I or II asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I')],[],0);
     case 2
-        cprint(handles.uite_DTW_Window,['Batches with class III asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I')],[],0); 
+        cprintMV(handles.uite_DTW_Window,['Batches with class III asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I')],[],0); 
     case 3
-        cprint(handles.uite_DTW_Window,['Batches with class IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I')],[],0); 
+        cprintMV(handles.uite_DTW_Window,['Batches with class IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I')],[],0); 
     case 4
-        cprint(handles.uite_DTW_Window,['Batches with class III or IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I')],[],0);
+        cprintMV(handles.uite_DTW_Window,['Batches with class III or IV asynchronism: ' num2str(handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I')],[],0);
 end
         
 % --- Executes when selected object is changed in uipanelParametersMultiSynchro.
