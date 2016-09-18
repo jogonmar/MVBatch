@@ -373,12 +373,3 @@ if ~isequal(file, 0)
         eval(['save ''' fullfile(pathname, file) ''' dataStruct track dataset']);
 end
 
-
-
-% --------------------------------------------------------------------
-function menuAbout_Callback(hObject, eventdata, handles)
-% hObject    handle to menuAbout (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-About;

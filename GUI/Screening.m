@@ -591,6 +591,7 @@ handles.ParentFigure.track(3:end) = 0;
 guidata(handles.ParentsWindow,handles.ParentFigure)
 delete(handles.figure1);
 
+
 % --- Executes on button press in pb_Refresh.
 function pb_Refresh_Callback(hObject, eventdata, handles)
 % hObject    handle to pb_Refresh (see GCBO)
