@@ -19,7 +19,7 @@ function [p,t] = pcamv(x,pc)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Apr/09
+% last modification: 19/09/16
 %
 % Copyright (C) 2014  University of Granada, Granada
 % Copyright (C) 2014  Jose Camacho Paez
@@ -37,28 +37,37 @@ function [p,t] = pcamv(x,pc)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
+%% Arguments checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
-if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end;
-s = size(x);
-if find(s<1), error('Incorrect content of x.'); end;
-if pc<0, error('Incorrect value of prep.'); end;
-dmin = min(s);
-if pc>dmin, pc=dmin; end;
+% Set default values
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+N = size(xcs, 1);
+M = size(xcs, 2);
+if nargin < 2 || isempty(pcs), pcs = 0:size(xcs,2); end;
 
-% Computation
+% Convert column arrays to row arrays
+if size(pcs,2) == 1, pcs = pcs'; end;
 
-if 10*s(1)>s(2),
-        [p,t]=princomp(x);
-        p = p(:,1:pc);
-        t = t(:,1:pc);
-else,
-        [p,t]=princomp(x,'econ');
-        p = p(:,1:pc);
-        t = t(:,1:pc);
-end
-        
+% Preprocessing
+pcs = unique(pcs);
+pcs(find(pcs==0)) = [];
+pcs(find(pcs>size(xcs,2))) = [];
+A = length(pcs);
+
+% Validate dimensions of input data
+assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
+
+% Validate values of input data
+assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
+
+
+%% Main code
+
+[u,d,p]=svd(xcs);
+t = u*d;
+p = p(:,pcs);
+t = t(:,pcs);
 
 
 
