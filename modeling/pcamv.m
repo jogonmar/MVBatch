@@ -37,37 +37,6 @@ function [p,t] = pcamv(x,pc)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Arguments checking
-
-% Set default values
-routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-N = size(xcs, 1);
-M = size(xcs, 2);
-if nargin < 2 || isempty(pcs), pcs = 0:size(xcs,2); end;
-
-% Convert column arrays to row arrays
-if size(pcs,2) == 1, pcs = pcs'; end;
-
-% Preprocessing
-pcs = unique(pcs);
-pcs(find(pcs==0)) = [];
-pcs(find(pcs>size(xcs,2))) = [];
-A = length(pcs);
-
-% Validate dimensions of input data
-assert (isequal(size(pcs), [1 A]), 'Dimension Error: 2nd argument must be 1-by-A. Type ''help %s'' for more info.', routine(1).name);
-
-% Validate values of input data
-assert (isempty(find(pcs<0)) && isequal(fix(pcs), pcs), 'Value Error: 2nd argument must contain positive integers. Type ''help %s'' for more info.', routine(1).name);
-
-
-%% Main code
-
-[u,d,p]=svd(xcs);
-t = u*d;
-p = p(:,pcs);
-t = t(:,pcs);
-
+[p,t] = pca_pp(x,pc);
 
 
