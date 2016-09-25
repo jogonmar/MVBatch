@@ -138,7 +138,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     % CLASS I AND II ASYNCHRONISM: DTW-BASED SYNCHRONIZATION/ABNORMALITY DETECTION PROCEDURE
 
     if ~mode
-        cprint(console,'Executing the iterative DTW-based synchronization/abnormality detection procedure');
+        cprintMV(console,'Executing the iterative DTW-based synchronization/abnormality detection procedure');
         XG = cal(asynDetection.batchcI_II.I);
         auxbatchcI_II = asynDetection.batchcI_II.I;
         Ift = NaN;
@@ -185,7 +185,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
             % v.4 Arrange NOC data into the NOC 3-way array
             auxbatchcI_II = setdiff(auxbatchcI_II,auxbatchcI_II(Ift));
             XG = cal(auxbatchcI_II);
-            cprint(console,'Next iteration of the iterative synchronization');
+            cprintMV(console,'Next iteration of the iterative synchronization');
         end
 
         % SYNCHRONIZATION OF FAULTY BATCHES FOUND IN THE ITERATIVE MODELING
@@ -204,7 +204,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
 
          if numel(asynDetection.batchcIII.I)>0 || numel(asynDetection.batchcIII_IV)>0
              pcs = min(9,min(sGsyn(1),sGsyn(3)));
-%         cprint(console,'Incompleted batches have been detected. Cross validation is running to determine the optimum number of PCs for missing data imputation.');
+%         cprintMV(console,'Incompleted batches have been detected. Cross validation is running to determine the optimum number of PCs for missing data imputation.');
 %             for a=1:min(50,rank(xu))
 %                 cumpress(a) = crossval3D_s(X1G,a,sGsyn(1)-1,ones(sGsyn(1),1));
 %             end
@@ -225,7 +225,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
         
     else
         % CLASS I AND II ASYNCHRONISM: DTW-BASED SYNCHRONIZATION/ABNORMALITY DETECTION PROCEDURE
-        if ~isempty(asynDetection.batchcI_II.I),cprint(console,'Synchronizing batches with class I and/or II asynchronism.'); end
+        if ~isempty(asynDetection.batchcI_II.I),cprintMV(console,'Synchronizing batches with class I and/or II asynchronism.'); end
         X1GB = cal(asynDetection.batchcI_II.I);
         XGB = zeros(size(ref,1),size(ref,2),size(cal,1));
         warpXGB  = cell(numel(asynDetection.batchcI_II.I),1);
@@ -239,7 +239,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     end
     
     % CLASS III AND IV: DTW-BASED SYNCHRONIZATION WITH RELAXED END POINT
-    if ~isempty(asynDetection.batchcIII.I),cprint(console,'Synchronizing batches with class III asynchronism.'); end
+    if ~isempty(asynDetection.batchcIII.I),cprintMV(console,'Synchronizing batches with class III asynchronism.'); end
     X2 = cell(numel(asynDetection.batchcIII.I),1);
     warpX2  = cell(numel(asynDetection.batchcIII.I),1);
     warpingX2 = cell(numel(asynDetection.batchcIII.I),1);
@@ -258,7 +258,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
      end
 
     % CLASS IV: DTW-BASED SYNCHRONIZATION WITH RELAXED STARTING POINT
-    if ~isempty(asynDetection.batchcIV.I),cprint(console,'Synchronizing batches with class IV asynchronism.'); end
+    if ~isempty(asynDetection.batchcIV.I),cprintMV(console,'Synchronizing batches with class IV asynchronism.'); end
     X3 = cell(numel(asynDetection.batchcIV.I),1);
     warpX3  = cell(numel(asynDetection.batchcIV.I),1);
     warpingX3 = cell(numel(asynDetection.batchcIV.I),1);
@@ -268,7 +268,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     end
 
     % CLASS III AND IV: DTW-BASED SYNCHRONIZATION WITH RELAXED STARTING AND END POINT
-    if ~isempty(asynDetection.batchcIII_IV.I),cprint(console,'Synchronizing batches with class III and IV asynchronisms.'); end
+    if ~isempty(asynDetection.batchcIII_IV.I),cprintMV(console,'Synchronizing batches with class III and IV asynchronisms.'); end
     X4 = cell(numel(asynDetection.batchcIII_IV.I),1);
     warpX4  = cell(numel(asynDetection.batchcIII_IV.I),1);
     warpingX4 = cell(numel(asynDetection.batchcIII_IV.I),1);
