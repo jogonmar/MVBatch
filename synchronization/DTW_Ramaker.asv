@@ -8,8 +8,7 @@ function [W,X,warp,rng,warping]=DTW_Ramaker(cal,ref,Wconstr)
 %
 % CALLS:
 %
-%        [W,X,warping,rng]=DTW_Ramaker(cal,ref)               % minimum call
-%        [W,X,warping,rng]=DTW_Ramaker(cal,ref,Wconstr)       % complete call
+%        [W,X,warping,rng]=DTW_Ramaker(cal,ref,Wvons)       % complete call
 %
 % INPUTS:
 %
@@ -38,18 +37,10 @@ function [W,X,warp,rng,warping]=DTW_Ramaker(cal,ref,Wconstr)
 %
 % coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
 %           
-% last modification: 
+% last modification: 21/Aug/14 -> offline and online version of the algorithm are merged. 
 %
-% October 2013: Warping information is expressed as a function of the
-% ref batch. The resulting warping profiles are equal in length
-% across batches.
-%
-% August 2011: Synchronization is carried out for all the batches except  for the
-% ref batch. Also, the output matrix contains the synchronized test batches adding 
-% the range removed in the preprocessing step.
-%
-% Copyright (C) 2011  Technical University of Valencia, Valencia
-% Copyright (C) 2011  Jose Maria Gonzalez-Martinez
+% Copyright (C) 2014  Technical University of Valencia, Valencia
+% Copyright (C) 2014  Jose Maria Gonzalez-Martinez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -63,6 +54,17 @@ function [W,X,warp,rng,warping]=DTW_Ramaker(cal,ref,Wconstr)
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+% codified by: Jos? Mar?a Gonz?lez-Mart?nez.
+% version: 0.0
+% last modifications:
+% 30/Aug/11: the synchronization is carried out for all the batches except the
+% ref one. Also, the output matrix is the synchronized test batches adding 
+% the range removed in the preprocessing step.
+%
+% 17/Oct/13: Warping information is expressed as a function of the
+% ref batch. The resulting warping profiles are equal in length
+% across batches.
 
 %% Parameters checking
 

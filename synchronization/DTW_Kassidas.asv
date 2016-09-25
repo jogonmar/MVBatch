@@ -8,9 +8,7 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal, ref, Wconstr)
 % dynamic time warping, AIChE Journal 44:864-875.
 %
 % CALLS:
-%        [W,X,warping,rng] = DTW_Kassidas(cal, ref)           % minimum call
-%        [W,X,warping,rng] = DTW_Kassidas(cal, ref, Wconstr)  % complete call
-%
+%        [W,X,warping,rng] = DTW_Kassidas(cal, ref, )  % complete call
 %
 % INPUTS:
 %
@@ -43,33 +41,19 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal, ref, Wconstr)
 % interrupted.
 %
 %
-% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
-%           
-% last modification: July 2011.
-%
-% Copyright (C) 2011  Technical University of Valencia, Valencia
-% Copyright (C) 2011  Jose Maria Gonzalez-Martinez
-% 
-% This program is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% 
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License
-% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+% codified by: Jose Maria Gonzalez-Martinez.
+% version: 1.0
+% last modification: 10/Jul/11.
 
 %% Parameters cheching
 
 if nargin < 2, error('The number of argument is wrong. Please, check the help for further details.'), end
 if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end
+%if size(ref,2) > size(cal,2), error('The ref batch provided is wrong. It must be between 1 and the number of historic batches.'); end
 nBatches = size(cal,2); nVariables = size(cal{1,1},2);
 if nargin < 3 || isempty(Wconstr) , Wconstr = zeros(size(cal{1,1},2),1); end
 if find(Wconstr==0) < 1, error('If all the process variables are constrained, no synchronization can be performed.');end
+if nargin < 4, deltaBand = Inf; end
 
 %% Initialization
 calsy = cell(1, nBatches);

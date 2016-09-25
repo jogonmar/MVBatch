@@ -1,27 +1,19 @@
 function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,psiv,monitor,asynDetection)
 
-% MultiSynchro is devoted to synchronize the key process events ensuring
-% the same evolution across batches, no matter the type of asynchronism 
-% present in batch data.  
-% The multi-synchro algorithm is composed of a high-level and low-level 
-% routine. The highlevel % routine is aimed at recognizing the different 
-% types of asynchronous trajectories for the subsequent batch classification
-% as function of the nature of asynchronism. The low-level routine is in 
-% charge of synchronizing the variable trajectories of each one of the 
-% batches with a specific procedure based on the type of asynchronism. 
-% The original paper are:
+% MultiSynchro is devoted to synchronize the key process events ensuring the same
+% evolution across batches, no matter the type of asynchronism present in batch data. 
+% The multi-synchro algorithm is composed of a high-level and low-level routine. The highlevel
+% routine is aimed at recognizing the different types of asynchronous trajectories for the subsequent batch
+% classification as function of the nature of asynchronism. The low-level routine is in charge
+% of synchronizing the variable trajectories of each one of the batches with a specific procedure based on the
+% type of asynchronism. For further information on this algorithm, users
+% are referred to:
 %
-% [1] González Martínez, JM.; De Noord, O.; Ferrer, A. (2014). 
-% Multi-synchro: a novel approach for batch synchronization in scenarios 
-% of multiple asynchronisms, Journal of Chemometrics, 28(5):462-475.
+% [1] J. M. González-Martínez, O. E. de Noord, and A. Ferrer, Multisynchro: a novel approach for batch synchronization in scenarios of multiple asynchronisms,
+% Journal of Chemometrics, 28(5), 462–475.
 %
-% [2] González Martínez, JM.; Vitale, R.; De Noord, OE.; Ferrer, A. (2014). 
-% Effect of synchronization on bilinear batch process modeling, 
-% Industrial and Engineering Chemistry Research, 53(11):4339-4351.
-%
-% CALLS:
-%        [warpBref,asynDetection] = MultiSynchro(cal,ref)                         % minimum call
-%        [warpBref,asynDetection] = MultiSynchro(cal,ref,W,Wconstr,ro,psih,psiv)  % complete call
+% [2] J. M. González-Martínez, R. Vitale, O. E. de Noord, and A. Ferrer, Effect of Synchronization on Bilinear Batch Process Modeling,
+% Industrial & Engineering Chemistry Research 2014 53 (11), 4339-4351. 
 %
 % INPUTS:
 %
@@ -89,10 +81,12 @@ function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,
 %       - batchcIII_IV.warpBn: {I3x1} warping information of those batches with class III and IV
 %       asynchronism expressed as a function of the test batches.
 % 
+% CALLS:
+%        [warpBref,asynDetection] = MultiSynchro(cal,ref,W,Wconstr,ro,psih,psiv)  % complete call
 %
-% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
+% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.es)
 %           
-% last modification: August 2014 -> offline and online version of the algorithm are merged. 
+% last modification: 21/Aug/14 -> offline and online version of the algorithm are merged. 
 %
 % Copyright (C) 2014  Technical University of Valencia, Valencia
 % Copyright (C) 2014  Jose Maria Gonzalez-Martinez
@@ -109,6 +103,11 @@ function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,
 % 
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+% codified by: Jose Maria Gonzalez-Martinez.
+% version: 1.0
+% Modifications: 
+% 21/Aug/14: offline and online version of the algorithm are merged. 
 
 %% Parameters checking
 

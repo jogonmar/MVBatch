@@ -11,17 +11,11 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 % batches with a specific procedure based on the type of asynchronism. 
 % The original paper are:
 %
-% [1] González Martínez, JM.; De Noord, O.; Ferrer, A. (2014). 
-% Multi-synchro: a novel approach for batch synchronization in scenarios 
-% of multiple asynchronisms, Journal of Chemometrics, 28(5):462-475.
+% [1] J. M. González-Martínez, O. E. de Noord, and A. Ferrer, Multisynchro: a novel approach for batch synchronization in scenarios of multiple asynchronisms,
+% Journal of Chemometrics, 28(5), 462–475.
 %
-% [2] González Martínez, JM.; Vitale, R.; De Noord, OE.; Ferrer, A. (2014). 
-% Effect of synchronization on bilinear batch process modeling, 
-% Industrial and Engineering Chemistry Research, 53(11):4339-4351.
-%
-% CALLS:
-%        [Xs,F,specSynchronization] = MultiSynchro(cal,ref,Wconstr)                                     % minimum call
-%        [Xs,F,specSynchronization] = MultiSynchro(cal,ref,Wconstr,offset,console,specSynchronization)  % complete call
+% [2] J. M. González-Martínez, R. Vitale, O. E. de Noord, and A. Ferrer, Effect of Synchronization on Bilinear Batch Process Modeling,
+% Industrial & Engineering Chemistry Research 2014 53 (11), 4339-4351. 
 %
 % INPUTS:
 %
@@ -90,26 +84,14 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 %       - offsetnext: (Jx1) offset to apply to the warping profiles in case that the
 %       algorithm is applied to another stage.
 %
+% CALLS:
+%        [Xs,F,specSynchronization] = MultiSynchro(cal,ref,Wconstr,offset,console,specSynchronization)  % complete call
 %
-% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
-%           
-% last modification: 21/Aug/14 -> offline and online version of the algorithm are merged. 
 %
-% Copyright (C) 2014  Technical University of Valencia, Valencia
-% Copyright (C) 2014  Jose Maria Gonzalez-Martinez
-% 
-% This program is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% 
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License
-% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+% codified by: Jose Maria Gonzalez-Martinez.
+% version: 1.0
+% Modifications: 
+% 21/Aug/14: offline and online version of the algorithm are merged. 
 
 %% Parameters checking
 

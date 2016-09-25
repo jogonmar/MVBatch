@@ -1,13 +1,13 @@
-function [sB,warp_f_ref,warping,d]= DTW(T,R,W,relaxedE,constrainedVars,band)
+function [sB,warp,warping,d]= DTW(T,R,W,relaxedE,constrainedVars,band)
 
 %  DTW function carries out the synchronization of multivariate batch trajectories using Dynamic Time Warping.
 %
 % CALLS:
-%       [sB,warp_f_ref,warping,d]= DTW(T,R);                                 % Same weight for all variables and no global constraint defined  
-%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,);                              % No global constraint defined  
-%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,relaxedE);                      % No global constrained and relaxed end point enabled or diabled
-%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,false,constrainedVars);         % No global constrained and relaxed end point enabled or diabled with variables constrained
-%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,false,constrainedVars,band);   % Complete call
+%       [sB,warping,distm]= DTW(T,R);                                 % Same weight for all variables and no global constraint defined  
+%       [sB,warping,distm]= DTW(T,R,W,);                              % No global constraint defined  
+%       [sB,warping,distm]= DTW(T,R,W,relaxedE);                      % No global constrained and relaxed end point enabled or diabled
+%       [sB,warping,distm]= DTW(T,R,W,false,constrainedVars);         % No global constrained and relaxed end point enabled or diabled with variables constrained
+%       [sB,warping,distm]= DTW(T,R,W,false,constrainedVars,band);   % Complete call
 %
 %
 % INPUTS:
@@ -40,13 +40,15 @@ function [sB,warp_f_ref,warping,d]= DTW(T,R,W,relaxedE,constrainedVars,band)
 %       
 % sB:  (KrxJ) matrix containing the synchronized batch trajectories.
 %
-% warp_f_ref: (Kref x I) matrix containing the warping information derived from
+% warp: (Kref x I) matrix containing the warping information derived from
 % batch synchronization expressed as a function of the reference.
 %
 % warping: (Kn x 2) matrix containing the warping information from the
 %           off-line synchronization.
 %
-% d: (KrxKt) local weighted distance matrix
+% dist: (KrxKt) local weighted distance matrix
+%
+% distm: mean cummulated distance independent of the number of synchronization steps carried out.
 %
 % coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
 %           
@@ -54,10 +56,14 @@ function [sB,warp_f_ref,warping,d]= DTW(T,R,W,relaxedE,constrainedVars,band)
 % October 2013: Warping information is expressed as a function of the
 %               reference batch. The resulting warping profiles are equal in length
 %               across batches.
-% August 2013:  constrainedVars vector added as a new input in the function. It provides
+% August 2013:  constrainedVars vector added as new input in the function. It provides
 %               flexiblity to constrain certain process variables in the batch
 %               synchronization.
-% Februrary 2013:Relaxed end point constraint is added into the algorithm.
+% Februrary 2013:Relaxed end point constraint option is incorporate in the algorithm.
+% January 2013: An output parameter associat to the average cummulated distance independent of the number of
+%               synchronization steps has been added.
+
+
 %
 % Copyright (C) 2011  Technical University of Valencia, Valencia
 % Copyright (C) 2011  Jose Maria Gonzalez-Martinez
@@ -106,7 +112,7 @@ end
 if size(band,2) ~= 2 || size(band,1) < sT(1), error('Band is not accurate for the synchronization of these multivariate trajectories'); end
 
 % Initializing the warping vector
-warp_f_ref = ones(sR(1),1).*NaN;
+warp = ones(sR(1),1).*NaN;
 
 % Reestimation of the W matrix taking into account the constraints
 W = W(VarNonConstr,VarNonConstr);
@@ -177,7 +183,7 @@ end
 
 
 for i=1:endpoint
-    warp_f_ref(i,1) = warping(find(warping(:,1)==i,1,'last'),2);
+    warp(i,1) = warping(find(warping(:,1)==i,1,'last'),2);
 end
 
 %% Synchronization step once the warping function has been reached
