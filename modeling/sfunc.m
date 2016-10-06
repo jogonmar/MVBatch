@@ -23,8 +23,8 @@ function [sys,x0,str,ts] = sfunc(t,x,u,flag,xini, k1h, K1h, k1l, K1l, k1e, K1e, 
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 21/Aug/09
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

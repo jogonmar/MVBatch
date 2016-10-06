@@ -35,8 +35,8 @@ function [xp,average,scale] = preprocess3D(x,prep)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 14/Oct/08
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

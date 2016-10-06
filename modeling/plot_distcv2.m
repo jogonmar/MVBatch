@@ -73,8 +73,8 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 %           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
 % last modification: 1/Aug/14
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez, José M. González Martínez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by

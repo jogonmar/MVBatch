@@ -119,8 +119,8 @@ function [pdet,ph,pr,detect,h,r,ph95,pr95,h95,r95,t,q]=plot_onstat(xini, test, p
 %           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
 % last modification: 13/Dic/11
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez, José M. González Martínez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
