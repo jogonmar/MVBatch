@@ -91,7 +91,7 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 
 % Parameters checking
 
-if nargin < 2, error('Numero de argumentos erroneos.'); end;
+if nargin < 2, error('Incorrect number of input parameters.'); end;
 
 if ndims(xini)~=3, error('Incorrect number of dimensions of xini.'); end;
 s = size(xini);
