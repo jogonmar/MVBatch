@@ -1,3 +1,4 @@
+
 function varargout = Alignment(varargin)
 % ALIGNMENT M-file for Alignment.fig
 %      ALIGNMENT, by itself, creates a new ALIGNMENT or raises the existing
@@ -1754,7 +1755,7 @@ for i=1:length(handles.data.synchronization)
         handles.data.synchronization{handles.Stage2Syn}.t = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.t;
         handles.data.synchronization{handles.Stage2Syn}.p = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.p;
         handles.data.synchronization{handles.Stage2Syn}.Xi = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.Xi;
-        handles.data.synchronization{handles.Stage2Syn}.Omega = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.Omega;
+        handles.data.synchronization{handles.Stage2Syn}.Omega = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.Omega; 
         handles.data.synchronization{handles.Stage2Syn}.band = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.band;
         handles.data.synchronization{handles.Stage2Syn}.pcs = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.pcs;
         handles.data.synchronization{i}.W = handles.data.synchronization{i}.specSynchronization.W;
