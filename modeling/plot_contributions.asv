@@ -130,11 +130,11 @@ if phases(:,2)>0,
                     %ck = [ck,
                     %t_t'*cov_inv*(testu(1:st(3),z)'*p(z,:)*inv(p(jindb,:)'*p(jindb,:)))'];
                     
-%                     dist=0;
-%                     for a=1:phases(i,2)
-%                         dist =  dist  + ((t_t(a)/sqrt(cov_inv(a,a)))^2)*p(z,a)^2;
-%                     end 
-%                     ck = [ck, testu(1,z).*sqrt(dist)];
+                    dist=0;
+                    for a=1:phases(i,2)
+                        dist =  dist  + Tto(pcs(a))/sqrt(cov_inv(pcs(a),pcs(a))))^2)*P(j,pcs(a))^2;
+                    end 
+                    contribution(j) = (Xto(:,j)-Xfrom(:,j)).*sqrt(dist);
                     
 
                     ck = [ck, real(t_t'*sqrt(cov_inv)*p(z,:)')];

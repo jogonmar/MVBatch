@@ -1,4 +1,4 @@
-function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alph,alpr,alph95,alpr95,s_sBn,axes1,axes2)
+function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alph,alpr,alph95,alpr95,nsamplesToPlot,axes1,axes2)
 
 % Plots the D-statistic and SPE charts for on-line monitoring. 
 %
@@ -9,7 +9,7 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 %   alph,alpr,alph95,alpr95) % output in MATLAB console
 %
 % [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,
-%   alph,alpr,alph95,alpr95,s_sBn,axes1,axes2) % complete call
+%   alph,alpr,alph95,alpr95,nsamplesToPlot,axes1,axes2) % complete call
 %
 %
 % INPUTS:
@@ -43,7 +43,7 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 % alpr95: imposed significance level (alpha) for the 95% confidence limit in the 
 %   SPE.
 %
-% s_sBn: number of synchronized samples to be monitored (default: Inf, i.e.
+% nsamplesToPlot: number of synchronized samples to be monitored (default: Inf, i.e.
 % all).
 %
 % axes1: handle to the axes where the D-statistic chart is plotted.
@@ -95,7 +95,7 @@ if nargin < 8, alph = 0.01; end;
 if nargin < 9, alpr = 0.01; end;
 if nargin < 10, alph95 = 0.05; end;
 if nargin < 11, alpr95 = 0.05; end;
-if nargin < 12, s_sBn = Inf; end ;
+if nargin < 12, nsamplesToPlot = Inf; end ;
 if nargin < 13
     h = figure;
     axes1 = axes; 
@@ -105,7 +105,7 @@ if nargin < 14,
     axes2 = axes; 
 end;
 
-if s_sBn == Inf, s_sBn = size(hotelling);end
+if nsamplesToPlot == Inf, nsamplesToPlot = size(hotelling);end
 
 % D-statistic
 hi95 = [];
@@ -128,7 +128,7 @@ if pc(1)~=0,
      if opt,
         axes(axes1)
         hold off
-        plot(hot(1:s_sBn),tg)
+        plot(hot(1:nsamplesToPlot),tg)
         hold on;
 
         xlabel('Sampling time','FontSize', 12,'FontWeight','Bold');
@@ -184,7 +184,7 @@ res = residuals;
 if opt,
     axes(axes2)
     hold off
-    plot(res(1:s_sBn),tg)
+    plot(res(1:nsamplesToPlot),tg)
     hold on;
 
     xlabel('Sampling time','FontSize', 12,'FontWeight','Bold');

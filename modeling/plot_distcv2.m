@@ -1,4 +1,4 @@
-function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plot_distcv2(xini, phases, prep, opt, axes1, axes2,axes3,axes4)
+function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95]=plot_distcv2(xini,phases,prep,opt,axes1,axes2,axes3,axes4)
 
 % Computes the D-statistic and SPE values of the calibration batches using 
 %   leave-one-out cross-validation. 
@@ -66,8 +66,7 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 %   limit in the overall D-statistic. 
 %
 % alpor95: suggested imposed significance level (alpha) for the 95% confidence 
-%   limit in the overall SPE.
-%
+%   limit in the overall SPE. 
 % 
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 %           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
@@ -129,7 +128,6 @@ end;
 
 
 % Main code
-
 [xce,av,sta] = preprocess3D(xini,prep);
     
 q=[];
@@ -211,7 +209,7 @@ for o=1:s(3),
             for j=0:menor_en,
                 jindb=1:s(2)*(ind_ini+j);
                 jind2=phases(i,4)+j; 
-                % IMPUTATION USING TSR
+                % TSR IMPUTATION
                 t_t = theta_A*p(jindb,:)'*p(jindb,:)*inv(p(jindb,:)'*pAll(jindb,:)*theta*pAll(jindb,:)'*p(jindb,:))*p(jindb,:)'*xu(1:(s(3)-1),jindb)';
                 cov_inv=inv(cov(t_t'));
                 t_t = theta_A*p(jindb,:)'*p(jindb,:)*inv(p(jindb,:)'*pAll(jindb,:)*theta*pAll(jindb,:)'*p(jindb,:))*p(jindb,:)'*testu(1,jindb)';
@@ -233,34 +231,17 @@ for o=1:s(3),
     end
     tcv=[tcv tcvb];
     qcv=[qcv qcvb];
-end
-
-alpoh95 = []; lima = [];limacv = [];
-alpoh = []; limb  =[];limbcv  =[];
-alpor95 = []; limar = []; limarcv = [];
-alpor = []; limbr = []; limbrcv = [];
-    
+end 
 
 [alph,alpr,alph95,alpr95]=plotcv2(res,tcv,qcv,s(3),['x'],pcs,opt,axes1,axes2);
  
 cla(axes3);
- cla(axes4);
+cla(axes4);
 set(axes3,'Visible','off');
- set(axes4,'Visible','off');
+set(axes4,'Visible','off');
 if phases(i,3) == s(1)-1
     [alpoh,alpor,alpoh95,alpor95]=plotOverall(resa,T2v,ssqres,s(3),pcs(1),opt,axes3,axes4);
      set(axes3,'Visible','on');
      set(axes4,'Visible','on');
 end
 
-overallOffMon = [];
-% Save statistics from the overall off-line process monitoring in a
-% structure
-if phases(i,3) == s(1)-1
-    overallOffMon.lima = lima;
-    overallOffMon.limb = limb;
-    overallOffMon.limar = limar;
-    overallOffMon.limbr = limbr;
-    overallOffMon.T2 = T2v;
-    overallOffMon.SPE = ssqres';
-end

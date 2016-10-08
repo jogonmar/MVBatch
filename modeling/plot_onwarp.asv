@@ -15,16 +15,19 @@ function [] = plot_onwarp(warpnoc,band,warptest,tg,nsamplesToPlot,plotallFlag,ax
 %
 % warptest: [Kx1] warping profile of the test batch, K(time points)
 %
-% tg: (1x1) marker to display on the control chart ('x' by default)
+% tg: (1x1) marker to display on the control chart (.
 %
 % nsamplesToPlot: (1x1) number of samples to display on the control chart (K by default)
 %
-% plotallFlag: (1x1) boolean to indicate whether the NOC WI profiles must be displayed (1 by default).
+% stdv: (KxJ) estimated standard deviation values 
 %
-% axes1: handle to the axes where the warping profiles are plotted.
+% OUTPUTS:
+%
+% xrec: (1x1) TSR reconstruction of X with pc components.
+%
 %
 % coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)
-% last modification: Aug/14
+% last modification: Apr/15
 %
 % Copyright (C) 2016  Technical University of Valencia, Valencia
 % Copyright (C) 2016  José M. González Martínez
@@ -47,9 +50,9 @@ if nargin < 2, errodlg('Incorrect number of input parameters.');end
 if nargin < 3, warptest = []; end   
 if nargin < 4 || isempty(tg), tg = 'x';end
 if nargin < 5 || isempty(nsamplesToPlot), nsamplesToPlot = size(warpnoc,1);end
-if nargin < 6,  plotallFlag = 1;end
+if nargin < 6,  plotallFlag = true;end
 if nargin < 7, 
-    figure;
+    h = figure;
     axes1 = axes; 
 end;
 
@@ -63,11 +66,12 @@ for i=1:s(1)
     newband(i,2) = band(i,2) - samplepoints(i);
 end
         
+            
 axes(axes1)
 if  plotallFlag, plot(warpnocnew,tg,'MarkerSize',5); hold on; end
 if ~isempty(warptest), plot(warptest(1:nsamplesToPlot) - repmat([1:nsamplesToPlot]',1,1),'kx-','MarkerSize',5); hold on;end
 
-plot(1:s(1),newband,'r-'); hold on;
+plot(1:s(1),newband,'r-');
 plot(1:s(1),ones(s(1),1),'k-');
 v = axis;
 v3=min(newband(:,2));

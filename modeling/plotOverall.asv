@@ -67,8 +67,8 @@ function [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Parameters checking
-routine=dbstack;
-assert (nargin >= 5, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
+if nargin < 5, error('The number of argument is not correct.'); end;
 if nargin < 6, opt = 1; end;
 if nargin < 7, 
     figure;
@@ -209,7 +209,6 @@ end
      limbrcv = (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v);
     
     % Estimation of the SPE control limits using CV Jackson & Mudholkar's approach
-    
     %limarcv= spe_lim(unfold(permute(resmod,[3 2 1]),Inf),alpr95); % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
     %limbrcv= spe_lim(unfold(permute(resmod,[3 2 1]),Inf),alpr); % limite al 99% de conf.  
 
