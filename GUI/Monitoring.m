@@ -460,15 +460,17 @@ try
             case 0
             % D statistic
             contToStat = EvolvingDcontribution;
-            label = 'Contribution to D statistic';
+            label = 'Contribution to D statistic ';
             case 1
             % Q statistic
             contToStat = EvolvingQcontribution;
-            label = 'Contribution to Q statistic';
+            label = 'Contribution to Q statistic ';
     end
         
     % Arrange the contributions based on the type (0: overall, 1:
     % intantaneous)
+    
+    [~,av] = preprocess3D(handles.calibration.x,handles.calibration.model.arg.prep);
     
     switch handles.modeMonitoring  
         case 0
@@ -488,7 +490,7 @@ try
         end
         % Call function to display the overall contribution, and the
         % contribution per variable and batch time
-        [~,av] = preprocess3D(handles.calibration.x,handles.calibration.model.arg.prep);
+        
         Diagnosis(handles.calibration.x,test_batchSyn,av,ovContrib,jContrib,kContrib,handles.calibration.model.phases(:,4),handles.ParentFigure.varNames(2:end,:),label);
         
         case 1
@@ -504,10 +506,10 @@ try
             contToStat = contToStat(handles.batchTime,:);
             
         end
-        figure;
+        createFigure(handles.calibration.x,test_batchSyn,av,handles.ParentFigure.varNames(2:end,1));
         bar(contToStat);
         xlabel('Variables','FontSize',12,'FontWeight','bold');
-        ylabel(label,'FontSize',12,'FontWeight','bold');
+        ylabel(strcat(label,sprintf('(k=%d)',handles.batchTime)),'FontSize',12,'FontWeight','bold');
     end
 catch err
    errordlg(err.message); 
@@ -689,6 +691,79 @@ guidata(hObject,handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                    5.- AUXILIAR FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+function [hf] = createFigure(xini,test,av,tagnames)
+
+if nargin < 1, type = 0; end
+
+[select_cdata,~,alpha] = imread('selectdata.png');
+select_cdata = double(select_cdata) / 255;
+select_cdata(~alpha) = NaN;
+
+[tags_cdata,~,alpha] = imread('tags.png');
+tags_cdata = double(tags_cdata) / 255;
+tags_cdata(~alpha) = NaN;
+
+[Trace_cdata,~,alpha] = imread('Trace.png');
+Trace_cdata = double(Trace_cdata) / 255;
+Trace_cdata(~alpha) = NaN;
+
+% Create the toolbar
+hf = figure;
+tbh = uitoolbar(hf);
+
+
+% Add a toggle tool to the toolbar
+uipushtool(tbh,'CData',select_cdata,'Separator','on',...
+'TooltipString','Select',...
+'HandleVisibility','off','ClickedCallback',@hSelectCallback);  
+
+uipushtool(tbh,'CData',Trace_cdata,'Separator','on',...
+'TooltipString','Select',...
+'HandleVisibility','off','ClickedCallback',{@VisualizeVariablesCallback,xini,test,av,tagnames});
+
+uipushtool(tbh,'CData',tags_cdata,...
+'TooltipString','Import data set',...
+'HandleVisibility','off','ClickedCallback',{@hTagsCallback,tagnames});
+    
+function hSelectCallback(hObject, eventdata)
+% Callback function run when the Update button is pressed
+brush on
+
+function hTagsCallback(hObject, eventdata, tagnames)
+% Callback function run when the Update button is pressed
+gname(tagnames);
+
+function VisualizeVariablesCallback(hObject,eventdata,xini,test,av,tagnames)
+
+hBrushLine = findall(gca, 'tag', 'Brushing');
+brushedData = get(hBrushLine, {'Xdata', 'Ydata'});
+if numel(find(~cellfun(@isempty,brushedData)))==0,
+    return;
+end
+if numel(find(brushedData{1,2}~=0))==0
+    errordlg('No variable has been selected, please select a variable and try again.','Error')
+    return
+end
+Variable = find(brushedData{1,2});
+if numel(Variable)>1
+    errordlg('You have selected multiple variables. Please, select a single variable.','Error')
+    return
+end
+brush off;
+
+figure;
+cal = squeeze(xini(:,Variable,:));
+h1 = plot(cal(:,1),'Color',[0.662745 0.662745 0.662745],'LineWidth',1.5);hold on;
+plot(cal,'Color',[0.662745 0.662745 0.662745],'LineWidth',1.5);
+h2 = plot(squeeze(test(:,Variable,:)),'r-','LineWidth',1.5);
+h3 = plot(av(:,Variable),'g-','LineWidth',1.5); 
+xlabel('Time','FontSize',14)
+ylabel(tagnames{Variable,1},'FontSize',14)
+legend([h1,h2,h3],'Historical batches','Test batch','Mean trajectory','Location','best');
+axis tight;
+
+
 
 
 function [synTestBatch,nsamplesToPlot,warptest] = onlineSynchronization(handles, test_batch)
