@@ -197,7 +197,7 @@ function pushbuttonCV_Callback(hObject, eventdata, handles)
 set(gcf,'pointer','watch'); pause(.001);
 
 try
-    [handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95] = plot_distcv2(handles.calibration.x, handles.calibration.model.phases, 2, 1, handles.axes1, handles.axes2, handles.axesPostBatchT2, handles.axesPostBatchSPE);
+    [handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95] = plot_distcv2(handles.calibration.x, handles.calibration.model.phases, handles.calibration.model.arg.prep,1, handles.axes1, handles.axes2, handles.axesPostBatchT2, handles.axesPostBatchSPE);
 catch err
    errordlg(err.message); 
    set(gcf,'pointer','arrow');
@@ -443,7 +443,7 @@ function pbContribution_Callback(hObject, eventdata, handles)
 
 test_batch = handles.calibration.test{handles.selectedDataSet}{handles.calibration.test_batchFD};
 
-[test_batchSyn] = onlineSynchronization(handles,test_batch);
+test_batchSyn = onlineSynchronization(handles,test_batch);
     
 if ~handles.modeMonitoring && handles.calibration.model.phases(1,3) ~= size(handles.alignment.alg_batches,1)-1, 
     warndlg('Overall contributions cannot be displayed because the model is not a batch-wise PCA. Only the option of contributions at a specific sampling time is possible.');
@@ -451,7 +451,64 @@ if ~handles.modeMonitoring && handles.calibration.model.phases(1,3) ~= size(hand
 end
 
 try 
-    plot_contributions(handles.calibration.x, test_batchSyn, handles.calibration.model.phases, handles.modeMonitoring, handles.statFaultDiagnosis, 2, handles.ParentFigure.varNames(2:end,:) ,handles.batchTime);
+    [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(handles.calibration.x,test_batchSyn,handles.calibration.model.phases,handles.calibration.model.arg.prep);
+    s=size(handles.calibration.x);
+    
+    % Retrieve the two-array containing the evolving contribution to the
+    % selected statistic
+    switch handles.statFaultDiagnosis
+            case 0
+            % D statistic
+            contToStat = EvolvingDcontribution;
+            label = 'Contribution to D statistic';
+            case 1
+            % Q statistic
+            contToStat = EvolvingQcontribution;
+            label = 'Contribution to Q statistic';
+    end
+        
+    % Arrange the contributions based on the type (0: overall, 1:
+    % intantaneous)
+    
+    switch handles.modeMonitoring  
+        case 0
+        % Case 1: Evolving contribution to the multivariate statistics at time
+        % point k
+        ovContrib = nan(s(1)*s(2),1);
+        for j=1:s(2)
+            ovContrib((j-1)*s(1)+1:j*s(1)) =  contToStat(:,j);
+        end 
+        jContrib = nan(s(2),1);
+        for j=1:s(2)
+            jContrib(j,1) = sum(contToStat(:,j));
+        end
+        kContrib = nan(s(1),1);
+        for k=1:s(1)
+            kContrib(k,1)= sum(contToStat(k,:));
+        end
+        % Call function to display the overall contribution, and the
+        % contribution per variable and batch time
+        [~,av] = preprocess3D(handles.calibration.x,handles.calibration.model.arg.prep);
+        Diagnosis(handles.calibration.x,test_batchSyn,av,ovContrib,jContrib,kContrib,handles.calibration.model.phases(:,4),handles.ParentFigure.varNames(2:end,:),label);
+        
+        case 1
+        % Case 2: Evolving contribution to the multivariate statistics for the
+        % whole batch
+        switch handles.statFaultDiagnosis
+            case 0
+            % D statistic
+            contToStat = contToStat(handles.batchTime,:);
+            
+            case 1
+            % Q statistic
+            contToStat = contToStat(handles.batchTime,:);
+            
+        end
+        figure;
+        bar(contToStat);
+        xlabel('Variables','FontSize',12,'FontWeight','bold');
+        ylabel(label,'FontSize',12,'FontWeight','bold');
+    end
 catch err
    errordlg(err.message); 
 end
