@@ -109,23 +109,32 @@ if nargin < 4, opt = 1; end;
 if (prep<0||prep>5), error('Incorrect value of prep.'); end;
 
 if nargin < 5, 
-    h = figure;
+    figure;
     axes1 = axes; 
 end;
 if nargin < 6, 
-    h2 = figure;
+    figure;
     axes2 = axes; 
 end;
 
 if nargin < 7, 
-    h3 = figure;
+    figure;
     axes3 = axes; 
 end;
 if nargin < 8, 
-    h4 = figure;
+    figure;
     axes4 = axes; 
 end;
 
+% Initialization
+alph =[];
+alpr = [];
+alph95 = [];
+alpr95 = [];
+alpoh = [];
+alpor = [];
+alpoh95 = [];
+alpor95 = [];
 
 % Main code
 [xce,av,sta] = preprocess3D(xini,prep);

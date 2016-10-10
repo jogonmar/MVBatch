@@ -22,9 +22,10 @@ function Bref = refBatch(X,method)
 % version: 1.0
 % last modification: 15/May/11.
 
-%% Parameters cheching
+%% Arguments checking
+routine=dbstack;
+assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
-if nargin < 2, errordlg('The number of arguments in not correct.'); end
 if ~iscell(X), error('The data structure must be a cell array to contain the unsynchronized batch trajectories.'); end
     
 I =length(X);

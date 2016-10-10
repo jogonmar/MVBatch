@@ -26,7 +26,10 @@ function [matrix, rng] = scale_(rawMatrix,rng)
 % version: 1.0
 % last modification: 15/May/11.
 
- %% Checking input parameters
+%% Arguments checking
+routine=dbstack;
+assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+
  if iscell(rawMatrix)
      nVariables = size(rawMatrix{1},2);
  else

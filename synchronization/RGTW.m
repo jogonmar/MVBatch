@@ -1,4 +1,4 @@
-function [alignment band d D warping] = RGTW (S,R,W,band,alignment,d,D)
+function [alignment,band,d,D,warping] = RGTW (S,R,W,band,alignment,d,D)
 
 % RGTW algorithm to sincronize two batch trajectories in on-line applications
 %
@@ -45,12 +45,13 @@ function [alignment band d D warping] = RGTW (S,R,W,band,alignment,d,D)
 % codified by: Jose M. Gonzalez-Martinez
 % last modification: 11/Nov/09 version 2.0 (modification of the bands)
 
-%% Parameters checking and settings
+%% Arguments checking
+routine=dbstack;
+assert (nargin >= 5, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 
 sizeR = size(R); sizeS= size(S);
 warping=[];
 
-if nargin < 5, error('Error in the number of arguments.'); end
 if iscell(R) || iscell(S), error('Reference, test or both batches are cell array. Both must be 2D matrices'); end
 if ndims(S)~=2, error('Incorrect number of dimensions of S'); end;
 if ndims(R)~=2, error('Incorrect number of dimensions of R'); end;
