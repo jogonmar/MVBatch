@@ -64,19 +64,7 @@ handles.ParentsWindow=varargin{1};
 handles.ParentFigure = guidata(handles.ParentsWindow);
 
 if length(varargin)>0,
-    
-    handles.data.x = handles.ParentFigure.s_alignment.alg_batches;
-    
-    choice = questdlg('Do you want to add the warping information to the calibration data set as a new variable', ...
- 	'Yes', ...
- 	'No');
-    % Handle response
-    switch choice
-      case 'Yes'
-          ;
-      case 'No'
-          handles.data.x = handles.data.x(:,2:end,:);
-    end
+    handles.data.x = handles.ParentFigure.s_alignment.alg_batches(:,2:end,:);
 
     handles.data.text = [];
     handles.data.man_mp_group = {};
@@ -1471,7 +1459,7 @@ if ok,
     mp_model=struct('type','Manual','arg',arg);
     
     mp_model.phases = [ones(n_phases,1),pcs,lmvs,init,fint];
-    
+
     mp_model = crossvalMP_s(mp_model,handles.data.cross);
 
     handles.data.man_mp_group{length(handles.data.man_mp_group)+1} = mp_model;

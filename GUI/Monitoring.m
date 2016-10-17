@@ -491,7 +491,7 @@ try
         % Call function to display the overall contribution, and the
         % contribution per variable and batch time
         
-        Diagnosis(handles.calibration.x,test_batchSyn,av,ovContrib,jContrib,kContrib,handles.calibration.model.phases(:,4),handles.ParentFigure.varNames(2:end,:),label);
+        Diagnosis(handles.calibration.x,test_batchSyn,av,ovContrib,jContrib,kContrib,handles.calibration.model.phases(:,4),handles.ParentFigure.varNames,label);
         
         case 1
         % Case 2: Evolving contribution to the multivariate statistics for the
@@ -506,7 +506,7 @@ try
             contToStat = contToStat(handles.batchTime,:);
             
         end
-        createFigure(handles.calibration.x,test_batchSyn,av,handles.ParentFigure.varNames(2:end,1));
+        createFigure(handles.calibration.x,test_batchSyn,av,handles.ParentFigure.varNames(:,1));
         bar(contToStat);
         xlabel('Variables','FontSize',12,'FontWeight','bold');
         ylabel(strcat(label,sprintf('(k=%d)',handles.batchTime)),'FontSize',12,'FontWeight','bold');
@@ -637,8 +637,8 @@ if isvector(xtest) && size(xtest,1)>0
         end
         
         if size(xtest(j).data,1) == 1
-            varsIn = find(handles.ParentFigure.dataset.VariablesIn==1); varsIn= varsIn(2:end);
-            x{j} = xtest(j).data{1,1}(:,varsIn+ones(size(varsIn)).*1);
+            varsIn = find(handles.ParentFigure.dataset.VariablesIn==1); 
+            x{j} = xtest(j).data{1,1}(:,varsIn+ones(size(varsIn)).*2);
         else
             eq=1;
         end
@@ -651,7 +651,7 @@ if eq
     x = arrange2D(xtest,handles.ParentFigure.s_alignment.equalization.inter,handles.ParentFigure.s_alignment.equalization.units,handles.ParentFigure.s_alignment.equalization.method_interp);
     varsIn = find(handles.ParentFigure.dataset.VariablesIn==1);
     for i=1:length(x),
-        x{i} =  x(:,varsIn+ones(size(varsIn)).*1);
+        x{i} =  x(:,varsIn+ones(size(varsIn)).*2);
     end
 end
    
@@ -792,7 +792,7 @@ switch handles.alignment.synchronization{handles.alignment.stages}.methodsyn
          
      case 'dtw'
         Bref = scale_(handles.alignment.synchronization{handles.alignment.stages,1}.Xref,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
-        test = scale_(test_batch(:,2:end),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        test = scale_(test_batch(:,1:end),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
         [synTestBatch, warptest] = DTW(test,Bref,diag(handles.alignment.synchronization{handles.alignment.stages}.W));      
         
         for j=1:size(handles.alignment.synchronization{handles.alignment.stages}.nor_batches{1},2)

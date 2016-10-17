@@ -72,7 +72,7 @@ if iscell(handles.data.x),
         for i=1:sb(2)
              handles.data.synchronization{handles.Stage2Syn}.nor_batches{i} = handles.data.x{i}.data{1}(:,3:end);
         end
-        handles.data.stages = numel(unique(handles.data.x{1}.data{1}(:,2)));
+        handles.data.stages = numel(unique(handles.data.x{1}.data{1}(find(~isnan(handles.data.x{1}.data{1}(:,2))),2)));
         handles.data.type=2;
     end
 end
