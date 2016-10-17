@@ -574,7 +574,7 @@ handles.ParentFigure.x = prepareData(handles.s_screening.batch_data,handles.sele
 %% Section to impute missing values in the batch trajectories if exist
 
 for i=1:length(handles.ParentFigure.x)
-    cal = handles.ParentFigure.x{i}.data{1,1}(:,2:end);
+    cal = handles.ParentFigure.x{i}.data{1,1}(:,3:end);
     if numel(find(isnan(cal)))>0, 
         s = size(cal);
         % Construct a questdlg with three options
@@ -649,9 +649,10 @@ for i=1:length(handles.ParentFigure.x)
                 plot3D(rec,[],cal)
                 
                 % Replace the batch trajectories with the imputed ones
-                handles.ParentFigure.x{i}.data{1,1}(:,2:end) = rec;
+                handles.ParentFigure.x{i}.data{1,1}(:,3:end) = rec;
 
             case 'No'
+                warndlg('The data set contains missing values and, therefore, the batch trajectories cannot be synchronized.');
                 return;
                 
             case 'Cancel'
