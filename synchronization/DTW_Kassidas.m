@@ -43,11 +43,12 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal, ref, Wconstr)
 % interrupted.
 %
 %
-% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)          
+% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
+%           
 % last modification: July 2011.
 %
-% Copyright (C) 2016  Technical University of Valencia, Valencia
-% Copyright (C) 2016  Jose Maria Gonzalez-Martinez
+% Copyright (C) 2011  Technical University of Valencia, Valencia
+% Copyright (C) 2011  Jose Maria Gonzalez-Martinez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -62,7 +63,7 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal, ref, Wconstr)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Arguments checking
+%% Parameters cheching
 
 if nargin < 2, error('The number of argument is wrong. Please, check the help for further details.'), end
 if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end

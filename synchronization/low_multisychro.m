@@ -111,10 +111,9 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Arguments checking
-routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+%% Parameters checking
 
+if nargin < 3, error('The number of argument is incorrect. Please, check the help for further details.'), end
 if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end
 nBatches = size(cal,2);
 nTime = size(ref,1);

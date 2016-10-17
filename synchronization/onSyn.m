@@ -50,11 +50,11 @@ function [sBn,warpEref,warp, band] = onSyn(Bn,Bref,band,W,zeta,rng)
 % version: 1.0
 % last modification: 15/May/11.
 
-%% Arguments checking
-routine=dbstack;
-assert (nargin >= 4, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+%% Parameters checking
+
 sizeR = size(Bref); sizeS= size(Bn);
 
+if nargin < 4, error('Incorrect number of arguments.'); end
 if iscell(Bref) || iscell(Bn), error('Reference, test or both batches are cell array. Both must be 2D matrices'); end
 if ndims(Bn)~=2, error('Incorrect number of dimensions of S'); end;
 if ndims(Bref)~=2, error('Incorrect number of dimensions of R'); end;

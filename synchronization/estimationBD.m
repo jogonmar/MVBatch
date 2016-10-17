@@ -28,13 +28,9 @@ function band  = estimationBD(warping, Kref, maxSPath)
 % version: 1.0
 % last modifications 
 % 17/Oct/13: The warping information of each batch is expressed as a
-% function of the reference batch, yielding warping profiles of equal
+% function of the reference batch, leading to warping profiles of equal
 % length across batches.
 
-%% Arguments checking
-routine=dbstack;
-assert (nargin >= 1, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-if iscell(warping) && nargin<2, error('Unexpected number of input parameters for warping profiles stored in cell arrays'); end
 
 if iscell(warping)
     band = zeros(maxSPath,2);

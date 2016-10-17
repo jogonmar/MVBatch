@@ -110,10 +110,9 @@ function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Arguments checking
-routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+%% Parameters checking
 
+if nargin < 2, error('Incorrect number of inputs. Please, check the help for further details.'), end
 if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end
 nBatches = size(cal,2);
 nVariables = size(ref,2);

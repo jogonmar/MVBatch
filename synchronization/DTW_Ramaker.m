@@ -1,7 +1,7 @@
 function [W,X,warp,rng,warping]=DTW_Ramaker(cal,ref,Wconstr)
 
-% Synchronization of batch trajectories giving more importance to those 
-% variables containing important warping information. 
+% Function to carry out the synchronization of batch trajectories
+% giving more importance to those variables containing important warping information. 
 % The original paper is: 
 % [1] Henk-Jan Ramaker,  Eric N.M. van Sprang, Johan A. Westerhuis, Age K. Smilde (2003).
 % Dynamic Time Warping of spectroscopic batch data, Analytica Chimica Acta 498: 133-155.
@@ -36,7 +36,8 @@ function [W,X,warp,rng,warping]=DTW_Ramaker(cal,ref,Wconstr)
 %           off-line synchronization of the I historical batches.
 %
 %
-% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)        
+% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
+%           
 % last modification: 
 %
 % October 2013: Warping information is expressed as a function of the
@@ -47,8 +48,8 @@ function [W,X,warp,rng,warping]=DTW_Ramaker(cal,ref,Wconstr)
 % ref batch. Also, the output matrix contains the synchronized test batches adding 
 % the range removed in the preprocessing step.
 %
-% Copyright (C) 2016  Technical University of Valencia, Valencia
-% Copyright (C) 2016  José M. González Martínez
+% Copyright (C) 2011  Technical University of Valencia, Valencia
+% Copyright (C) 2011  Jose Maria Gonzalez-Martinez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -63,7 +64,7 @@ function [W,X,warp,rng,warping]=DTW_Ramaker(cal,ref,Wconstr)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-%% Arguments checking
+%% Parameters checking
 
 if nargin < 2, error('Number of arguments are incorrect. Please check it up.'); end
 if ~iscell(cal), error('The data set has to be a cell array to save possible uneven batches.'); end

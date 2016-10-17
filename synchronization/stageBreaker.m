@@ -19,9 +19,9 @@ function [Xs] = stageBreaker(X,stages)
 % version: 1.0
 % last modification: May/11.
 
-%% Arguments checking
-routine=dbstack;
-assert (nargin >= 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+%% Parameters cheching
+
+if nargin < 1, error('The number of argument is not correct.'); end
 if ~iscell(X), error('The X matrix must be a cell array containing batch trajectories with non-constant lenghts'); end
 
 nBatches = length(X);

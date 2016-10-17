@@ -1,53 +1,44 @@
-function band = updateBound(e_pos,k,band,Kref)
+function band = updateBound(e_pos, k, band,Kref)
 
-% Adaptation of the upper and lower boundaries when the endpoint e* at the sampling time point k
-% lies in one of the extremes of the search space. 
-% The original paper is: 
-% González et al. Real-time synchronization of batch trajectories for on-line multivariate statistical
-% process control using Dynamic Time Warping, Chemometrics and Intelligent Laboratory Systems, 105 (2011) 195-206).
-%
-% CALLS:
-%           band = updateBound(e_pos,k,band,Kref)   % complete call
-%
+% updateBound function allows us to update the upper and lower boundaries 
+% in the batch synchronization in case that the endpoint e* at the k current sampling 
+% time is lying on one extreme of the band. When the duration of the ongoing batch
+% is longer than the longest duration of NOC batches, with every new
+% measurment coming in, the function will be extend the bands  by taking
+% the value of the latter one belonging to both the upper and lower
+% boundaries.
 %
 % INPUTS:
 %
-% e_pos:  (1x1) k-th time point of the reference batch in which the minimum 
-%           cumulative weight distance Di,j is found.
+% e_pos:  k-th time point of the batch reference Bref where the minimum 
+%           cumulative weight distance Di,j occurs at the current k sampling time.
 %
-% k:      (1x1) current sampling time point.
+% k:      current sampling time.
 %
-% band:   (max(Kn)x 2) upper and lower boundaries.
+% band:   (max(Kn)x 2) array containing the upper and lower boundaries.
 %
-% Kref:   number of sampling time point of the reference batch.
+% Kref:   number of sampling times of the batch reference Bref.
 %
 % OUTPUTS: 
 %
-% band:   (Kband x 2) adapted upper and lower boundaries.
+% band:   (Kband x 2) array containing the updated upper and lower
+%           boundaries.
 %
+% CALLS:
+%           band = updateBound(e_pos, k, band,Kref)   % complete call
 %
-% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)     
-% last modification: Mar/2010
-%
-% Copyright (C) 2016  Technical University of Valencia, Valencia
-% Copyright (C) 2016  José M. González Martínez
-% 
-% This program is free software: you can redistribute it and/or modify
-% it under the terms of the GNU General Public License as published by
-% the Free Software Foundation, either version 3 of the License, or
-% (at your option) any later version.
-% 
-% This program is distributed in the hope that it will be useful,
-% but WITHOUT ANY WARRANTY; without even the implied warranty of
-% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-% GNU General Public License for more details.
-% 
-% You should have received a copy of the GNU General Public License
-% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+% Updating function proposed by González et al. [Real-time synchronization 
+% of batch trajectories for on-line multivariate statistical process
+% control using Dynamic Time Warping, Chemometrics and Intelligent
+% Laboratory Systems, 105 (2011) 195-206)].
 
-%% Arguments checking
-routine=dbstack;
-assert (nargin >= 4, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+% codified by: Jose Maria Gonzalez-Martinez.
+% version: 1.0
+% last modification: March 2010.
+
+%% Parameters checking
+
+if nargin < 4, error('Incorrect number of arguments.');end
 if size(band,2) ~= 2 , error('Band is not accurate for the synchronization of these multivariate trajectories.'); end
 
 nElem = size(band,1);
@@ -66,7 +57,7 @@ if k+1 < nElem
         end
     end
 
-    % Boundary adaptation
+    % Boundarries updating
     if decrease==true
          incrL = band(k+2,1) - band(k,1);      
          band(k+1:k+2,1)=band(k,1);         
