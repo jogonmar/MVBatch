@@ -69,7 +69,7 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95]=plot_distcv2(xini
 %   limit in the overall SPE. 
 % 
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-%           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
+%           José M. González Martínez (jogonmar@gmail.com)
 % last modification: 1/Aug/14
 %
 % Copyright (C) 2016  University of Granada, Granada

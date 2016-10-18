@@ -785,6 +785,7 @@ switch handles.alignment.synchronization{handles.alignment.stages}.methodsyn
 
              if length(find(isnan(uBn(:,handles.alignment.synchronization{handles.alignment.stages,1}.var)))) <= 0.25*length(uBn(:,handles.alignment.synchronization{handles.alignment.stages,1}.var)) % Aling every batch where the iv was measured
                 synTestBatch = align_IV(uBn,handles.alignment.synchronization{handles.alignment.stages,1}.var,handles.alignment.synchronization{handles.alignment.stages,1}.steps,handles.alignment.synchronization{handles.alignment.stages,1}.method);
+                synTestBatch = synTestBatch(:,2:end); % remove time warping profile;
                 nsamplesToPlot = size(synTestBatch,1);
              else
                  errordlg('Too much missing data in the indicator variable.','Error Dialog','modal');
@@ -793,16 +794,13 @@ switch handles.alignment.synchronization{handles.alignment.stages}.methodsyn
      case 'dtw'
         Bref = scale_(handles.alignment.synchronization{handles.alignment.stages,1}.Xref,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
         test = scale_(test_batch(:,1:end),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
-        [synTestBatch, warptest] = DTW(test,Bref,diag(handles.alignment.synchronization{handles.alignment.stages}.W));      
+        [synTestBatch,warptest] = DTW(test,Bref,diag(handles.alignment.synchronization{handles.alignment.stages}.W));      
         
         for j=1:size(handles.alignment.synchronization{handles.alignment.stages}.nor_batches{1},2)
             synTestBatch(:,j)=synTestBatch(:,j).*handles.alignment.synchronization{handles.alignment.stages}.rng(j);
         end
 
-        %[synTestBatch warptest] = onSyn(test_batch,Bref, handles.alignment.synchronization{handles.alignment.stages,1}.dtw.band,diag(handles.alignment.synchronization{handles.alignment.stages,1}.dtw.W), handles.alignment.dtw.zeta, handles.alignment.dtw.Xrng);
-
-        st = size(synTestBatch);
-        sr = size(Bref);
+        %[synTestBatch warptest] = onSyn(test,Bref, handles.alignment.synchronization{handles.alignment.stages,1}.band,diag(handles.alignment.synchronization{handles.alignment.stages,1}.W), handles.alignment.synchronization{handles.alignment.stages,1}.zeta, handles.alignment.synchronization{handles.alignment.stages,1}.rng);
         nsamplesToPlot = size(synTestBatch,1);
 
 

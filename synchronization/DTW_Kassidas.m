@@ -1,11 +1,11 @@
-function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal, ref, Wconstr)
+function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal,ref,Wconstr)
 
 % Function to synchronize a set of batch trajectories against a stated
 % batch (ref batch) through an iterative procedure. The synchonization
 % is carried out by using the classical DTW, giving more weight to
-% those variables that are more consistent batch to batch. The original
-% paper is: Kassidas et al. (1998). Synchronization of batch trajectories using 
-% dynamic time warping, AIChE Journal 44:864-875.
+% those variables that are more consistent batch to batch. 
+% The original paper is: Kassidas et al. (1998). Synchronization of batch 
+% trajectories using dynamic time warping, AIChE Journal 44:864-875.
 %
 % CALLS:
 %        [W,X,warping,rng] = DTW_Kassidas(cal, ref)           % minimum call
@@ -14,41 +14,39 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal, ref, Wconstr)
 %
 % INPUTS:
 %
-% cal: (1xI) cell array containing the measurements collected for J variables at 
-%       Ki different sampling times for each one of the I batches.
+% cal:      (1xI) cell array containing the measurements collected for J variables at 
+%            Ki different sampling times for all I batches.
 %       
-% ref: (KrefxI) refernce batch.
+% ref:       (KrefxI) reference batch.
 %
 % Wconstr: (Jx1) boolean array indicating if a specific variable is
-% considered in the synchronization (0) or not (1).
+%            considered in the synchronization (0) or not (1).
 %        
 % OUTPUTS:
 %
-% W: (JxJ) matrix containing weights to give more importance to those
-%    variables are more consistent batch to batch.
+% W:       (JxJ) weights to give more importance to those variables are more 
+%          consistent batch to batch.
 %
-% X:  (KxJxI) data matrix containing the J batch trajectories, whose duration is equal to
-%      K, of each one the I batches.
+% X:       (KxJxI) data matrix containing J batch trajectories expressed at K time intervals
+%          for all I batches.
 %
 % warping: (KrefxI) warping information expressed as a function of the
-% ref batch.
+%           reference batch.
 %
-% rng: (1xJ) vector containing the mean range of each one the J
-%      trajectories.
+% rng:      (1xJ) mean range of each J variable trajectory.
 %
-% warpingOri: (1xI) cell array containing the warping information from the
-%           off-line synchronization of the I historical batches.
+% warpingOri:(1xI) warping information derived from the offline synchronization 
+%             of I historical batches.
 %
 % flag: flag to indicate if the synchronization was unexpectedly
 % interrupted.
 %
 %
-% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
-%           
-% last modification: July 2011.
+% coded by: José M. Gonzalez-Martinez (J.Gonzalez-Martinez@shell.com)          
+% last modification: July/11.
 %
-% Copyright (C) 2011  Technical University of Valencia, Valencia
-% Copyright (C) 2011  Jose Maria Gonzalez-Martinez
+% Copyright (C) 2016  José M. Gonzalez-Martinez
+% Copyright (C) 2016  Technical University of Valencia, Valencia
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -65,8 +63,8 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal, ref, Wconstr)
 
 %% Parameters cheching
 
-if nargin < 2, error('The number of argument is wrong. Please, check the help for further details.'), end
-if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end
+if nargin < 2, error('Incorrect number of input paramters. Please, check the help for further details.'), end
+if ~iscell(cal), error('The first input parameter must be a cell array containing unsynchronized trajectories.'); end
 nBatches = size(cal,2); nVariables = size(cal{1,1},2);
 if nargin < 3 || isempty(Wconstr) , Wconstr = zeros(size(cal{1,1},2),1); end
 if find(Wconstr==0) < 1, error('If all the process variables are constrained, no synchronization can be performed.');end
@@ -102,7 +100,6 @@ while(flag || iter <=4)
     else
         Bref = Bmean;
     end
-
     % Step 1: Apply the DTW/synchronization method between Bi i=1,...,I y Bref
     for i=1:nBatches          
          % Check for Cancel button press
@@ -119,7 +116,6 @@ while(flag || iter <=4)
     for i=1:nBatches
         Add = Add + calsy{i}(:,:);
     end
-
     Bmean = Add ./ nBatches;
 
     % Step 3: For each variable, compute the sum of squared desviations from Bmean
@@ -128,18 +124,14 @@ while(flag || iter <=4)
         weight = 0;
         for i=1:nBatches
             weight = weight + (nansum((calsy{i}(:,VarConstr(j)) - Bmean(:,VarConstr(j))).^2));
-        end
-        
-        Wnew(VarConstr(j),VarConstr(j)) = 1/weight;
-        
+        end     
+        Wnew(VarConstr(j),VarConstr(j)) = 1/weight;      
         if weight == 0, Wnew(VarConstr(j),VarConstr(j)) = 0.0001;end
     end
     % Step 4: Normalize W so that the sum of the weights is equal to the number of
     %         variables.
 
-    Wnew = diag((diag(Wnew)./sum(diag(Wnew)))*nVariables);
-    
-    
+    Wnew = diag((diag(Wnew)./sum(diag(Wnew)))*nVariables);   
     if  isempty(find(((abs(Wnew) - abs(W))) > 0.01))
         flag = false;
     end 

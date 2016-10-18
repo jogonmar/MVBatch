@@ -18,7 +18,7 @@ function y = lagmatrix(x,lags)
 % y: ((K-lag)x(J(1+lag))) lagged matrix. [x(k) ... x(k-lag+1) x(k -lag)]
 %
 %
-% coded by: José M. González Martínez (jogonmar@gmail.com)
+% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)
 %
 % Copyright (C) 2016  Technical University of Valencia, Valencia
 % Copyright (C) 2016  José M. González Martínez
@@ -38,7 +38,7 @@ function y = lagmatrix(x,lags)
 
 % Parameters checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
+if nargin < 2, error('Incorrect number of input parameters. Please, check the help for further details.'); end;
 if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end
 s = size(x);
 if lags<0, error('Incorrect value of lags.'); end;

@@ -9,14 +9,16 @@ function  [varargout] = plot3D_batchtools(x,test,vars,varNames,uipanelPlots)
 %
 % INPUTS:
 %
-% x: (Ix1) cell structure containing the field data, which contains z cell array with batch data sampled at certain frequency
+% x: (Ix1) cell structure containing the field data, which contains (zx1)
+% cell array with batch data sampled at certain frequency.
 %
-% test: batch to highlight in the visualization with the same structure as
-% x.
+% test: variables trajectories of the selecte batch to be highlighted on
+% the visualization GUI. The data structure is the sames as x.
 %
-% vars: (nx1) vector with the indices of the process variables to plot. 
+% vars: (nx1) vector with indices of the process variables to plot. 
 %
-% varNames: cell array with the tagnames of the process variables.
+% varNames: (Jx3) cell array with the tagnames of the process variables:
+% 1st column: variable name, 2nd column: x label, and 3rd column: y label.
 %
 % uipanelPlots: (1x1) handle to the figure.
 %

@@ -1,12 +1,11 @@
-function []=plotoff(resmod,hotelling,residuals,htest,rtest,pos,lotes,pc,opt,alpoh,alpor,alpoh95,alpor95,axes1,axes2)
+function [lima,limb,limar,limbr]=plotoff(resmod,hotelling,residuals,htest,rtest,pos,lotes,pc,opt,alpoh,alpor,alpoh95,alpor95,axes1,axes2)
 
 % Plots the overall D-statistic and SPE values of the calibration batches using 
 %   the leave-one-out cross-validated and theorical control limits. 
 %
-% [alph,alpr,alph95,alpr95]=plot_onOverallstats(resmod,hotelling,residuals,lotes,pc,opt) % call with standard parameters
+% [lima,limb,limar,limbr]=plotoff(resmod,hotelling,residuals,htest,rtest,pos,lotes,pc)                                             % call with standard parameters
 %
-% [alph,alpr,alph95,alpr95]=plot_onOverallstats(resmod,hotelling,residuals,lotes,tg
-%   ,pc,opt,axes1,axes2) % complete call
+% [lima,limb,limar,limbr]=plotoff(resmod,hotelling,residuals,htest,rtest,pos,lotes,pc,opt,alpoh,alpor,alpoh95,alpor95,axes1,axes2) % complete call
 %
 %
 % INPUTS:
@@ -20,7 +19,9 @@ function []=plotoff(resmod,hotelling,residuals,htest,rtest,pos,lotes,pc,opt,alpo
 % residuals: (Ix1) SPE of the calibration batches obtained in a
 %    leave-one-out cross-validation, I(batches).
 %
-% htest: (1x1) D-statistic of the test batch.
+% htest: (1x1) overall D-statistic for the test batch.
+%
+% rtest: (1x1) overall SPE for the test batch.
 %
 % pos: (1x1) position on the graph of the values estimated for the test batch.
 %
@@ -51,26 +52,42 @@ function []=plotoff(resmod,hotelling,residuals,htest,rtest,pos,lotes,pc,opt,alpo
 %
 % OUTPUTS:
 %
-% alph: suggested imposed significance level (alpha) for the 99% confidence 
-%   limit in the D-statistic. 
+% lima: D-statistic control limit at the suggested imposed significance level (alpha) for the 95% confidence 
+%   level. 
 %
-% alpr: suggested imposed significance level (alpha) for the 99% confidence 
-%   limit in the SPE.
+% limb: D-statistic control limit at the suggested imposed significance level (alpha) for the 99% confidence 
+%   level.
 %
-% alph95: suggested imposed significance level (alpha) for the 95% confidence 
-%   limit in the D-statistic. 
+% limar: SPE control limit at the suggested imposed significance level (alpha) for the 95% confidence 
+%   level. 
 %
-% alpr95: suggested imposed significance level (alpha) for the 95% confidence 
-%   limit in the SPE.
+% limbr: SPE control limit at the suggested imposed significance level (alpha) for the 99% confidence 
+%   level.
 %
 %
-% codified by: José M. Gonzalez-Martinez.
-% version: 0.0
-% last modification: 20/Oct/13.
+% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)
+%            Jose Camacho Paez (josecamacho@ugr.es)
+%           
+% last modification: Oct/13
+%
+% Copyright (C) 2016  Technical University of Valencia, Valencia
+% Copyright (C) 2016  José M. González Martínez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Parameters checking
-
-if nargin < 7, error('The number of argument is not correct.'); end;
+if nargin < 8, error('Incorrect number of input parameters. Please, check the help for further details.'); end;
 sh = size(hotelling);
 sr = size(residuals);
 if sh ~= sr, error('The dimensions of Hotelling-T2 and SPE vectors do not coincide.'); end
@@ -82,11 +99,11 @@ if nargin < 12, alpoh95 = 0.05; end;
 if nargin < 13, alpor95 = 0.05; end;
 
 if nargin < 14, 
-    h = figure;
+    figure;
     axes1 = axes; 
 end;
 if nargin < 15, 
-    h2 = figure;
+    figure;
     axes2 = axes; 
 end;
 

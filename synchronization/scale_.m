@@ -1,16 +1,17 @@
-function [matrix, rng] = scale_(rawMatrix,rng)
+function [matrix,rng] = scale_(calibration,rng)
 
-% scale_ function scales a set of batches to account for the differences in the units
-% used to record the trajectories of the J variables. This function divides
-% each variable across all batches by its average range. Such range can be
-% provided or estimated.
+% Scale a set of batches to account for differences in magnitude across
+% variables.
 %
 % INPUT:
 %
-% rawMatrix: set of I batches containing the measurements collected of J
-%              variables at each kn sampling time.
+% calibration: set of I batches containing the measurements collected of J
+%              variables at each kn sampling time. To compute the ranges and
+%              scale batch data, the sata set must be provided in a cell 
+%              array. If a two-way array needs to be scaled with given ranges,
+%              the sata set must be provided in a (KxJ) matrix.
 %
-% rng:       (1xJ) vector containing the average range of the J variables
+% rng:       (1xJ) vector containing the average range of J variables
 %              
 % OUTPUT:
 %
@@ -19,49 +20,64 @@ function [matrix, rng] = scale_(rawMatrix,rng)
 % rng:       (1xJ) vector containing the average range of the J variables
 %
 % CALLS:
-%            [matrix, rng] = scale_(rawMatrix)         % call to estimate the average range-based scaled data matrix and the scaling vector.
-%            [matrix, rng] = scale_(rawMatrix, rng)    % call to estimate the average range-based scaled data matrix.
+%            [matrix, rng] = scale_(calibration)         % call to estimate the variables ranges and scale data matrix with these values
+%            [matrix, rng] = scale_(calibration, rng)    % call to scale a data matrix using the variable ranges
 %
-% codified by: Jose Maria Gonzalez-Martinez.
-% version: 1.0
-% last modification: 15/May/11.
+% coded by: José M. Gonzalez-Martinez (J.Gonzalez-Martinez@shell.com)          
+% last modification: May/11.
+%
+% Copyright (C) 2016  José M. Gonzalez-Martinez
+% Copyright (C) 2016  Technical University of Valencia, Valencia
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
- %% Checking input parameters
- if iscell(rawMatrix)
-     nVariables = size(rawMatrix{1},2);
+%% Parameters checking and initialization
+ if iscell(calibration)
+     nVariables = size(calibration{1},2);
  else
-     nVariables = size(rawMatrix,2);
+     nVariables = size(calibration,2);
  end
-  if nargin == 2 && size(rng,2)~= nVariables, errordlg('The number of weights in the scaling vector does not match with the number of the process variables'); end
+  if nargin == 2 && size(rng,2)~= nVariables, errordlg('The number of weights in the scaling vector does not match with the number of process variables'); end
   
- %% Scaling the batch process data 
-if iscell(rawMatrix)
+ %% Scaling batch process data 
+if iscell(calibration)
 
-    range = zeros(size(rawMatrix,2),nVariables);
+    range = zeros(size(calibration,2),nVariables);
     if nargin < 2
-        for i=1:size(rawMatrix,2)
+        for i=1:size(calibration,2)
       
             for j=1:nVariables
 
-                 range(i,j) = nanmax(rawMatrix{i}(:,j)) - nanmin(rawMatrix{i}(:,j));
+                 range(i,j) = nanmax(calibration{i}(:,j)) - nanmin(calibration{i}(:,j));
                  if range(i,j) == 0, range(i,j) = 0.000001;end
             end
         end
         rng = nanmean(range);
     end
 
-    matrix = rawMatrix;
+    matrix = calibration;
 
 
-    for i=1:size(rawMatrix,2)
+    for i=1:size(calibration,2)
     for j=1:nVariables
     matrix{i}(:,j) = matrix{i}(:,j)./rng(j);
     end
     end
 
 else
-    matrix = rawMatrix;
-    for j=1:size(rawMatrix,2)
+    matrix = calibration;
+    for j=1:size(calibration,2)
     matrix(:,j) = matrix(:,j)./rng(j);
     end
 end

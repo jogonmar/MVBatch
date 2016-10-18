@@ -1,73 +1,85 @@
-function [sBn,warpEref,warp, band] = onSyn(Bn,Bref,band,W,zeta,rng)
+function [sBn,warpEref,warp,band] = onSyn(Bn,Bref,band,W,zeta,rng)
 
-% onSyn function performs the real-time synchronization using the RGTW
-% algorithm. 
-
+% Real-time synchronization using the RGTW algorithm. 
+%
+% CALLS:
+%
+%       [sBn,warpEref,warp,band] = onSyn(Bn,Bref,band,W)               % minimum call
+%       [sBn,warpEref,warp,band] = onSyn(Bn,Bref,band,W,zeta,rng)      % complete call
+%
 % INPUTS:
 %
-% Bn: (Kt x J) reference batch which will be align against to the reference
-%     one. Kr are the number of measurements collected for each one of the J process
+% Bn: (Kt x J) sample batch to be aligned with the reference batch. Kt is 
+%     the number of measurements collected for each one of the J process
 %     variables.
 %
-% Bref: (Kref x J) reference batch which is used to carry out the alignment. Kt
-%     are the number of measurements collected for each one of the J process
+% Bref: (Kr x J) reference batch used to carry out the alignment. Kr
+%     is the number of measurements collected for each one of the J process
 %     variables.
 %
-% band: (Kref x 2) matrix containing the upper and lower limits which define
+% band: (Kr x 2) matrix containing the upper and lower limits that define
 %       the research space to estimate the local and cumulative distances, and
 %       the warping path. Note that the number of points of the bands must be, at least, the same
 %       as the number of sampling points of the reference batch R.
 %
 % W: (JxJ) matrix containing weights to give more importance to those
-%    variables are more proper to achieve the synchronization based on a
-%    criterium.
+%    variables are more important based on a certain criterium to achieve
+%    the optimal synchronization. 
 %
-% zeta: windows width to be used for real-time synchronization 
+% zeta: windows width to use for real-time synchronization 
 %      
-% rng: (1xJ) vector containing the mean range of each one the J
-%      trajectories.
+% rng: (1xJ) vector containing the mean range of each of J variable trajectories.
 %        
 % OUTPUTS:
 %
 % sBn:  (KrefxJ) matrix containing the synchronized batch trajectories.
 %
-%
 % warpEref: (Kref x 1) vector containing the warping information derived from
 % batch synchronization expressed as a function of the reference batch.
 %
-% warp: (1 x Kref) cell array containing the warpinf information from batch
+% warp: (1 x Kref) cell array containing the warping information obtained from batch
 % synchronization.
 %
 % band: (Kref x 2) matrix containing the updated upper and lower limits from
-%        the real-time synchronization. 
+%        the realtime synchronization. 
 %
+%
+% coded by: José M. Gonzalez-Martinez (J.Gonzalez-Martinez@shell.com)          
+% Copyright (C) 2016  José M. Gonzalez-Martinez
+% Copyright (C) 2016  Technical University of Valencia, Valencia
 % 
-% CALLS:
-%
-%       [sBn warp band] = onSyn(Bn,Bref, band,W, zeta, rng)      % complete call
-%
-% codified by: Jose Maria Gonzalez-Martinez.
-% version: 1.0
-% last modification: 15/May/11.
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 %% Parameters checking
 
 sizeR = size(Bref); sizeS= size(Bn);
 
-if nargin < 4, error('Incorrect number of arguments.'); end
-if iscell(Bref) || iscell(Bn), error('Reference, test or both batches are cell array. Both must be 2D matrices'); end
+if nargin < 4, error('Incorrect number of input paramters. Please, check the help for further details.'); end
+if iscell(Bref) || iscell(Bn), error('Reference, test or both batches are cell array. Both must be two-way arrays'); end
 if ndims(Bn)~=2, error('Incorrect number of dimensions of S'); end;
 if ndims(Bref)~=2, error('Incorrect number of dimensions of R'); end;
-if sizeR(2)~= sizeS(2), error('The number of variables must be equal between the reference and test batch'); end
+if sizeR(2)~= sizeS(2), error('The number of variables must be equal in the reference and test batches'); end
 sw = size(W);
-if sw(1) ~= sw(2), error('The weight matrix must be a squared one.'); end
+if sw(1) ~= sw(2), error('The weight matrix must be square.'); end
 if min(W) < 0, error('Matrix W must be positive definite'); end
-if sizeR(2)~=sw(1), error('The number of the weights do not match with the number of process variables.'); end
-if zeta < -1, error('The number of window width to be studied must be greater than 0'); end
+if sizeR(2)~=sw(1), error('The number of weights do not match with the number of process variables.'); end
+if zeta < -1, error('The number of window widths under study must be greater than 0'); end
 if size(rng,2)~=sizeR(2), error('The number of scaled values do not match with the number of process variables.'); end
-if size(band,2) ~= 2 , error('Band is not accurate for the synchronization of these multivariate trajectories'); end
+if size(band,2) ~= 2 , error('Dimension Error. Please, check the help for further details on the Band parameter.'); end
 
-
+% Initialization
 alignment = struct( 'nsamples',1,...
                     'temp',[],...
                     'k',1,...

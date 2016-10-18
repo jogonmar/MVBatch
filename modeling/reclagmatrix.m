@@ -18,7 +18,7 @@ function y = reclagmatrix(x,lags)
 % y: (K,J) data matrix.
 %
 %
-% coded by: José M. González Martínez (jogonmar@gmail.com)
+% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)
 %
 % Copyright (C) 2016  Technical University of Valencia, Valencia
 % Copyright (C) 2016  José M. González Martínez
@@ -38,7 +38,7 @@ function y = reclagmatrix(x,lags)
 
 % Parameters checking
 
-if nargin < 2, error('Error in the number of arguments.'); end;
+if nargin < 2, error('Incorrect number of input parameters. Please, check the help for further details.'); end;
 if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end
 s = size(x);
 if lags<0, error('Incorrect value of lags.'); end;

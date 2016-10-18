@@ -64,6 +64,8 @@ handles.ParentsWindow=varargin{1};
 handles.ParentFigure = guidata(handles.ParentsWindow);
 
 if length(varargin)>0,
+    handles.ParentFigure.s_alignment.synchronization
+    
     handles.data.x = handles.ParentFigure.s_alignment.alg_batches(:,2:end,:);
 
     handles.data.text = [];

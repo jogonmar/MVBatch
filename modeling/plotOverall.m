@@ -3,9 +3,9 @@ function [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,
 % Plots the overall D-statistic and SPE values of the calibration batches using 
 %   the leave-one-out cross-validated and theorical control limits. 
 %
-% [alph,alpr,alph95,alpr95]=plotcv(resmod,hotelling,residuals,lotes,pc,opt) % call with standard parameters
+% [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,pc,opt) % call with standard parameters
 %
-% [alph,alpr,alph95,alpr95]=plotcv(resmod,hotelling,residuals,lotes,pc,opt,axes1,axes2) % complete call
+% [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,pc,opt,axes1,axes2) % complete call
 %
 %
 % INPUTS:
@@ -68,7 +68,7 @@ function [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,
 
 % Parameters checking
 routine=dbstack;
-assert (nargin >= 5, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 5, 'Error in the number of input parameters. Type ''help %s'' for more info.', routine(1).name);
 if nargin < 6, opt = 1; end;
 if nargin < 7, 
     figure;

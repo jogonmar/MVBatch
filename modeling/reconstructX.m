@@ -9,9 +9,9 @@ function [xrec] = reconstructX(X,T,P,pcs,meanv,stdv)
 %
 % X: (kxJ) Two-way batch data matrix, k(observations) X J (variables)
 %
-% T: [IxH] scores where H stands for the maximum number of PCs.
+% T: (IxH) scores where H stands for the maximum number of PCs.
 %
-% P: [JKxH] loadings where H stands for the maximum number of PCs.
+% P: (JKxH) loadings where H stands for the maximum number of PCs.
 %
 % pc: (1x1) number of principal components.
 %
@@ -45,7 +45,7 @@ function [xrec] = reconstructX(X,T,P,pcs,meanv,stdv)
 
 % Parameters checking
 routine=dbstack;
-assert (nargin >= 6, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin >= 6, 'Error in the number of input parameters. Type ''help %s'' for more info.', routine(1).name);
 
 % Validate dimensions of input data
 Ht = size(T, 2);

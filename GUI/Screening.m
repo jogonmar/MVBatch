@@ -788,10 +788,11 @@ s = size(xtest);
 x = cell(size(obs,1),1); 
 counterb = 0;
 test{1} = struct('data',[]);
-for i=1:s(1), % batches
+for k=1:numel(obs), % batches
+    i = obs(k);
     x{counterb+1} = struct('data',cell(size(xtest(i).data,2),1));
     for j=1:size(xtest(i).data,2) % sampling frequencies
-        x{counterb+1}.data{j} = [];
+        %x{counterb+1}.data{j} = [];
         if ~isempty(find(obs==i)),counterb = counterb + 1; x{counterb}.data{j} = xtest(i).data{j}(:,1:2);
         else
         break;    

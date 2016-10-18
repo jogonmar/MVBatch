@@ -87,9 +87,8 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-% Parameters checking
-
-if nargin < 6, error('Numero de argumentos erroneos.'); end;
+%% Parameters checking
+if nargin < 6, error('Incorrect number of input parameters. Please, check the help for further details.'); end;
 if nargin < 7, opt = 1; end;
 if nargin < 8, alph = 0.01; end;
 if nargin < 9, alpr = 0.01; end;
@@ -97,11 +96,11 @@ if nargin < 10, alph95 = 0.05; end;
 if nargin < 11, alpr95 = 0.05; end;
 if nargin < 12, nsamplesToPlot = Inf; end ;
 if nargin < 13
-    h = figure;
+    figure;
     axes1 = axes; 
 end;
 if nargin < 14, 
-    h2 = figure;
+    figure;
     axes2 = axes; 
 end;
 
@@ -110,11 +109,7 @@ if nsamplesToPlot == Inf, nsamplesToPlot = size(hotelling);end
 % D-statistic
 hi95 = [];
 hi = [];
-
 s=size(residuals);
-out = false;
-
-lclu = s(1);
 
 if pc(1)~=0,
     lima=[];
@@ -137,12 +132,10 @@ if pc(1)~=0,
         lim95=real(lima)./real(limb);
         plot(1:s(1),lim95,'r--');
         plot(1:s(1),ones(s(1),1),'r');
-        v = axis;
-        %axis([1,s(1),0,min(max(v(4),1.2),4)])
         axis tight
     end
 
-    hi95=zeros(s(2),s(1)); % registro de faltas
+    hi95=zeros(s(2),s(1)); 
     hi=zeros(s(2),s(1));
     for i=1:s(2),
         hi(i,:) = hotelling(:,i)>limb';
@@ -159,7 +152,6 @@ end
     
 
 % SPE 
-
 limar=[];
 limbr=[];
 
@@ -175,8 +167,8 @@ for i=1:s(1),
     %limbr=[limbr (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)];             
    % Estimation of the SPE control limits following Jackson & Mudholkar's
    % approach
-     limar=[limar spe_lim(resmod(:,:,i),alpr95)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
-     limbr=[limbr spe_lim(resmod(:,:,i),alpr)]; % limite al 99% de conf.
+     limar=[limar spe_lim(resmod(:,:,i),alpr95)]; 
+     limbr=[limbr spe_lim(resmod(:,:,i),alpr)]; 
 end
 
 res = residuals;

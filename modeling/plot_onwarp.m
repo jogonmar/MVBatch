@@ -43,7 +43,7 @@ function [] = plot_onwarp(warpnoc,band,warptest,tg,nsamplesToPlot,plotallFlag,ax
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Parameter checking
-if nargin < 2, errodlg('Incorrect number of input parameters.');end
+if nargin < 2, errodlg('Incorrect number of input parameters. Please, check the help for further details.');end
 if nargin < 3, warptest = []; end   
 if nargin < 4 || isempty(tg), tg = 'x';end
 if nargin < 5 || isempty(nsamplesToPlot), nsamplesToPlot = size(warpnoc,1);end

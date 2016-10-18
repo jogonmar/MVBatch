@@ -1,42 +1,28 @@
 function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wconstr,pcs,offset,console,specSynchronization)
 
-% MultiSynchro is devoted to synchronize the key process events ensuring
-% the same evolution across batches, no matter the type of asynchronism 
-% present in batch data.  
-% The multi-synchro algorithm is composed of a high-level and low-level 
-% routine. The highlevel % routine is aimed at recognizing the different 
-% types of asynchronous trajectories for the subsequent batch classification
-% as function of the nature of asynchronism. The low-level routine is in 
-% charge of synchronizing the variable trajectories of each one of the 
+% Low level rountine of the Multyisynchro algorithm to synchronize the variable trajectories of each of the 
 % batches with a specific procedure based on the type of asynchronism. 
-% The original paper are:
 %
+% The original work is:
 % [1] González Martínez, JM.; De Noord, O.; Ferrer, A. (2014). 
-% Multi-synchro: a novel approach for batch synchronization in scenarios 
+% Multisynchro: a novel approach for batch synchronization in scenarios 
 % of multiple asynchronisms, Journal of Chemometrics, 28(5):462-475.
-%
 % [2] González Martínez, JM.; Vitale, R.; De Noord, OE.; Ferrer, A. (2014). 
 % Effect of synchronization on bilinear batch process modeling, 
 % Industrial and Engineering Chemistry Research, 53(11):4339-4351.
+% [3] González-Martinez, J.M. Advances on bilinear modeling of biochemical
+% batch processes (2015). PhD thesis, DOI: 10.4995/Thesis/10251/55684.
 %
 % CALLS:
-%        [Xs,F,specSynchronization] = MultiSynchro(cal,ref,Wconstr)                                     % minimum call
-%        [Xs,F,specSynchronization] = MultiSynchro(cal,ref,Wconstr,offset,console,specSynchronization)  % complete call
+%        [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection)                                                 % minimum call
+%        [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wconstr,pcs,offset,console,specSynchronization)  % complete call
 %
 % INPUTS:
 %
 % cal: (1xI) cell array containing the measurements collected for J variables at 
-%       Ki different sampling times for each one of the I batches.
+%       Ki different sampling times for each of the I batches.
 %       
 % ref: (KxJ) reference batch.
-%
-% Wconstr: (Jx1) boolean array indicating if a specific variables is
-% considered in the synchronization (0) or not (1).
-%
-% pcs: (1x1) number of principal components.
-%
-% offset: (Jx1) offset to apply to the warping profiles in case that the
-% algorithm is applied to different stages (by default array of zeros).
 %
 % asynDetection: struct containing information derived from the high level routine of the algorithm:
 %       - batchcI_II.I: (I1x1) indeces of the batches with class I and II
@@ -47,7 +33,17 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 %       asynchronism.
 %       - batchcIII_IV.I: (I3x1) indeces of the batches with class III and IV
 %       asynchronism.
-% 
+%
+% Wconstr: (Jx1) boolean array indicating if a specific variables is
+% considered in the synchronization (0) or not (1).
+%
+% pcs: (1x1) number of principal components.
+%
+% offset: (Jx1) offset to apply to the warping profiles in case that the
+% algorithm is applied to different stages (by default array of zeros).
+%
+% console: (1x1) handle of the object, 0 for main console.
+%
 % specSynchronization: struct containing the information required to proceed with the
 % synchronization of test batches (case that we are monitoring incoming
 % batches)
@@ -63,8 +59,6 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 %       - t: (N x pc) matrix of scores where pc is the rank of the original X matrix used to fit the PCA model.
 %       - offsetnext: (Jx1) offset to apply to the warping profiles in case that the
 %       algorithm is applied to another stage.
-%
-% console: (1x1) handle of the object, 0 for main console.
 %
 %
 % OUTPUTS:
@@ -113,8 +107,8 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 
 %% Parameters checking
 
-if nargin < 3, error('The number of argument is incorrect. Please, check the help for further details.'), end
-if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end
+if nargin < 3, error('Incorrect number of input paramters. Please, check the help for further details.'), end
+if ~iscell(cal), error('The first input parameter must be a cell array containing the unsynchronized trajectories.'); end
 nBatches = size(cal,2);
 nTime = size(ref,1);
 nVariables = size(ref,2);
@@ -270,11 +264,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
 
     % TSR-based imputation       
      for i=1:size(X2,1)  
-        %if  size(X2{i,1},1) < 0.4*nTime
-        %     X2s{i} = [X2{i,1}; ones(nTime-size(X2{i,1},1),size(X2{i,1},2)).*NaN];
-        %else
         X2s{i} = reconstructX(X2{i,1},specSynchronization.t,specSynchronization.p,specSynchronization.pcs,specSynchronization.Xi,specSynchronization.Omega); 
-        %end
      end
 
     % CLASS IV: DTW-BASED SYNCHRONIZATION WITH RELAXED STARTING POINT

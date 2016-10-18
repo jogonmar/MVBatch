@@ -1,32 +1,25 @@
 function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,psiv,monitor,asynDetection)
 
-% MultiSynchro is devoted to synchronize the key process events ensuring
-% the same evolution across batches, no matter the type of asynchronism 
-% present in batch data.  
-% The multi-synchro algorithm is composed of a high-level and low-level 
-% routine. The highlevel % routine is aimed at recognizing the different 
-% types of asynchronous trajectories for the subsequent batch classification
-% as function of the nature of asynchronism. The low-level routine is in 
-% charge of synchronizing the variable trajectories of each one of the 
-% batches with a specific procedure based on the type of asynchronism. 
-% The original paper are:
-%
+% High level rountine of the Multyisynchro algorithm to detect asynchronisms prior to 
+% batch synchronization.
+% The original work is:
 % [1] González Martínez, JM.; De Noord, O.; Ferrer, A. (2014). 
 % Multi-synchro: a novel approach for batch synchronization in scenarios 
 % of multiple asynchronisms, Journal of Chemometrics, 28(5):462-475.
-%
 % [2] González Martínez, JM.; Vitale, R.; De Noord, OE.; Ferrer, A. (2014). 
 % Effect of synchronization on bilinear batch process modeling, 
 % Industrial and Engineering Chemistry Research, 53(11):4339-4351.
+% [3] González-Martinez, J.M. Advances on bilinear modeling of biochemical
+% batch processes (2015). PhD thesis, DOI: 10.4995/Thesis/10251/55684.
 %
 % CALLS:
-%        [warpBref,asynDetection] = MultiSynchro(cal,ref)                         % minimum call
-%        [warpBref,asynDetection] = MultiSynchro(cal,ref,W,Wconstr,ro,psih,psiv)  % complete call
+%        [warpBref,asynDetection] = high_multisynchro(cal,ref)                         % minimum call
+%        [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,psiv)  % complete call
 %
 % INPUTS:
 %
 % cal: (1xI) cell array containing the measurements collected for J variables at 
-%       Ki different sampling times for each one of the I batches.
+%       Ki different sampling times for each of I batches.
 %       
 % ref: (KxJ) reference batch.
 %
@@ -39,13 +32,13 @@ function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,
 % default).
 %
 % psih: (1x1) minimum number of horizontal transitions from what a specific batch
-% can be considered to have a specific asynchronism (3 by default).
+% can be considered having a specific asynchronism (3 by default).
 %        
 % psiv: (1x1) minimum number of vertical transitions from what a specific batch
-% can be considered to have a specific asynchronism (3 by default).
+% can be considered having a specific asynchronism (3 by default).
 %
 % monitor: flag to indicate if the high-level routine is going to be used
-% for on-line purpose.
+% for online purpose.
 %
 % asynDetection: struct containing information derived from the high level routine of the algorithm:
 %       - batchcI_II.I: (I1x1) indeces of the batches with class I and II
@@ -90,12 +83,11 @@ function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,
 %       asynchronism expressed as a function of the test batches.
 % 
 %
-% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
-%           
+% coded by: José M. Gonzalez-Martinez (J.Gonzalez-Martinez@shell.com)                  
 % last modification: August 2014 -> offline and online version of the algorithm are merged. 
 %
-% Copyright (C) 2014  Technical University of Valencia, Valencia
-% Copyright (C) 2014  Jose Maria Gonzalez-Martinez
+% Copyright (C) 2016  José M. Gonzalez-Martinez
+% Copyright (C) 2016  Technical University of Valencia, Valencia
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -111,9 +103,8 @@ function [warpBref,asynDetection] = high_multisynchro(cal,ref,W,Wconstr,ro,psih,
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Parameters checking
-
-if nargin < 2, error('Incorrect number of inputs. Please, check the help for further details.'), end
-if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end
+if nargin < 2, error('Incorrect number of input parameters. Please, check the help for further details.'), end
+if ~iscell(cal), error('The first input paramter must be a cell array containing the unsynchronized trajectories.'); end
 nBatches = size(cal,2);
 nVariables = size(ref,2);
 if size(ref,2) ~= nVariables, error('The reference batch does not have the same number of variables as the calibration data set.'); end

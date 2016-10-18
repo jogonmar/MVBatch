@@ -5,6 +5,7 @@ function [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(
 %
 % CALL:
 %
+% [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(xini,test,phases)      % minimum call
 % [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(xini,test,phases,prep) % complete call
 %
 % INPUTS:
@@ -37,14 +38,15 @@ function [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(
 %                        estimated from the start of the batch to the current 
 %                        time point k. 
 %
-% EvolvingQcontribution: (KxJ) contribution to the Q statistic for all the
+% EvolvingQcontribution: (KxJ) contribution to SPE for all the
 %                        time points when monitoring the batch in an evolving
 %                        fashion. i.e. the variance-covariance matrix is 
 %                        estimated from the start of the batch to the current 
 %                        time point k.
 %
+% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)
 % Copyright (C) 2016  Technical University of Valencia, Valencia
-% Copyright (C) 2016  José M. González Martínez
+% Copyright (C) 2016  José M. González Martínez 
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -62,8 +64,7 @@ function [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(
 
 %% Arguments checking
 routine=dbstack;
-assert (nargin >= 3, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
-
+assert (nargin >= 3, 'Incorrect number of input arguments. Type ''help %s'' for more info.', routine(1).name);
 if ndims(xini)~=3, error('Incorrect number of dimensions of xini.'); end;
 s = size(xini);
 if find(s<1), error('Incorrect content of xini.'); end;

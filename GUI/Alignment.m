@@ -675,7 +675,7 @@ if numel(find(Wconstr==0)) + numel(find(Wconstr==1)) ~= nVariables,
     return;
 end
 
-if sum(Wconstr)==0, errordlg('To proceed with the synchronization of the batch trajectories, one process variable is at least required to be weighted.','File Error'); return;  end
+if sum(Wconstr)==nVariables, errordlg('To proceed with the synchronization of the batch trajectories, at least one process variable is required to be weighted.','File Error'); return;  end
 
 if strcmp(handles.data.synchronization{handles.Stage2Syn}.method,'nomethod')
     if sum(Wconstr-handles.data.synchronization{handles.Stage2Syn}.Wconstr) ~= 0

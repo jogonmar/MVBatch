@@ -1,35 +1,43 @@
 function [allWARPS,r] = cvBands(X,W,band,ref,warping,zeta,handle,hObject)
 
 % Off-line cross-validation procedure to estimate the performance of the RGTW
-% algorithm using different window widths.
-
+% algorithm using different window widths. 
+% The original paper is: González et al. Real-time synchronization of batch 
+% trajectories for on-line multivariate statistical process control using 
+% Dynamic Time Warping, Chemometrics and Intelligent % Laboratory Systems, 
+% 105 (2011) 195-206).
+%
+% CALLS:
+%
+%       [allWARPS,r] = cvBands(X,W,band,ref,warping)                      % no output in GUI object and default zeta
+%       [allWARPS,r] = cvBands(X,W,band,ref,warping,zeta)                 % no output in GUI object 
+%       [allWARPS,r] = cvBands(X,W,band,ref,warping,zeta, handle,hObject) % complete call
+%
+%
 % INPUTS:
 %
 % X: (1xI) cell array containing the measurements collected for J variables at 
 %    Ki different sampling times for each one of the I batches. 
 %       
-% W: (JxJ) matrix containing weights to give more importance to those
-%    variables are more proper to achieve the synchronization based on a
-%    criterium.
+% W: (JxJ) matrix containing weights to give more importance to certain
+%    variables based on a criterium selected in the offline synchronization.
 %
-% band: (max(Ki)x 2) matrix containing the upper and lower limits which define
+% band: (max(Ki)x 2) matrix containing the upper and lower limits that define
 %       the research space to estimate the local and cumulative distances, and
-%       the warping path. Note that max(Ki) is the maximum batch duration of
-%       the I historical batches.
+%       hence, the warping path. Note that max(Ki) is the maximum batch duration of
+%       I historical batches.
 %
-% ref: index of the batch selected as a reference one for batch
-% synchronization.
+% ref: index of the batch selected as reference for batch synchronization.
 %
 % warping: (1xI) cell array containing the warping information from the
-%           off-line synchronization of the I historical batches.
+%           offline synchronization of I historical batches.
 %
 % zeta: number of windows widths to be used to study the performance of the
 %       RGTW.
 %
-% handle: handle to the list where the information about the procedure is denoted.
+% handle: GUI handle to access the text box to report process on CV.
 %
-% hObject: object handle to update the synchronization information in the
-%          user interface.
+% hObject: GUI object to update progress on the CV synchronization.
 %
 %
 % OUTPUTS:
@@ -42,19 +50,29 @@ function [allWARPS,r] = cvBands(X,W,band,ref,warping,zeta,handle,hObject)
 %           number of window widths taken into account in the study and I
 %           the number of batches synchronized.
 %
-% CALLS:
 %
-%       [allWARPS r] = cvBands(X,W,band,ref,warping,zeta) % output in MATLAB console
-%       [allWARPS r] = cvBands(X,W,band,ref,warping,zeta, handle,hObject) % complete call
+% coded by: José M. González Martínez (J.Gonzalez-Martinez@shell.com)
+% last modification: May/10
 %
-%
-% codified by: Jose Maria Gonzalez-Martinez.
-% version: 1.0
-% last modification: 15/May/10.
+% Copyright (C) 2016  Technical University of Valencia, Valencia
+% Copyright (C) 2016  José M. González Martínez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Parameters checking and settings
 
-if nargin < 5, error('Incorrect number of arguments.'); end
+if nargin < 5, error('Incorrect number of input paramters. Please, check the help for further details.'); end
 if ~iscell(X), error('The data structure must be a cell array to contain the unsynchronized batch trajectories.'); end
 sw = size(W);
 if sw(1) ~= sw(2), error('The weight matrix must be a squared one.'); end
@@ -67,14 +85,14 @@ end
 if nJ~=sw(1), error('The number of the weights do not match with the number of process variables.'); end
 if size(band,2)~= 2, error('Dimensions of the array not expected. '); end
 if ref < 1 || ref > s(2), error('Wrong selection of the reference batch.'); end
-if size(warping,1) ~= s(2), error('The number of cells containing the warping information must be the same as the number of batches.'); end
+if length(warping) ~= s(2), error('The number of cells containing the warping information must be the same as the number of batches.'); end
 if nargin < 6, zeta = 4; end
 if zeta < -1, error('The number of window width to be studied must be greater than 0'); end
 plotting = true;
 if nargin < 7, plotting = false; end
 if nargin == 7 && nargin < 8, error('The object handle is required to update the synchronization information in the user interface.'); end
 
-
+% Parameter initialization
 allWARPS = cell(1,zeta);
 r = zeros(zeta,size(X,2));
 
@@ -122,14 +140,14 @@ for w=1:zeta
 
         %Inner validation
 
-        [trainSc rngTr] = scale_(train);
+        [trainSc,rngTr] = scale_(train);
 
         Bref = scale_(X{ref},rngTr);
 
         %warp = cell(1,s(2)-1);
         warp = zeros(size(X{ref},1),s(2)-1);
         for b=1:s(2)-1
-            [sBn warp(:,b)] = onSyn(train{b},Bref, band,W,w,rngTr);
+            [sBn,warp(:,b)] = onSyn(train{b},Bref, band,W,w,rngTr);
         end
 
         maxi = 0; mini = 9e10;
@@ -142,7 +160,7 @@ for w=1:zeta
         bandInner = estimationBD(warp);
 
         % Outer validation
-        [sBn WARP(:,i) warpOnSyn] = onSyn(test,Bref,bandInner,W,w,rngTr);
+        [sBn,WARP(:,i) warpOnSyn] = onSyn(test,Bref,bandInner,W,w,rngTr);
 
         % PEARSON'S CORRELATION FACTOR ESTIMATION %
 
@@ -157,7 +175,7 @@ for w=1:zeta
              indxOri(k) = warping{i}(max(find(warping{i}(:,2)==k)),1);
              indxVal(k) = warpOnSyn(max(find(warpOnSyn(:,2)==k)),1);
          end    
-         r(w,i)= corrBiD(indxOri,indxVal);
+         r(w,i)= corr(indxOri',indxVal');
 
          if plotting
              cprint(handle.uite_DTW_Window, strcat(strcat('Leaving batch #',num2str(i)),' out'));
