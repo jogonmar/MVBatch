@@ -132,7 +132,7 @@ end
 p3=plot(handles.goldenI(:,handles.selectedVariable),'Color','y','LineWidth',2);  
 xlabel('Batch Time','FontSize',12,'FontWeight','bold');
 ylabel(handles.varNames{handles.selectedVariable},'FontSize',12,'FontWeight','bold');
-legend([p1 p2 p3],'calibration batches','test batch','mean trajectory');
+legend([p1 p2 p3],'calibration batches','test batch','mean trajectory','Location','best');
 v=axis;
 if not(isempty(handles.phases))
    for p=1:numel(handles.phases)
