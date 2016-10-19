@@ -573,96 +573,14 @@ handles.ParentFigure.x = prepareData(handles.s_screening.batch_data,handles.sele
 
 %% Section to impute missing values in the batch trajectories if exist
 
+% Identify those batches that contain missing data
+md = zeros(length(handles.ParentFigure.x),1);
+
 for i=1:length(handles.ParentFigure.x)
-    cal = handles.ParentFigure.x{i}.data{1,1}(:,3:end);
-    if numel(find(isnan(cal)))>0, 
-        s = size(cal);
-        % Construct a questdlg with three options
-        choice = questdlg('The calibration data set is not completed. Do you want to impute missing values?', ...
-        'Yes', ...
-        'No');
-        % Handle response
-        switch choice
-            case 'Yes'
-                % Select the number of lags 
-                prompt = {'Lagging the two-way matrix is recommended as an aid to impute missing values. Please introduce the number of lags (0: none)'};
-                dlg_title = 'Input';
-                num_lines = 1;
-                def = {num2str(0)};
-                answer = inputdlg(prompt,dlg_title,num_lines,def);
-                while ~isempty(answer) && (str2num(answer{1,1}) < 0 || str2num(answer{1,1})>s(1)-1)
-                    answer = inputdlg(prompt,dlg_title,num_lines,def);
-                end
-                lags = str2num(answer{1,1});
-                
-                % Lag the two-way array
-                lagcal = lagmatrix(cal,lags);
-                
-                % Estimate the pair-wise variance-covariance matrix
-                var_cov=S_pairwise(lagcal);
-                % Adjust a PCA model via singular value decomposition
-                [U,S,V] = svd(var_cov);
-                % Retrieve the eigenvalue
-                eig_values = diag(S);
-                % Estimate the cumulated explained variance
-                cumr2 = length(eig_values);
-                for z=1:length(eig_values)
-                    cumr2(z)=100*sum(eig_values(1:z))/sum(eig_values);
-                end
-                % Estimate the optimum number of PCs
-                cumpress = ckf(var_cov,U*S,V,0);
-
-                % Display the figures of merit
-                figure('Position',[55,574,1247,404]);
-                subplot(1,2,1)
-                plot(eig_values,'b.-','MarkerSize',16,'LineWidth',2);
-                xlabel('Number of Components','FontSize',14);
-                ylabel('Eigenvalues','FontSize',14);
-                subplot(1,2,2)
-                plot(cumpress,'b.-','MarkerSize',16,'LineWidth',2);
-                xlabel('Number of Components','FontSize',14);
-                ylabel('PRESS','FontSize',14);
-
-                % Select the number of PCs 
-                prompt = {'Enter number of principal compontents:'};
-                dlg_title = 'Input';
-                num_lines = 1;
-                [~,pos] = min(cumpress);
-                def = {num2str(pos)};
-                answer = inputdlg(prompt,dlg_title,num_lines,def);
-                while ~isempty(answer) && (str2num(answer{1,1}) < 0 || str2num(answer{1,1})>numel(cumpress))
-                    answer = inputdlg(prompt,dlg_title,num_lines,def);
-                end
-
-                if isempty(answer)
-                    return; % Cancel the missing data imputation process
-                end
-                pcs = str2num(answer{1,1});
-                
-                % Reconstruct the lagged two way array using the PCA
-                % modeling building procedure to impute missing data
-                lagrec=pcambtsr(lagcal,pcs,1000,1e-10);  
-                % Reconstruct the original two-way array with the imputed
-                % values keeping the original dimensions.
-                rec = reclagmatrix(lagrec,lags);
-                % Plot the original and imputed two-way arrays
-                plot3D(rec,[],cal)
-                
-                % Replace the batch trajectories with the imputed ones
-                handles.ParentFigure.x{i}.data{1,1}(:,3:end) = rec;
-
-            case 'No'
-                warndlg('The data set contains missing values and, therefore, the batch trajectories cannot be synchronized.');
-                return;
-                
-            case 'Cancel'
-                warndlg('The data set contains missing values and, therefore, the batch trajectories cannot be synchronized.');
-                return;
-        end
-
-    end
+    if numel(find(isnan(handles.ParentFigure.x{i}.data{1,1}(:,3:end))))>0, md(i)=1; end
 end
 
+    
 % Save information related to the unit, process variables and batches
 % selected for bilinear process modelling
 % System variables keeping information about batches
@@ -673,15 +591,23 @@ handles.ParentFigure.dataset.VariablesIn = handles.VariablesIn;
 
 handles.ParentFigure.track(2) = 1;
 handles.ParentFigure.track(3:end) = 0;
+
 % Save the information of the parent handle    
 guidata(handles.ParentsWindow,handles.ParentFigure)
 
-% Enable the following bilinear modeling step
-axes(handles.ParentFigure.main_window)
-image(handles.ParentFigure.images{3});
-axis off;
-axis image;
-set(handles.ParentFigure.pbAlignment,'Enable','on');
+
+% In case that that there exist missing values in any of the batches, call
+% the GUI for missing data imputation
+if numel(find(md))>0
+    MissingDataImputation(handles.output,md);
+else
+    % Enable the following bilinear modeling step
+    axes(handles.ParentFigure.main_window)
+    image(handles.ParentFigure.images{3});
+    axis off;
+    axis image;
+    set(handles.ParentFigure.pbAlignment,'Enable','on');
+end
 
 % Close the screening GUI
 delete(handles.figure1);
