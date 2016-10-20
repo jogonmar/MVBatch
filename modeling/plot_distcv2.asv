@@ -159,7 +159,11 @@ for i=1:sp(1),
     end
     
     ssqres = sum(resa.^2,2)';
-
+    qb=[];
+    for o=1:s(3):length(ssqres),
+        qb=[qb;ssqres(o:o+s(3)-1)];
+    end
+    q=[q;qb];
     pcs=[pcs phases(i,2)*ones(1,phases(i,5)-phases(i,4)+1)];
     
     %% Code for post-batch off-line process monitoring

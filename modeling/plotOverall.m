@@ -1,23 +1,27 @@
-function [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,pc,opt,axes1,axes2)
+function [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotellingcv,residualscv,hotellingoff,residualsoff,lotes,pc,opt,axes1,axes2)
 
 % Plots the overall D-statistic and SPE values of the calibration batches using 
 %   the leave-one-out cross-validated and theorical control limits. 
 %
-% [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,pc,opt) % call with standard parameters
+% [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotellingcv,residualscv,lotes,pc,opt) % call with standard parameters
 %
-% [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotelling,residuals,lotes,pc,opt,axes1,axes2) % complete call
+% [alph,alpr,alph95,alpr95]=plotOverall(resmod,hotellingcv,residualscv,lotes,pc,opt,axes1,axes2) % complete call
 %
 %
 % INPUTS:
 %
-% resmod: (IxJxK) residuals in the calibration data, K(sampling times) 
+% resmod: (IxJxK) residualscv in the calibration data, K(sampling times) 
 %       x J(variables) x I(batches)
 %
-% hotelling: (Kx1) D-statistic of the calibration batches obtained in a
+% hotellingcv: (Kx1) D-statistic of the calibration batches obtained in a
 %    leave-one-out cross-validation, K(sampling times).
 %
-% residuals: (Kx1) SPE of the calibration batches obtained in a
+% residualscv: (Kx1) SPE of the calibration batches obtained in a
 %    leave-one-out cross-validation, K(sampling times).
+%
+% hotellingoff: (Kx1) D-statistic of the calibration batches, K(sampling times).
+%
+% residualsoff: (Kx1) SPE of the calibration batches, K(sampling times).
 %
 % lotes: (1x1) number of calibration batches.
 %
@@ -86,7 +90,7 @@ alph95 = 0.05;
 alpr95 = 0.05; 
 
 % D-statistic
-s=size(hotelling);
+s=size(hotellingcv);
 lclu = s(1);
 
 if pc(1)~=0,
@@ -95,7 +99,7 @@ if pc(1)~=0,
     
     % experimental limit at 95% confidence level    
     esc=[];
-    esc = [esc ; hotelling./lima'];
+    esc = [esc ; hotellingoff./lima'];
     esc2 = sort(esc);
                         
     alp = 0.05;
@@ -105,7 +109,7 @@ if pc(1)~=0,
 
     % experimental limit at 99% confidence level 
     esc=[];
-    esc = [esc ; hotelling./limb'];
+    esc = [esc ; hotellingoff./limb'];
     esc2 = sort(esc);
     
     alp = 0.01;
@@ -120,7 +124,7 @@ if pc(1)~=0,
     if opt,
         axes(axes1)
         hold off
-        bar(hotelling,'b');
+        bar(hotellingoff,'b');
         hold on
 
         xlabel('Batches','FontSize', 12,'FontWeight','bold');
@@ -163,7 +167,7 @@ end
     % experimental limit at 95% confidence level 
     esc=[];
     for i=1:s(2),
-        esc = [esc ; residuals./ limar'];
+        esc = [esc ; residualscv./ limar'];
     end
     esc2 = sort(esc);
                         
@@ -184,7 +188,7 @@ end
     % experimental limit at 99% confidence level 
     esc=[];
     for i=1:s(2),
-        esc = [esc ; residuals ./ limbr'];
+        esc = [esc ; residualscv ./ limbr'];
     end
     esc2 = sort(esc);
                         
@@ -216,7 +220,7 @@ end
 if opt,
     axes(axes2)
     hold off
-    bar(residuals,'b');
+    bar(residualsoff,'b');
     hold on;
     xlabel('Batches','FontSize', 12,'FontWeight','bold');
     ylabel('SPE','FontSize', 12,'FontWeight','bold');
