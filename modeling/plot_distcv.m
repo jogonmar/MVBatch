@@ -1,4 +1,4 @@
-function [alph,alpr,alph95,alpr95]=plot_distcv(xini, phases, prep, opt, axes1, axes2)
+function [alph,alpr,alph95,alpr95,limbcv,limbrcv,limacv,limarcv]=plot_distcv(xini, phases, prep, opt, axes1, axes2)
 
 % Computes the D-statistic and SPE values of the calibration batches using 
 %   leave-one-out cross-validation. 
@@ -6,8 +6,8 @@ function [alph,alpr,alph95,alpr95]=plot_distcv(xini, phases, prep, opt, axes1, a
 % [alph,alpr,alph95,alpr95]=plot_distcv(xini, phases, prep, opt) 
 %    % call with standard parameters
 %
-% [alph,alpr,alph95,alpr95]=plot_distcv(xini, phases, prep, opt, axes1, 
-%   axes2) % complete call
+% [alph,alpr,alph95,alpr95,limbcv,limbrcv,limacv,limarcv]=plot_distcv(xini, 
+%   phases, prep, opt, axes1, axes2) % complete call
 %
 %
 % INPUTS:
@@ -40,21 +40,29 @@ function [alph,alpr,alph95,alpr95]=plot_distcv(xini, phases, prep, opt, axes1, a
 %
 % OUTPUTS:
 %
-% alph: suggested imposed significance level (alpha) for the 99% confidence 
+% alph: suggested imposed significance level (alpha) for the 99% control 
 %   limit in the D-statistic. 
 %
-% alpr: suggested imposed significance level (alpha) for the 99% confidence 
+% alpr: suggested imposed significance level (alpha) for the 99% control 
 %   limit in the SPE.
 %
-% alph95: suggested imposed significance level (alpha) for the 95% confidence 
+% alph95: suggested imposed significance level (alpha) for the 95% control 
 %   limit in the D-statistic. 
 %
-% alpr95: suggested imposed significance level (alpha) for the 95% confidence 
+% alpr95: suggested imposed significance level (alpha) for the 95% control 
 %   limit in the SPE.
+%
+% limbcv: (1xK) cross-validated 99% control limit in the D-statistic.
+%
+% limbrcv: (1xK) cross-validated 99% control limit in the SPE. 
+%
+% limacv: (1xK) cross-validated 95% control limit in the D-statistic. 
+%
+% limarcv: (1xK) cross-validated 95% control limit in the SPE. 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 23/Apr/09
+% last modification: 18/Oct/10
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez
@@ -205,4 +213,4 @@ for o=1:s(3),
     qcv=[qcv qcvb];
 end
 
-[alph,alpr,alph95,alpr95]=plotcv(res,tcv,qcv,s(3),['x'],pcs,opt,axes1,axes2);
+[alph,alpr,alph95,alpr95,limbcv,limbrcv,limacv,limarcv]=plotcv(res,tcv,qcv,s(3),['x'],pcs,opt,axes1,axes2);

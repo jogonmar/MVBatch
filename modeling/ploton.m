@@ -95,11 +95,11 @@ if nargin < 9, alpr = 0.01; end;
 if nargin < 10, alph95 = 0.05; end;
 if nargin < 11, alpr95 = 0.05; end;
 if nargin < 12, nsamplesToPlot = Inf; end ;
-if nargin < 13
+if nargin < 13 && opt,
     figure;
     axes1 = axes; 
 end;
-if nargin < 14, 
+if nargin < 14 && opt, 
     figure;
     axes2 = axes; 
 end;

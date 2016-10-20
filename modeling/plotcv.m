@@ -1,4 +1,4 @@
-function [alph,alpr,alph95,alpr95]=plotcv(resmod,hotellingcv,residualscv,lotes,tg,pc,opt,axes1,axes2)
+function [alph,alpr,alph95,alpr95,limbcv,limbrcv,limacv,limarcv]=plotcv(resmod,hotellingcv,residualscv,lotes,tg,pc,opt,axes1,axes2)
 
 % Plots the D-statistic and SPE values of the calibration batches using 
 %   leave-one-out cross-validation. 
@@ -6,8 +6,8 @@ function [alph,alpr,alph95,alpr95]=plotcv(resmod,hotellingcv,residualscv,lotes,t
 % [alph,alpr,alph95,alpr95]=plotcv(resmod,hotellingcv,residualscv,lotes,tg
 %   ,pc,opt) % call with standard parameters
 %
-% [alph,alpr,alph95,alpr95]=plotcv(resmod,hotellingcv,residualscv,lotes,tg
-%   ,pc,opt,axes1,axes2) % complete call
+% [alph,alpr,alph95,alpr95,limbcv,limbrcv,limacv,limarcv]]=plotcv(resmod,
+%   hotellingcv,residualscv,lotes,tg,pc,opt,axes1,axes2) % complete call
 %
 %
 % INPUTS:
@@ -38,21 +38,29 @@ function [alph,alpr,alph95,alpr95]=plotcv(resmod,hotellingcv,residualscv,lotes,t
 %
 % OUTPUTS:
 %
-% alph: suggested imposed significance level (alpha) for the 99% confidence 
+% alph: (1x1) suggested imposed significance level (alpha) for the 99% control 
 %   limit in the D-statistic. 
 %
-% alpr: suggested imposed significance level (alpha) for the 99% confidence 
+% alpr: (1x1) suggested imposed significance level (alpha) for the 99% control 
 %   limit in the SPE.
 %
-% alph95: suggested imposed significance level (alpha) for the 95% confidence 
+% alph95: (1x1) suggested imposed significance level (alpha) for the 95% control 
 %   limit in the D-statistic. 
 %
-% alpr95: suggested imposed significance level (alpha) for the 95% confidence 
+% alpr95: (1x1) suggested imposed significance level (alpha) for the 95% control 
 %   limit in the SPE.
+%
+% limbcv: (1xK) cross-validated 99% control limit in the D-statistic.
+%
+% limbrcv: (1xK) cross-validated 99% control limit in the SPE. 
+%
+% limacv: (1xK) cross-validated 95% control limit in the D-statistic. 
+%
+% limarcv: (1xK) cross-validated 95% control limit in the SPE. 
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/May/09
+% last modification: 18/Oct/10
 %
 % Copyright (C) 2016  University of Granada, Granada
 % Copyright (C) 2016  Jose Camacho Paez

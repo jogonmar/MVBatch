@@ -168,11 +168,11 @@ if nargin < 7, alpr = 0.01; end;
 if nargin < 8, alph95 = 0.05; end;
 if nargin < 9, alpr95 = 0.05; end;
 if nargin < 10, s_sBn = Inf; end
-if nargin < 11 || isempty(axes1), 
+if nargin < 11 || isempty(axes1) && opt, 
     h = figure;
     axes1 = axes; 
 end;
-if nargin < 12 || isempty(axes2), 
+if nargin < 12 || isempty(axes2) && opt, 
     h2 = figure;
     axes2 = axes; 
 end;
@@ -182,11 +182,11 @@ if nargin < 14, alpor = 0.01; end;
 if nargin < 15, alpoh95 = 0.05; end;
 if nargin < 16, alpor95 = 0.05; end;
 
-if (nargin < 17 || isempty(axes3)) && phases(1,3) == s(1)-1, 
+if (nargin < 17 || isempty(axes3)) && phases(1,3) == s(1)-1 && opt, 
     h3 = figure;
     axes3 = axes; 
 end;
-if (nargin < 18 || isempty(axes4)) && phases(1,3) == s(1)-1, 
+if (nargin < 18 || isempty(axes4)) && phases(1,3) == s(1)-1 && opt, 
     h4 = figure;
     axes4 = axes; 
 end;
