@@ -515,7 +515,9 @@ if get(hObject,'Value')
     set(handles.pushbuttonPCs,'Enable','off');
     set(handles.pushbuttonSave,'Enable','off');
     set(handles.pushbuttonClose,'Enable','off');
-
+else
+    set(handles.pushbuttonImpute,'Enable','on');
+    set(handles.pushbuttonPCs,'Enable','on');
 end
 
 function handles = Initialize(handles)

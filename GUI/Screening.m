@@ -595,6 +595,9 @@ handles.ParentFigure.track(3:end) = 0;
 % Save the information of the parent handle    
 guidata(handles.ParentsWindow,handles.ParentFigure)
 
+% Update handles structure
+guidata(hObject, handles);
+
 
 % In case that that there exist missing values in any of the batches, call
 % the GUI for missing data imputation

@@ -43,7 +43,7 @@ if ndims(x)~=2, error('Incorrect number of dimensions of x.'); end
 s = size(x);
 if lags<0, error('Incorrect value of lags.'); end;
 nvar = s(2)/(lags+1);
-if ~isint(nvar), error('Incorrect value of lags.'); end;
+
 
 y=x(:,1:nvar);
 for i=1:lags   
