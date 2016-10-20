@@ -763,9 +763,6 @@ ylabel(tagnames{Variable,1},'FontSize',14)
 legend([h1,h2,h3],'Historical batches','Test batch','Mean trajectory','Location','best');
 axis tight;
 
-
-
-
 function [synTestBatch,nsamplesToPlot,warptest] = onlineSynchronization(handles, test_batch)
 
 warptest = [];
@@ -780,7 +777,7 @@ switch handles.alignment.synchronization{handles.alignment.stages}.methodsyn
                 errordlg('The batch selected cannot be synchronized because the IV has not the same initial and/or end point than the NOC IV.','Error Dialog','modal');
                 return;
             end
-            uBn =  test_batch(min(indm,indM):max(indm,indM),2:end);
+            uBn =  test_batch(min(indm,indM):max(indm,indM),:);
         end
 
              if length(find(isnan(uBn(:,handles.alignment.synchronization{handles.alignment.stages,1}.var)))) <= 0.25*length(uBn(:,handles.alignment.synchronization{handles.alignment.stages,1}.var)) % Aling every batch where the iv was measured
@@ -793,7 +790,7 @@ switch handles.alignment.synchronization{handles.alignment.stages}.methodsyn
          
      case 'dtw'
         Bref = scale_(handles.alignment.synchronization{handles.alignment.stages,1}.Xref,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
-        test = scale_(test_batch(:,1:end),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        test = scale_(test_batch,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
         [synTestBatch,warptest] = DTW(test,Bref,diag(handles.alignment.synchronization{handles.alignment.stages}.W));      
         
         for j=1:size(handles.alignment.synchronization{handles.alignment.stages}.nor_batches{1},2)
@@ -806,11 +803,11 @@ switch handles.alignment.synchronization{handles.alignment.stages}.methodsyn
 
 case 'multisynchro'
         Xref = scale_(handles.alignment.synchronization{handles.alignment.stages,1}.Xref,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
-        test{1,1} = scale_(test_batch(:,1:end),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        test{1,1} = scale_(test_batch,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
 
         [~,asynDetection] = high_multisynchro(test,Xref,handles.alignment.synchronization{handles.alignment.stages}.W,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.k,handles.alignment.synchronization{handles.alignment.stages}.param.psih,handles.alignment.synchronization{handles.alignment.stages}.param.psiv,1);
         
-        test{1,1} = test_batch(:,1:end);
+        test{1,1} = test_batch;
         [synTestBatch,warptest] = low_multisychro(test,handles.alignment.synchronization{handles.alignment.stages,1}.Xref,asynDetection,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.pcsMon,[],[],handles.alignment.synchronization{handles.alignment.stages}.specSynchronization);
         
         nsamplesToPlot = size(synTestBatch,1);

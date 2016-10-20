@@ -88,7 +88,7 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95]=plot_distcv2(xini
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-% Parameters checking
+%% Parameters checking
 
 if nargin < 2, error('Incorrect number of input parameters.'); end;
 
@@ -109,30 +109,36 @@ if nargin < 4, opt = 1; end;
 if (prep<0||prep>5), error('Incorrect value of prep.'); end;
 
 if nargin < 5, 
-    h = figure;
+    figure;
     axes1 = axes; 
 end;
 if nargin < 6, 
-    h2 = figure;
+    figure;
     axes2 = axes; 
 end;
 
 if nargin < 7, 
-    h3 = figure;
+    figure;
     axes3 = axes; 
 end;
 if nargin < 8, 
-    h4 = figure;
+    figure;
     axes4 = axes; 
 end;
 
+%% Initialize
 
-% Main code
-[xce,av,sta] = preprocess3D(xini,prep);
-    
-q=[];
 res=zeros(s(3),s(2),s(1));
+alpoh = [];
+alpor = [];
+alpoh95 = [];
+alpor95 = [];
+q=[];
 pcs=[];
+
+%% Main code
+xce = preprocess3D(xini,prep);
+    
 for i=1:sp(1),
     ind=(max(phases(i,4)-phases(i,3),1):phases(i,5));
     ind_ini=find(ind==phases(i,4));
@@ -238,11 +244,13 @@ for o=1:s(3),
 end 
 
 [alph,alpr,alph95,alpr95]=plotcv2(res,tcv,qcv,s(3),['x'],pcs,opt,axes1,axes2);
- 
+
+% Clear axes
 cla(axes3);
 cla(axes4);
 set(axes3,'Visible','off');
 set(axes4,'Visible','off');
+
 if phases(i,3) == s(1)-1
     [alpoh,alpor,alpoh95,alpor95]=plotOverall(resa,t2cv,specv,t2off,ssqres,s(3),pcs(1),opt,axes3,axes4);
      set(axes3,'Visible','on');
