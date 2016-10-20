@@ -62,6 +62,9 @@ handles.ParentsWindow=varargin{1};
 handles.ParentFigure = guidata(handles.ParentsWindow);
 handles.data.x = handles.ParentFigure.x;
 
+handles.SynStage = 0;
+handles.Stage2Syn = 1;
+
 handles.data.type=0;
 if iscell(handles.data.x),
     sb=size(handles.data.x);
@@ -92,11 +95,11 @@ switch handles.data.type,
         % Enable the fields of the form corresponding to the IV
         enable_IV('on',handles);    
         set(handles.popupmenu_alg,'Value',1);
-        set(handles.lbUnsyn,'String','');
-        for st=1:length(handles.data.stages)
-            content = get(handles.lbUnsyn,'String');
-            set(handles.lbUnsyn,'String',strvcat(content,num2str(handles.data.stages(st))));
-        end
+        %set(handles.lbUnsyn,'String','');
+%         for st=1:length(handles.data.stages)
+%             content = get(handles.lbUnsyn,'String');
+%             set(handles.lbUnsyn,'String',strvcat(content,num2str(handles.data.stages(st))));
+%         end
         set(handles.radiobuttonPlotResults,'Enable','on');
         set(handles.text_syn_method,'Enable','on');
         set(handles.popupmenu_alg,'Enable','on');
@@ -109,7 +112,7 @@ switch handles.data.type,
         handles.flagStagesSyn(1) = 0;
         handles.SynStage = false;
         % If there is only a stage, disable the option stages
-        if numel(handles.data.stages)==1, set(handles.radiobuttonStages,'Enable','off'); end
+        %if numel(handles.data.stages)==1, set(handles.radiobuttonStages,'Enable','off'); end
         % initialize parameters for IV-based synchronization
         handles.data.synchronization{handles.Stage2Syn}.var = 1;
         handles.data.synchronization{handles.Stage2Syn}.method = 'linear';
@@ -121,6 +124,7 @@ end
 
 % Set IV the synchronization by default for the first stage
 handles.data.synchronization{1}.methodsyn = 'iv';
+
     
 % Update handles structure
 guidata(hObject, handles);
@@ -460,20 +464,20 @@ else
 end    
 
 if value 
-    set(handles.lbUnsyn,'Enable','on');
-    set(handles.lbSyn,'Enable','on');
-    set(handles.lbSyn,'String','');
-    set(handles.lbUnsyn,'String','');
-    for st=1:length(handles.data.stages)
-        content = get(handles.lbUnsyn,'String');
-        set(handles.lbUnsyn,'String',strvcat(content,num2str(handles.data.stages(st))));
-    end
+    %set(handles.lbUnsyn,'Enable','on');
+    %set(handles.lbSyn,'Enable','on');
+    %set(handles.lbSyn,'String','');
+    %set(handles.lbUnsyn,'String','');
+%     for st=1:length(handles.data.stages)
+%         content = get(handles.lbUnsyn,'String');
+%         set(handles.lbUnsyn,'String',strvcat(content,num2str(handles.data.stages(st))));
+%     end
     handles.SynStage = 1;
     handles.Stage2Syn = 1;
     
 else
-    set(handles.lbUnsyn,'Enable','off');
-    set(handles.lbSyn,'Enable','off'); 
+    %set(handles.lbUnsyn,'Enable','off');
+    %set(handles.lbSyn,'Enable','off'); 
     handles.SynStage = 0;
 end
 
@@ -1158,11 +1162,11 @@ handles.flagStagesSyn(handles.Stage2Syn) = 1;
 if handles.SynStage
     % Remove the stage from the pending one to be synchronized and add it
     % to the list of the stages already synchronized.
-    set(handles.lbUnsyn,'String','');
-    set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
+    %set(handles.lbUnsyn,'String','');
+    %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
 
-    set(handles.lbSyn,'String','');
-    set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
+    %set(handles.lbSyn,'String','');
+    %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
 
     if isempty(find(handles.flagStagesSyn==0))
         set(handles.pushbuttonCalibration,'Enable','on');
@@ -1249,11 +1253,11 @@ function uib_synchronize_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 if isempty(find(handles.flagStagesSyn==0)) && handles.SynStage
-   returnv = radiobuttonStages_Callback(handles.radiobuttonStages, eventdata, handles);
+   %returnv = radiobuttonStages_Callback(handles.radiobuttonStages, eventdata, handles);
    % Retrieve data from the handles updated by the previous call
     handles=guidata(handles.output);
     guidata(hObject,handles);
-    if returnv, return; end
+    %if returnv, return; end
 end
     
 if ~isfield(handles.data.synchronization{handles.Stage2Syn},'nor_batches')
@@ -1459,11 +1463,11 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
         if handles.SynStage
             % Remove the stage from the pending one to be synchronized and add it
             % to the list of the stages already synchronized.
-            set(handles.lbUnsyn,'String','');
-            set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
+            %set(handles.lbUnsyn,'String','');
+            %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
 
-            set(handles.lbSyn,'String','');
-            set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
+            %set(handles.lbSyn,'String','');
+            %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
 
             if isempty(find(handles.flagStagesSyn==0))
                 set(handles.pushbuttonCalibration,'Enable','on');
@@ -1584,11 +1588,11 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
         % already synchronized.
         handles.flagStagesSyn(handles.Stage2Syn) = 1;
     
-        set(handles.lbUnsyn,'String','');
-        set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
+        %set(handles.lbUnsyn,'String','');
+        %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
 
-        set(handles.lbSyn,'String','');
-        set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
+        %set(handles.lbSyn,'String','');
+        %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
     else
         handles.flagStagesSyn(1) = 1;
     end
@@ -1663,11 +1667,11 @@ elseif strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'iv')
         % already synchronized.
         handles.flagStagesSyn(handles.Stage2Syn) = 1;
     
-        set(handles.lbUnsyn,'String','');
-        set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
+        %set(handles.lbUnsyn,'String','');
+        %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
 
-        set(handles.lbSyn,'String','');
-        set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
+        %set(handles.lbSyn,'String','');
+        %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
     else
         handles.flagStagesSyn(1) = 1;
     end
