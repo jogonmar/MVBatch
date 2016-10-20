@@ -81,11 +81,11 @@ if nargin < 11, alpor = 0.01; end;
 if nargin < 12, alpoh95 = 0.05; end;
 if nargin < 13, alpor95 = 0.05; end;
 
-if nargin < 14, 
+if nargin < 14 && opt, 
     h = figure;
     axes1 = axes; 
 end;
-if nargin < 15, 
+if nargin < 15 && opt, 
     h2 = figure;
     axes2 = axes; 
 end;
