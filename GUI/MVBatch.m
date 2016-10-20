@@ -22,7 +22,7 @@ function varargout = MVBatch(varargin)
 
 % Edit the above text to modify the response to help MVBatch
 
-% Last Modified by GUIDE v2.5 26-Sep-2014 22:39:26
+% Last Modified by GUIDE v2.5 07-Oct-2016 13:00:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -42,7 +42,6 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
-
 
 % --- Executes just before MVBatch is made visible.
 function MVBatch_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -230,7 +229,6 @@ function menuFile_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --------------------------------------------------------------------
 function menuOpenProject_Callback(hObject, eventdata, handles)
 % hObject    handle to menuOpenProject (see GCBO)
@@ -372,4 +370,3 @@ if ~isequal(file, 0)
         dataset = handles.dataset;
         eval(['save ''' fullfile(pathname, file) ''' dataStruct track dataset']);
 end
-

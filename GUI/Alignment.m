@@ -1,3 +1,4 @@
+
 function varargout = Alignment(varargin)
 % ALIGNMENT M-file for Alignment.fig
 %      ALIGNMENT, by itself, creates a new ALIGNMENT or raises the existing
@@ -69,9 +70,10 @@ if iscell(handles.data.x),
         handles.data.type=1;
     elseif sb(2)>1 && sb(1)==1 && sd(1)==1
         for i=1:sb(2)
+            numel(find(isnan(handles.data.x{i}.data{1}(:,3:end))))
              handles.data.synchronization{handles.Stage2Syn}.nor_batches{i} = handles.data.x{i}.data{1}(:,3:end);
         end
-        handles.data.stages = numel(unique(handles.data.x{1}.data{1}(:,2)));
+        handles.data.stages = numel(unique(handles.data.x{1}.data{1}(find(~isnan(handles.data.x{1}.data{1}(:,2))),2)));
         handles.data.type=2;
     end
 end
@@ -674,7 +676,7 @@ if numel(find(Wconstr==0)) + numel(find(Wconstr==1)) ~= nVariables,
     return;
 end
 
-if sum(Wconstr)==0, errordlg('To proceed with the synchronization of the batch trajectories, one process variable is at least required to be weighted.','File Error'); return;  end
+if sum(Wconstr)==nVariables, errordlg('To proceed with the synchronization of the batch trajectories, at least one process variable is required to be weighted.','File Error'); return;  end
 
 if strcmp(handles.data.synchronization{handles.Stage2Syn}.method,'nomethod')
     if sum(Wconstr-handles.data.synchronization{handles.Stage2Syn}.Wconstr) ~= 0
@@ -1439,7 +1441,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     handles.data.synchronization{handles.Stage2Syn}.band_aux = handles.data.synchronization{handles.Stage2Syn}.band;
     
     % Construct a questdlg with three options
-    choice = questdlg('In case you want to design a monitoring system for real-time application, a resynchronization using the RGT algorithm is recommended. Do you want to proceed with the RGTW-based synchronization?', ...
+    choice = questdlg('In case you want to design a monitoring system for real-time application, a re-synchronization using the RGTW algorithm is recommended. Do you want to proceed with the RGTW-based synchronization?', ...
         'Synchronization', ...
         'Yes','No','No');
     % Handle response
@@ -1754,7 +1756,7 @@ for i=1:length(handles.data.synchronization)
         handles.data.synchronization{handles.Stage2Syn}.t = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.t;
         handles.data.synchronization{handles.Stage2Syn}.p = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.p;
         handles.data.synchronization{handles.Stage2Syn}.Xi = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.Xi;
-        handles.data.synchronization{handles.Stage2Syn}.Omega = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.Omega;
+        handles.data.synchronization{handles.Stage2Syn}.Omega = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.Omega; 
         handles.data.synchronization{handles.Stage2Syn}.band = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.band;
         handles.data.synchronization{handles.Stage2Syn}.pcs = handles.data.synchronization{handles.Stage2Syn}.specSynchronization.pcs;
         handles.data.synchronization{i}.W = handles.data.synchronization{i}.specSynchronization.W;

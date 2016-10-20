@@ -1,4 +1,4 @@
-function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alph,alpr,alph95,alpr95,s_sBn,axes1,axes2)
+function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alph,alpr,alph95,alpr95,nsamplesToPlot,axes1,axes2)
 
 % Plots the D-statistic and SPE charts for on-line monitoring. 
 %
@@ -9,7 +9,7 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 %   alph,alpr,alph95,alpr95) % output in MATLAB console
 %
 % [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,
-%   alph,alpr,alph95,alpr95,s_sBn,axes1,axes2) % complete call
+%   alph,alpr,alph95,alpr95,nsamplesToPlot,axes1,axes2) % complete call
 %
 %
 % INPUTS:
@@ -43,7 +43,7 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 % alpr95: imposed significance level (alpha) for the 95% confidence limit in the 
 %   SPE.
 %
-% s_sBn: number of synchronized samples to be monitored (default: Inf, i.e.
+% nsamplesToPlot: number of synchronized samples to be monitored (default: Inf, i.e.
 % all).
 %
 % axes1: handle to the axes where the D-statistic chart is plotted.
@@ -70,8 +70,8 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 %           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
 % last modification: 13/Sep/16
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -87,34 +87,29 @@ function [hi95,ri95,hi,ri]=ploton(hotelling,residuals,resmod,lotes,tg,pc,opt,alp
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-% Parameters checking
-
-if nargin < 6, error('Numero de argumentos erroneos.'); end;
+%% Parameters checking
+if nargin < 6, error('Incorrect number of input parameters. Please, check the help for further details.'); end;
 if nargin < 7, opt = 1; end;
 if nargin < 8, alph = 0.01; end;
 if nargin < 9, alpr = 0.01; end;
 if nargin < 10, alph95 = 0.05; end;
 if nargin < 11, alpr95 = 0.05; end;
-if nargin < 12, s_sBn = Inf; end ;
+if nargin < 12, nsamplesToPlot = Inf; end ;
 if nargin < 13 && opt,
-    h = figure;
+    figure;
     axes1 = axes; 
 end;
 if nargin < 14 && opt, 
-    h2 = figure;
+    figure;
     axes2 = axes; 
 end;
 
-if s_sBn == Inf, s_sBn = size(hotelling);end
+if nsamplesToPlot == Inf, nsamplesToPlot = size(hotelling);end
 
 % D-statistic
 hi95 = [];
 hi = [];
-
 s=size(residuals);
-out = false;
-
-lclu = s(1);
 
 if pc(1)~=0,
     lima=[];
@@ -128,7 +123,7 @@ if pc(1)~=0,
      if opt,
         axes(axes1)
         hold off
-        plot(hot(1:s_sBn),tg)
+        plot(hot(1:nsamplesToPlot),tg)
         hold on;
 
         xlabel('Sampling time','FontSize', 12,'FontWeight','Bold');
@@ -137,12 +132,10 @@ if pc(1)~=0,
         lim95=real(lima)./real(limb);
         plot(1:s(1),lim95,'r--');
         plot(1:s(1),ones(s(1),1),'r');
-        v = axis;
-        %axis([1,s(1),0,min(max(v(4),1.2),4)])
         axis tight
     end
 
-    hi95=zeros(s(2),s(1)); % registro de faltas
+    hi95=zeros(s(2),s(1)); 
     hi=zeros(s(2),s(1));
     for i=1:s(2),
         hi(i,:) = hotelling(:,i)>limb';
@@ -159,7 +152,6 @@ end
     
 
 % SPE 
-
 limar=[];
 limbr=[];
 
@@ -175,8 +167,8 @@ for i=1:s(1),
     %limbr=[limbr (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)];             
    % Estimation of the SPE control limits following Jackson & Mudholkar's
    % approach
-     limar=[limar spe_lim(resmod(:,:,i),alpr95)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
-     limbr=[limbr spe_lim(resmod(:,:,i),alpr)]; % limite al 99% de conf.
+     limar=[limar spe_lim(resmod(:,:,i),alpr95)]; 
+     limbr=[limbr spe_lim(resmod(:,:,i),alpr)]; 
 end
 
 res = residuals;
@@ -184,7 +176,7 @@ res = residuals;
 if opt,
     axes(axes2)
     hold off
-    plot(res(1:s_sBn),tg)
+    plot(res(1:nsamplesToPlot),tg)
     hold on;
 
     xlabel('Sampling time','FontSize', 12,'FontWeight','Bold');

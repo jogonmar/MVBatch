@@ -1,74 +1,86 @@
-function [sB, warp, warping, d]= DTW(T,R,W,relaxedE,constrainedVars,band)
+function [sB,warp_f_ref,warping,d]= DTW(T,R,W,relaxedE,constrainedVars,band)
 
 %  DTW function carries out the synchronization of multivariate batch trajectories using Dynamic Time Warping.
 %
+% CALLS:
+%       [sB,warp_f_ref,warping,d]= DTW(T,R);                                 % Same weight for all variables and no global constraint defined  
+%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,);                              % No global constraint defined  
+%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,relaxedE);                      % No global constrained and relaxed end point enabled or diabled
+%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,false,constrainedVars);         % No global constrained and relaxed end point enabled or diabled with variables constrained
+%       [sB,warp_f_ref,warping,d]= DTW(T,R,W,false,constrainedVars,band);   % Complete call
+%
+%
 % INPUTS:
 %
-% T: (Kt x J) reference batch which is used to carry out the alignment. Kt
-%     are the number of measurements collected for each one of the J process
+% T: (Kt x J) sample batch to be aligned with the reference batch. Kt is 
+%     the number of measurements collected for each one of the J process
 %     variables.
 %
-% R: (Kr x J) sample batch which will be align against to the reference
-%     one. Kr are the number of measurements collected for each one of the J process
+% R: (Kr x J) reference batch used to carry out the alignment. Kr
+%     is the number of measurements collected for each one of the J process
 %     variables.
 %
 % W: (JxJ) matrix containing weights to give more importance to those
-%    variables are more proper to achieve the synchronization based on a
-%    criterium.
+%    variables are more important based on a certain criterium to achieve
+%    the optimal synchronization. 
+%    
 %
-% relaxedE: logical value indicating whether the end point constraint is
-% relaxed or not.
+% relaxedE: (1x1) logical value indicating whether the end point constraint is
+%           relaxed or not.
 %
-% constrainedVar: (J x 1) vector indicating the process variables that will
-% have a certain importance in the synchronization. Note that those
-% variables discarded must have a weight 0 in the weight matrix W.
+% constrainedVar: (J x 1) weigths to give more importance to certain 
+%                  process variables in batch synchronization. Note that those
+%                   variables discarded must have a weight equal to 0 in the weight matrix W.
 %
-% band: (Kr x 2) matrix containing the upper and lower limits which define
+% band: (Kr x 2) matrix containing the upper and lower limits that define
 %       the research space to estimate the local and cumulative distances, and
 %       the warping path. Note that the number of points of the bands must be, at least, the same
 %       as the number of sampling points of the reference batch R.
 %        
 % OUPUTS:
 %       
-% sB:  (KrxJ) matrix containing the synchronized batch trajectories.
+% sB:  (KrxJ) synchronized batch trajectories.
 %
-% warp: (Kref x I) matrix containing the warping information derived from
-% batch synchronization expressed as a function of the reference.
+% warp_f_ref: (Kref x I) matrix containing the warping information derived from
+% batch synchronization expressed as a function of the reference batch.
 %
 % warping: (Kn x 2) matrix containing the warping information from the
-%           off-line synchronization.
+%           offline synchronization.
 %
-% dist: (KrxKt) local weighted distance matrix
+% d: (KrxKt) local weighted distance matrix.
 %
-% distm: mean cummulated distance independent of the number of synchronization steps carried out.
+% coded by: José M. Gonzalez-Martinez (J.Gonzalez-Martinez@shell.com)          
+% last modification:
+% October 2013: Warping information is expressed as a function of the
+%               reference batch. The resulting warping profiles are equal in length
+%               across batches.
+% August 2013:  constrainedVars vector added as a new input in the function. It provides
+%               flexiblity to constrain certain process variables in the batch
+%               synchronization.
+% Februrary 2013:Relaxed end point constraint is added into the algorithm.
 %
-% CALLS:
-%       [sB,warping,distm]= DTW(T,R);                                 % Same weight for all variables and no global constraint defined  
-%       [sB,warping,distm]= DTW(T,R,W,);                              % No global constraint defined  
-%       [sB,warping,distm]= DTW(T,R,W,relaxedE);                      % No global constrained and relaxed end point enabled or diabled
-%       [sB,warping,distm]= DTW(T,R,W,false,constrainedVars);         % No global constrained and relaxed end point enabled or diabled with variables constrained
-%       [sB,warping,distm]= DTW(T,R,W,false,constrainedVars, band);   % Complete call
-%
-% codified by: Jose Maria Gonzalez-Martinez.
-% version: 1.0
-% last modification: 
-% 17/Aug/13: constrainedVars vector added as new input in the function. It provides
-%            flexiblity to constrain certain process variables in the batch
-%            synchronization.
-% 07/Feb/13: Relaxed end point constraint option is incorporate in the algorithm.
-% 01/Jan/13: An output parameter corresponding to the average cummulated distance independent of the number of
-% synchronization steps has been added.
-% 17/Oct/13: Warping information is expressed as a function of the
-% reference batch. The resulting warping profiles are equal in length
-% across batches.
+% Copyright (C) 2016  José M. Gonzalez-Martinez
+% Copyright (C) 2016  Technical University of Valencia, Valencia
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
  
-
-
  %% Parameters checking
  
- sT = size(T);
- sR = size(R);
-
+if nargin < 2, error('Incorrect number of input paramters. Please, check the help for further details.'); end
+sT = size(T);
+sR = size(R);
 if sT(2)~=sR(2), error('The number of process variables are not the same in T and R matrices.'); end
 if iscell(R) || iscell(T), error('Reference, test or both batches are cell array. Both must be 2D matrices'); end
 if ndims(sT)~=2, error('Incorrect number of dimensions of S'); end;
@@ -92,7 +104,7 @@ end
 if size(band,2) ~= 2 || size(band,1) < sT(1), error('Band is not accurate for the synchronization of these multivariate trajectories'); end
 
 % Initializing the warping vector
-warp = ones(sR(1),1).*NaN;
+warp_f_ref = ones(sR(1),1).*NaN;
 
 % Reestimation of the W matrix taking into account the constraints
 W = W(VarNonConstr,VarNonConstr);
@@ -134,7 +146,7 @@ n=sT(1);
 m=sR(1);
 
 endpoint = sR(1);
-if relaxedE,[value m] = min(D(:,sT(1))); endpoint = m;end
+if relaxedE,[~,m] = min(D(:,sT(1))); endpoint = m;end
 
 warping = [m n];
 
@@ -145,7 +157,7 @@ while ((n+m)~=2)
     elseif (m-1)==0
         n=n-1;
     else
-         [values,number]=min([D(m-1,n-1),D(m,n-1),D(m-1,n)]);
+         [~,number]=min([D(m-1,n-1),D(m,n-1),D(m-1,n)]);
       switch number
       case 1
         n=n-1;
@@ -157,16 +169,16 @@ while ((n+m)~=2)
       end
 
     end
-    % Storing the indeces to rebuild the optimal path at the end of the iterative procedure
+    % Storing the indeces to reconstruct the optimal path at the end of the iterative procedure
     warping = cat(1,[m n],warping);
 end    
 
 
 for i=1:endpoint
-    warp(i,1) = warping(find(warping(:,1)==i,1,'last'),2);
+    warp_f_ref(i,1) = warping(find(warping(:,1)==i,1,'last'),2);
 end
 
-%% Synchronization step once the warping function has been reached
+%% Synchronization step once the warping function has been computed
 
  sB = zeros(m,sR(2));
 k = 1;
@@ -182,8 +194,5 @@ for i=2:length(warping(:,1))
     if warping(i,1) == warping(i-1,1)
        temp = [temp;T(warping(i,2),:)];
        sB(k,:) = nanmean(temp);
-%        ind=1;
-%        if size(temp,1)>1, ind=2;end
-%        sB(k,:) = temp(ind,:);
    end
 end

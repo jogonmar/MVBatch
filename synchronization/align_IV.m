@@ -32,9 +32,24 @@ function y = align_IV(x,var,steps,method)
 %   to the indicator variable.
 %
 %
-% codified by: José Camacho Páez.
-% version: 0.0
-% last modification: 20/Aug/09.
+% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% last modification: 20/Aug/09
+%
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 % Parameters checking
 
@@ -43,7 +58,9 @@ if nargin < 4, method = 'linear'; end;
 s = size(x);
 if (var<1||var>s(2)), error('Incorrect value of var.'); end;
 
-
+% Add warping profile
+x = [[1:s(1)]' x];
+var = var + 1;
 % Delete nans
 ind = find(~isnan(x(:,var)));
 x2 = interp1(ind,x(ind,var),(1:s(1))'); % for interlaced nans

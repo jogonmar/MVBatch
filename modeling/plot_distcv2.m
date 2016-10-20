@@ -1,4 +1,4 @@
-function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plot_distcv2(xini, phases, prep, opt, axes1, axes2,axes3,axes4)
+function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95]=plot_distcv2(xini,phases,prep,opt,axes1,axes2,axes3,axes4)
 
 % Computes the D-statistic and SPE values of the calibration batches using 
 %   leave-one-out cross-validation. 
@@ -66,15 +66,14 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 %   limit in the overall D-statistic. 
 %
 % alpor95: suggested imposed significance level (alpha) for the 95% confidence 
-%   limit in the overall SPE.
-%
+%   limit in the overall SPE. 
 % 
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-%           José M. González Martínez (J.Gonzalez-Martinez@shell.com)
+%           José M. González Martínez (jogonmar@gmail.com)
 % last modification: 1/Aug/14
 %
-% Copyright (C) 2014  University of Granada, Granada
-% Copyright (C) 2014  Jose Camacho Paez
+% Copyright (C) 2016  University of Granada, Granada
+% Copyright (C) 2016  Jose Camacho Paez, José M. González Martínez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -91,7 +90,7 @@ function [alph,alpr,alph95,alpr95,alpoh,alpor,alpoh95,alpor95,overallOffMon]=plo
 
 % Parameters checking
 
-if nargin < 2, error('Numero de argumentos erroneos.'); end;
+if nargin < 2, error('Incorrect number of input parameters.'); end;
 
 if ndims(xini)~=3, error('Incorrect number of dimensions of xini.'); end;
 s = size(xini);
@@ -129,7 +128,6 @@ end;
 
 
 % Main code
-
 [xce,av,sta] = preprocess3D(xini,prep);
     
 q=[];
@@ -161,26 +159,24 @@ for i=1:sp(1),
     end
     
     ssqres = sum(resa.^2,2)';
-    qb=[];
-    for o=1:s(3):length(ssqres),
-        qb=[qb;ssqres(o:o+s(3)-1)];
-    end
-    q=[q;qb];
+
     pcs=[pcs phases(i,2)*ones(1,phases(i,5)-phases(i,4)+1)];
     
     %% Code for post-batch off-line process monitoring
 
     if phases(i,3) == s(1)-1
         Sinv = inv(cov(t));
-        T2v = zeros(s(3),1);
+        t2off = zeros(s(3),1);
         for j=1:s(3)
-            T2v(j) = (t(j,:))*Sinv*(t(j,:))';
+            t2off(j) = (t(j,:))*Sinv*(t(j,:))';
         end
     end
 end
 
 tcv=[];
 qcv=[];
+t2cv = zeros(s(3),1);
+specv = zeros(s(3),1);
 for o=1:s(3),
     test=xini(:,:,o);
     xini2=xini(:,:,[1:o-1 o+1:s(3)]);
@@ -211,7 +207,7 @@ for o=1:s(3),
             for j=0:menor_en,
                 jindb=1:s(2)*(ind_ini+j);
                 jind2=phases(i,4)+j; 
-                % IMPUTATION USING TSR
+                % TSR IMPUTATION
                 t_t = theta_A*p(jindb,:)'*p(jindb,:)*inv(p(jindb,:)'*pAll(jindb,:)*theta*pAll(jindb,:)'*p(jindb,:))*p(jindb,:)'*xu(1:(s(3)-1),jindb)';
                 cov_inv=inv(cov(t_t'));
                 t_t = theta_A*p(jindb,:)'*p(jindb,:)*inv(p(jindb,:)'*pAll(jindb,:)*theta*pAll(jindb,:)'*p(jindb,:))*p(jindb,:)'*testu(1,jindb)';
@@ -233,34 +229,23 @@ for o=1:s(3),
     end
     tcv=[tcv tcvb];
     qcv=[qcv qcvb];
-end
-
-alpoh95 = []; lima = [];limacv = [];
-alpoh = []; limb  =[];limbcv  =[];
-alpor95 = []; limar = []; limarcv = [];
-alpor = []; limbr = []; limbrcv = [];
     
+    if phases(i,3) == s(1)-1
+        Sinv = inv(cov(t));
+        t2cv(o) = tpred*Sinv*tpred';
+        specv(o) = sum((testu-tpred*p').^2);
+    end
+end 
 
 [alph,alpr,alph95,alpr95]=plotcv2(res,tcv,qcv,s(3),['x'],pcs,opt,axes1,axes2);
  
 cla(axes3);
- cla(axes4);
+cla(axes4);
 set(axes3,'Visible','off');
- set(axes4,'Visible','off');
+set(axes4,'Visible','off');
 if phases(i,3) == s(1)-1
-    [alpoh,alpor,alpoh95,alpor95]=plotOverall(resa,T2v,ssqres,s(3),pcs(1),opt,axes3,axes4);
+    [alpoh,alpor,alpoh95,alpor95]=plotOverall(resa,t2cv,specv,t2off,ssqres,s(3),pcs(1),opt,axes3,axes4);
      set(axes3,'Visible','on');
      set(axes4,'Visible','on');
 end
 
-overallOffMon = [];
-% Save statistics from the overall off-line process monitoring in a
-% structure
-if phases(i,3) == s(1)-1
-    overallOffMon.lima = lima;
-    overallOffMon.limb = limb;
-    overallOffMon.limar = limar;
-    overallOffMon.limbr = limbr;
-    overallOffMon.T2 = T2v;
-    overallOffMon.SPE = ssqres';
-end

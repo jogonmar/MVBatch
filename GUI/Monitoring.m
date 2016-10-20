@@ -149,7 +149,7 @@ varargout{1} = handles.output;
 
 
 % --- Executes on selection change in popupmenuMod.
-function popupmenuMod_Callback(hObject, ~, handles)
+function popupmenuMod_Callback(hObject, eventdata, handles)
 % hObject    handle to popupmenuMod (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
@@ -197,10 +197,10 @@ function pushbuttonCV_Callback(hObject, eventdata, handles)
 set(gcf,'pointer','watch'); pause(.001);
 
 try
-    [handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95] = plot_distcv2(handles.calibration.x, handles.calibration.model.phases, 2, 1, handles.axes1, handles.axes2, handles.axesPostBatchT2, handles.axesPostBatchSPE);
+    [handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95] = plot_distcv2(handles.calibration.x, handles.calibration.model.phases, handles.calibration.model.arg.prep,1, handles.axes1, handles.axes2, handles.axesPostBatchT2, handles.axesPostBatchSPE);
 catch err
-  errordlg(err.message); 
-  set(gcf,'pointer','arrow');
+   errordlg(err.message); 
+   set(gcf,'pointer','arrow');
 end
 
 cla(handles.axes3);
@@ -214,8 +214,8 @@ try
          set(handles.axes3,'Visible','on');
     end
 catch err
-  errordlg(err.message); 
-  set(gcf,'pointer','arrow');
+   errordlg(err.message); 
+   set(gcf,'pointer','arrow');
 end
 set(gcf,'pointer','arrow')
 
@@ -346,31 +346,27 @@ function pushbuttonPlo_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[sBn,s_sBn,warptest] = onlineSynchronization(handles, handles.calibration.test_batch);
+[synTestBatch,nsamplesToPlot,warptest] = onlineSynchronization(handles, handles.calibration.test_batch);
 
 vars = cellstr(get(handles.popupmenuVar,'String'));
 posTest = length(handles.alignment.x) + 1;
 if strcmp(vars{get(handles.popupmenuVar,'Value')},'calibration')
     posTest = get(handles.popupmenuBat,'Value');
 end
+
 try 
-    load meritFigures.mat
     if get(handles.radiobuttonCV,'Value')
-        [~,ph,pr,~,~,~,ph95,pr95]=plot_onstat(handles.calibration.x, sBn, handles.calibration.model.phases, handles.calibration.model.arg.prep, 1, handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95,s_sBn, handles.axes1, handles.axes2, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95, handles.axesPostBatchT2, handles.axesPostBatchSPE, posTest);
+        plot_onstat(handles.calibration.x, synTestBatch, handles.calibration.model.phases, handles.calibration.model.arg.prep, 1, handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95,nsamplesToPlot, handles.axes1, handles.axes2, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95, handles.axesPostBatchT2, handles.axesPostBatchSPE, posTest);
     else
-        [~,ph,pr,~,~,~,ph95,pr95]=plot_onstat(handles.calibration.x, sBn, handles.calibration.model.phases, handles.calibration.model.arg.prep, 1, 0.01, 0.01, 0.05, 0.05, s_sBn, handles.axes1, handles.axes2, 0.01, 0.01, 0.05, 0.05, handles.axesPostBatchT2, handles.axesPostBatchSPE, posTest);
+        plot_onstat(handles.calibration.x, synTestBatch, handles.calibration.model.phases, handles.calibration.model.arg.prep, 1, 0.01, 0.01, 0.05, 0.05, nsamplesToPlot, handles.axes1, handles.axes2, 0.01, 0.01, 0.05, 0.05, handles.axesPostBatchT2, handles.axesPostBatchSPE, posTest);
     end
-    OTIIt2_99=[OTIIt2_99;ph];
-    OTIIspe_99=[OTIIspe_99;pr];
-    OTIIt2_95=[OTIIt2_95;ph95];
-    OTIIspe_95=[OTIIspe_95;pr95];
-    save meritFigures.mat OTIIt2_99 OTIIspe_99 OTIIt2_95 OTIIspe_95 -APPEND
+catch err
    errordlg(err.message); 
 end
 
 if strcmp(handles.alignment.synchronization{handles.alignment.stages}.methodsyn,'dtw') || strcmp(handles.alignment.synchronization{handles.alignment.stages}.methodsyn,'multisynchro')
     try
-        plot_onwarp(handles.alignment.synchronization{handles.alignment.stages}.warp, handles.alignment.synchronization{handles.alignment.stages}.band,warptest,[],s_sBn,false,handles.axes3);
+        plot_onwarp(handles.alignment.synchronization{handles.alignment.stages}.warp, handles.alignment.synchronization{handles.alignment.stages}.band,warptest,[],[],false,handles.axes3);
     catch err
        errordlg(err.message); 
     end
@@ -447,15 +443,74 @@ function pbContribution_Callback(hObject, eventdata, handles)
 
 test_batch = handles.calibration.test{handles.selectedDataSet}{handles.calibration.test_batchFD};
 
-[test_batchSyn] = onlineSynchronization(handles,test_batch);
+test_batchSyn = onlineSynchronization(handles,test_batch);
     
-if ~handles.modeMonitoring && handles.calibration.model.phases(1,3) ~= size(handles.calibration.x,1)-1, 
+if ~handles.modeMonitoring && handles.calibration.model.phases(1,3) ~= size(handles.alignment.alg_batches,1)-1, 
     warndlg('Overall contributions cannot be displayed because the model is not a batch-wise PCA. Only the option of contributions at a specific sampling time is possible.');
     return;
 end
 
 try 
-    plot_contributions(handles.calibration.x, test_batchSyn, handles.calibration.model.phases, handles.modeMonitoring, handles.statFaultDiagnosis, 2, [{'Warping information','Batch Time','Units'} ;handles.ParentFigure.varNames(1:end,:) ],handles.batchTime);
+    [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(handles.calibration.x,test_batchSyn,handles.calibration.model.phases,handles.calibration.model.arg.prep);
+    s=size(handles.calibration.x);
+    
+    % Retrieve the two-array containing the evolving contribution to the
+    % selected statistic
+    switch handles.statFaultDiagnosis
+            case 0
+            % D statistic
+            contToStat = EvolvingDcontribution;
+            label = 'Contribution to D statistic ';
+            case 1
+            % Q statistic
+            contToStat = EvolvingQcontribution;
+            label = 'Contribution to Q statistic ';
+    end
+        
+    % Arrange the contributions based on the type (0: overall, 1:
+    % intantaneous)
+    
+    [~,av] = preprocess3D(handles.calibration.x,handles.calibration.model.arg.prep);
+    
+    switch handles.modeMonitoring  
+        case 0
+        % Case 1: Evolving contribution to the multivariate statistics at time
+        % point k
+        ovContrib = nan(s(1)*s(2),1);
+        for j=1:s(2)
+            ovContrib((j-1)*s(1)+1:j*s(1)) =  contToStat(:,j);
+        end 
+        jContrib = nan(s(2),1);
+        for j=1:s(2)
+            jContrib(j,1) = sum(contToStat(:,j));
+        end
+        kContrib = nan(s(1),1);
+        for k=1:s(1)
+            kContrib(k,1)= sum(contToStat(k,:));
+        end
+        % Call function to display the overall contribution, and the
+        % contribution per variable and batch time
+        
+        Diagnosis(handles.calibration.x,test_batchSyn,av,ovContrib,jContrib,kContrib,handles.calibration.model.phases(:,4),handles.ParentFigure.varNames,label);
+        
+        case 1
+        % Case 2: Evolving contribution to the multivariate statistics for the
+        % whole batch
+        switch handles.statFaultDiagnosis
+            case 0
+            % D statistic
+            contToStat = contToStat(handles.batchTime,:);
+            
+            case 1
+            % Q statistic
+            contToStat = contToStat(handles.batchTime,:);
+            
+        end
+        createFigure(handles.calibration.x,test_batchSyn,av,handles.ParentFigure.varNames(:,1));
+        bar(contToStat);
+        xlabel('Variables','FontSize',12,'FontWeight','bold');
+        ylabel(strcat(label,sprintf('(k=%d)',handles.batchTime)),'FontSize',12,'FontWeight','bold');
+    end
 catch err
    errordlg(err.message); 
 end
@@ -568,22 +623,22 @@ end
    
 if isvector(xtest) && size(xtest,1)>0
     x = cell(size(xtest,1),1);
-    for j=1:size(xtest.batch_data,1)
-        if size(xtest.batch_data(j,1).data,1) ~=  size(handles.ParentFigure.s_screening.batch_data(1,1).data,1)
+    for j=1:size(xtest,1)
+        if size(xtest(j).data,1) ~=  size(handles.ParentFigure.s_screening.batch_data(1,1).data,1)
             errordlg('The batches of the test set do not have the same frequency sampling as the calibration data set');
             return;
         end
      
-        for z=1:size(xtest.batch_data(j,1).data,1)
-            if size(xtest.batch_data(j,1).data{1,z},2)~=size(handles.ParentFigure.s_screening.batch_data(1,1).data{z},2)
+        for z=1:size(xtest(j).data,2)
+            if size(xtest(j).data{z},2)~=size(handles.ParentFigure.s_screening.batch_data(1,1).data{z},2)
                 errordlg('The test data set does not contain the same number of variables with common sampling frequency as the calibration data set.');
                 return;
             end
         end
         
-        if size(xtest.batch_data(j,1).data,1) == 1
-            varsIn = find(handles.ParentFigure.dataset.VariablesIn==1);
-            x{j} = xtest.batch_data(j,1).data{1,1}(:,varsIn+ones(size(varsIn)));
+        if size(xtest(j).data,1) == 1
+            varsIn = find(handles.ParentFigure.dataset.VariablesIn==1); 
+            x{j} = xtest(j).data{1,1}(:,varsIn+ones(size(varsIn)).*2);
         else
             eq=1;
         end
@@ -596,7 +651,7 @@ if eq
     x = arrange2D(xtest,handles.ParentFigure.s_alignment.equalization.inter,handles.ParentFigure.s_alignment.equalization.units,handles.ParentFigure.s_alignment.equalization.method_interp);
     varsIn = find(handles.ParentFigure.dataset.VariablesIn==1);
     for i=1:length(x),
-        x{i} =  x(:,varsIn+ones(size(varsIn)).*1);
+        x{i} =  x(:,varsIn+ones(size(varsIn)).*2);
     end
 end
    
@@ -637,8 +692,81 @@ guidata(hObject,handles);
 %%                                                                    5.- AUXILIAR FUNCTIONS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+function [hf] = createFigure(xini,test,av,tagnames)
 
-function [sBn,s_sBn,warptest] = onlineSynchronization(handles, test_batch)
+if nargin < 1, type = 0; end
+
+[select_cdata,~,alpha] = imread('selectdata.png');
+select_cdata = double(select_cdata) / 255;
+select_cdata(~alpha) = NaN;
+
+[tags_cdata,~,alpha] = imread('tags.png');
+tags_cdata = double(tags_cdata) / 255;
+tags_cdata(~alpha) = NaN;
+
+[Trace_cdata,~,alpha] = imread('Trace.png');
+Trace_cdata = double(Trace_cdata) / 255;
+Trace_cdata(~alpha) = NaN;
+
+% Create the toolbar
+hf = figure;
+tbh = uitoolbar(hf);
+
+
+% Add a toggle tool to the toolbar
+uipushtool(tbh,'CData',select_cdata,'Separator','on',...
+'TooltipString','Select',...
+'HandleVisibility','off','ClickedCallback',@hSelectCallback);  
+
+uipushtool(tbh,'CData',Trace_cdata,'Separator','on',...
+'TooltipString','Select',...
+'HandleVisibility','off','ClickedCallback',{@VisualizeVariablesCallback,xini,test,av,tagnames});
+
+uipushtool(tbh,'CData',tags_cdata,...
+'TooltipString','Import data set',...
+'HandleVisibility','off','ClickedCallback',{@hTagsCallback,tagnames});
+    
+function hSelectCallback(hObject, eventdata)
+% Callback function run when the Update button is pressed
+brush on
+
+function hTagsCallback(hObject, eventdata, tagnames)
+% Callback function run when the Update button is pressed
+gname(tagnames);
+
+function VisualizeVariablesCallback(hObject,eventdata,xini,test,av,tagnames)
+
+hBrushLine = findall(gca, 'tag', 'Brushing');
+brushedData = get(hBrushLine, {'Xdata', 'Ydata'});
+if numel(find(~cellfun(@isempty,brushedData)))==0,
+    return;
+end
+if numel(find(brushedData{1,2}~=0))==0
+    errordlg('No variable has been selected, please select a variable and try again.','Error')
+    return
+end
+Variable = find(brushedData{1,2});
+if numel(Variable)>1
+    errordlg('You have selected multiple variables. Please, select a single variable.','Error')
+    return
+end
+brush off;
+
+figure;
+cal = squeeze(xini(:,Variable,:));
+h1 = plot(cal(:,1),'Color',[0.662745 0.662745 0.662745],'LineWidth',1.5);hold on;
+plot(cal,'Color',[0.662745 0.662745 0.662745],'LineWidth',1.5);
+h2 = plot(squeeze(test(:,Variable,:)),'r-','LineWidth',1.5);
+h3 = plot(av(:,Variable),'g-','LineWidth',1.5); 
+xlabel('Time','FontSize',14)
+ylabel(tagnames{Variable,1},'FontSize',14)
+legend([h1,h2,h3],'Historical batches','Test batch','Mean trajectory','Location','best');
+axis tight;
+
+
+
+
+function [synTestBatch,nsamplesToPlot,warptest] = onlineSynchronization(handles, test_batch)
 
 warptest = [];
 
@@ -656,53 +784,24 @@ switch handles.alignment.synchronization{handles.alignment.stages}.methodsyn
         end
 
              if length(find(isnan(uBn(:,handles.alignment.synchronization{handles.alignment.stages,1}.var)))) <= 0.25*length(uBn(:,handles.alignment.synchronization{handles.alignment.stages,1}.var)) % Aling every batch where the iv was measured
-                sBn = align_IV(uBn,handles.alignment.synchronization{handles.alignment.stages,1}.var,handles.alignment.synchronization{handles.alignment.stages,1}.steps,handles.alignment.synchronization{handles.alignment.stages,1}.method);
-                s_sBn = size(sBn,1);
+                synTestBatch = align_IV(uBn,handles.alignment.synchronization{handles.alignment.stages,1}.var,handles.alignment.synchronization{handles.alignment.stages,1}.steps,handles.alignment.synchronization{handles.alignment.stages,1}.method);
+                synTestBatch = synTestBatch(:,2:end); % remove time warping profile;
+                nsamplesToPlot = size(synTestBatch,1);
              else
                  errordlg('Too much missing data in the indicator variable.','Error Dialog','modal');
              end
          
      case 'dtw'
-         Bref = scale_(handles.alignment.synchronization{handles.alignment.stages,1}.Xref,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
-        test = scale_(test_batch(:,2:end),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
-        [sBn, warptest] = DTW(test,Bref,diag(handles.alignment.synchronization{handles.alignment.stages}.W),false,handles.alignment.synchronization{handles.alignment.stages}.Wconstr);      
+        Bref = scale_(handles.alignment.synchronization{handles.alignment.stages,1}.Xref,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        test = scale_(test_batch(:,1:end),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        [synTestBatch,warptest] = DTW(test,Bref,diag(handles.alignment.synchronization{handles.alignment.stages}.W));      
         
         for j=1:size(handles.alignment.synchronization{handles.alignment.stages}.nor_batches{1},2)
-            sBn(:,j)=sBn(:,j).*handles.alignment.synchronization{handles.alignment.stages}.rng(j);
+            synTestBatch(:,j)=synTestBatch(:,j).*handles.alignment.synchronization{handles.alignment.stages}.rng(j);
         end
-        sBn = [warptest sBn];
-      s_sBn = size(sBn,1);
-        % USED FOR THE COMPARATIVE STUDY OF CHAPTER 5 IN THESIS %%
-%         load RGTWparamtersChapter5Thesis.mat
-%         handles.alignment.synchronization{handles.alignment.stages,1}.band = band;
-%         handles.alignment.synchronization{handles.alignment.stages,1}.zeta = zeta;
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%         [xpre,M,Sstd] = preprocess3D(handles.alignment.synchronization{handles.alignment.stages,1}.alg_batches,2);
-%         xu = unfold(xpre,Inf);
-% 
-%         [U,S,V] = svd(xu,'econ');
-%         t = U*S;
-%         p = V;
-%         pcs = min(6,rank(xu));
-
-    
-%        [sBn,warptest,w] = onSyn(test_batch(:,1:end),Bref, handles.alignment.synchronization{handles.alignment.stages,1}.band,diag(handles.alignment.synchronization{handles.alignment.stages,1}.W), handles.alignment.synchronization{handles.alignment.stages,1}.zeta, handles.alignment.synchronization{handles.alignment.stages,1}.rng);
-
-%         st = size(sBn);
-%         xrec = reconstructX([warptest(1:st(1)) sBn],t,p,pcs,M,Sstd);
-%         warptest = [warptest(1:st(1)); xrec(st(1)+1:end,1)];
-%         sBn = [warptest [sBn(1:st(1),:); xrec(st(1)+1:end,2:end)]];
-
-    
-%        st = size(sBn);
-%        sr = size(Bref);
-        
-%        s_sBn = size(sBn,1);
-%        sBn = [warptest [sBn; repmat(sBn(st(1),:), sr(1)-st(1),1)]];
-
-        
+        %[synTestBatch warptest] = onSyn(test,Bref, handles.alignment.synchronization{handles.alignment.stages,1}.band,diag(handles.alignment.synchronization{handles.alignment.stages,1}.W), handles.alignment.synchronization{handles.alignment.stages,1}.zeta, handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        nsamplesToPlot = size(synTestBatch,1);
 
 
 case 'multisynchro'
@@ -712,9 +811,9 @@ case 'multisynchro'
         [~,asynDetection] = high_multisynchro(test,Xref,handles.alignment.synchronization{handles.alignment.stages}.W,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.k,handles.alignment.synchronization{handles.alignment.stages}.param.psih,handles.alignment.synchronization{handles.alignment.stages}.param.psiv,1);
         
         test{1,1} = test_batch(:,1:end);
-        [sBn,warptest] = low_multisychro(test,handles.alignment.synchronization{handles.alignment.stages,1}.Xref,asynDetection,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.pcsMon,[],[],handles.alignment.synchronization{handles.alignment.stages}.specSynchronization);
+        [synTestBatch,warptest] = low_multisychro(test,handles.alignment.synchronization{handles.alignment.stages,1}.Xref,asynDetection,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.pcsMon,[],[],handles.alignment.synchronization{handles.alignment.stages}.specSynchronization);
         
-        s_sBn = size(sBn,1);
+        nsamplesToPlot = size(synTestBatch,1);
 
     otherwise
         errordlg('An error has ocurred in the selection of the synchronization method.','Synchronization Error');

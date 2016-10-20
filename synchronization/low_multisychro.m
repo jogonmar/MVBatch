@@ -1,34 +1,28 @@
 function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wconstr,pcs,offset,console,specSynchronization)
 
-% MultiSynchro is devoted to synchronize the key process events ensuring the same
-% evolution across batches, no matter the type of asynchronism present in batch data. 
-% The multi-synchro algorithm is composed of a high-level and low-level routine. The highlevel
-% routine is aimed at recognizing the different types of asynchronous trajectories for the subsequent batch
-% classification as function of the nature of asynchronism. The low-level routine is in charge
-% of synchronizing the variable trajectories of each one of the batches with a specific procedure based on the
-% type of asynchronism. For further information on this algorithm, users
-% are referred to:
+% Low level rountine of the Multyisynchro algorithm to synchronize the variable trajectories of each of the 
+% batches with a specific procedure based on the type of asynchronism. 
 %
-% [1] J. M. González-Martínez, O. E. de Noord, and A. Ferrer, Multisynchro: a novel approach for batch synchronization in scenarios of multiple asynchronisms,
-% Journal of Chemometrics, 28(5), 462–475.
+% The original work is:
+% [1] González Martínez, JM.; De Noord, O.; Ferrer, A. (2014). 
+% Multisynchro: a novel approach for batch synchronization in scenarios 
+% of multiple asynchronisms, Journal of Chemometrics, 28(5):462-475.
+% [2] González Martínez, JM.; Vitale, R.; De Noord, OE.; Ferrer, A. (2014). 
+% Effect of synchronization on bilinear batch process modeling, 
+% Industrial and Engineering Chemistry Research, 53(11):4339-4351.
+% [3] González-Martinez, J.M. Advances on bilinear modeling of biochemical
+% batch processes (2015). PhD thesis, DOI: 10.4995/Thesis/10251/55684.
 %
-% [2] J. M. González-Martínez, R. Vitale, O. E. de Noord, and A. Ferrer, Effect of Synchronization on Bilinear Batch Process Modeling,
-% Industrial & Engineering Chemistry Research 2014 53 (11), 4339-4351. 
+% CALLS:
+%        [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection)                                                 % minimum call
+%        [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wconstr,pcs,offset,console,specSynchronization)  % complete call
 %
 % INPUTS:
 %
 % cal: (1xI) cell array containing the measurements collected for J variables at 
-%       Ki different sampling times for each one of the I batches.
+%       Ki different sampling times for each of the I batches.
 %       
 % ref: (KxJ) reference batch.
-%
-% Wconstr: (Jx1) boolean array indicating if a specific variables is
-% considered in the synchronization (0) or not (1).
-%
-% pcs: (1x1) number of principal components.
-%
-% offset: (Jx1) offset to apply to the warping profiles in case that the
-% algorithm is applied to different stages (by default array of zeros).
 %
 % asynDetection: struct containing information derived from the high level routine of the algorithm:
 %       - batchcI_II.I: (I1x1) indeces of the batches with class I and II
@@ -39,7 +33,17 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 %       asynchronism.
 %       - batchcIII_IV.I: (I3x1) indeces of the batches with class III and IV
 %       asynchronism.
-% 
+%
+% Wconstr: (Jx1) boolean array indicating if a specific variables is
+% considered in the synchronization (0) or not (1).
+%
+% pcs: (1x1) number of principal components.
+%
+% offset: (Jx1) offset to apply to the warping profiles in case that the
+% algorithm is applied to different stages (by default array of zeros).
+%
+% console: (1x1) handle of the object, 0 for main console.
+%
 % specSynchronization: struct containing the information required to proceed with the
 % synchronization of test batches (case that we are monitoring incoming
 % batches)
@@ -55,8 +59,6 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 %       - t: (N x pc) matrix of scores where pc is the rank of the original X matrix used to fit the PCA model.
 %       - offsetnext: (Jx1) offset to apply to the warping profiles in case that the
 %       algorithm is applied to another stage.
-%
-% console: (1x1) handle of the object, 0 for main console.
 %
 %
 % OUTPUTS:
@@ -82,19 +84,31 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 %       - offsetnext: (Jx1) offset to apply to the warping profiles in case that the
 %       algorithm is applied to another stage.
 %
-% CALLS:
-%        [Xs,F,specSynchronization] = MultiSynchro(cal,ref,Wconstr,offset,console,specSynchronization)  % complete call
 %
+% coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
+%           
+% last modification: 21/Aug/14 -> offline and online version of the algorithm are merged. 
 %
-% codified by: Jose Maria Gonzalez-Martinez.
-% version: 1.0
-% Modifications: 
-% 21/Aug/14: offline and online version of the algorithm are merged. 
+% Copyright (C) 2014  Technical University of Valencia, Valencia
+% Copyright (C) 2014  Jose Maria Gonzalez-Martinez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 %% Parameters checking
 
-if nargin < 3, error('The number of argument is incorrect. Please, check the help for further details.'), end
-if ~iscell(cal), error('The first argument must be a cell array containing the unsynchronized trajectories.'); end
+if nargin < 3, error('Incorrect number of input paramters. Please, check the help for further details.'), end
+if ~iscell(cal), error('The first input parameter must be a cell array containing the unsynchronized trajectories.'); end
 nBatches = size(cal,2);
 nTime = size(ref,1);
 nVariables = size(ref,2);
@@ -138,7 +152,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     % CLASS I AND II ASYNCHRONISM: DTW-BASED SYNCHRONIZATION/ABNORMALITY DETECTION PROCEDURE
 
     if ~mode
-        cprint(console,'Executing the iterative DTW-based synchronization/abnormality detection procedure');
+        cprintMV(console,'Executing the iterative DTW-based synchronization/abnormality detection procedure');
         XG = cal(asynDetection.batchcI_II.I);
         auxbatchcI_II = asynDetection.batchcI_II.I;
         Ift = NaN;
@@ -185,7 +199,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
             % v.4 Arrange NOC data into the NOC 3-way array
             auxbatchcI_II = setdiff(auxbatchcI_II,auxbatchcI_II(Ift));
             XG = cal(auxbatchcI_II);
-            cprint(console,'Next iteration of the iterative synchronization');
+            cprintMV(console,'Next iteration of the iterative synchronization');
         end
 
         % SYNCHRONIZATION OF FAULTY BATCHES FOUND IN THE ITERATIVE MODELING
@@ -204,7 +218,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
 
          if numel(asynDetection.batchcIII.I)>0 || numel(asynDetection.batchcIII_IV)>0
              pcs = min(9,min(sGsyn(1),sGsyn(3)));
-%         cprint(console,'Incompleted batches have been detected. Cross validation is running to determine the optimum number of PCs for missing data imputation.');
+%         cprintMV(console,'Incompleted batches have been detected. Cross validation is running to determine the optimum number of PCs for missing data imputation.');
 %             for a=1:min(50,rank(xu))
 %                 cumpress(a) = crossval3D_s(X1G,a,sGsyn(1)-1,ones(sGsyn(1),1));
 %             end
@@ -225,7 +239,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
         
     else
         % CLASS I AND II ASYNCHRONISM: DTW-BASED SYNCHRONIZATION/ABNORMALITY DETECTION PROCEDURE
-        if ~isempty(asynDetection.batchcI_II.I),cprint(console,'Synchronizing batches with class I and/or II asynchronism.'); end
+        if ~isempty(asynDetection.batchcI_II.I),cprintMV(console,'Synchronizing batches with class I and/or II asynchronism.'); end
         X1GB = cal(asynDetection.batchcI_II.I);
         XGB = zeros(size(ref,1),size(ref,2),size(cal,1));
         warpXGB  = cell(numel(asynDetection.batchcI_II.I),1);
@@ -239,7 +253,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     end
     
     % CLASS III AND IV: DTW-BASED SYNCHRONIZATION WITH RELAXED END POINT
-    if ~isempty(asynDetection.batchcIII.I),cprint(console,'Synchronizing batches with class III asynchronism.'); end
+    if ~isempty(asynDetection.batchcIII.I),cprintMV(console,'Synchronizing batches with class III asynchronism.'); end
     X2 = cell(numel(asynDetection.batchcIII.I),1);
     warpX2  = cell(numel(asynDetection.batchcIII.I),1);
     warpingX2 = cell(numel(asynDetection.batchcIII.I),1);
@@ -250,15 +264,11 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
 
     % TSR-based imputation       
      for i=1:size(X2,1)  
-        %if  size(X2{i,1},1) < 0.4*nTime
-        %     X2s{i} = [X2{i,1}; ones(nTime-size(X2{i,1},1),size(X2{i,1},2)).*NaN];
-        %else
         X2s{i} = reconstructX(X2{i,1},specSynchronization.t,specSynchronization.p,specSynchronization.pcs,specSynchronization.Xi,specSynchronization.Omega); 
-        %end
      end
 
     % CLASS IV: DTW-BASED SYNCHRONIZATION WITH RELAXED STARTING POINT
-    if ~isempty(asynDetection.batchcIV.I),cprint(console,'Synchronizing batches with class IV asynchronism.'); end
+    if ~isempty(asynDetection.batchcIV.I),cprintMV(console,'Synchronizing batches with class IV asynchronism.'); end
     X3 = cell(numel(asynDetection.batchcIV.I),1);
     warpX3  = cell(numel(asynDetection.batchcIV.I),1);
     warpingX3 = cell(numel(asynDetection.batchcIV.I),1);
@@ -268,7 +278,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     end
 
     % CLASS III AND IV: DTW-BASED SYNCHRONIZATION WITH RELAXED STARTING AND END POINT
-    if ~isempty(asynDetection.batchcIII_IV.I),cprint(console,'Synchronizing batches with class III and IV asynchronisms.'); end
+    if ~isempty(asynDetection.batchcIII_IV.I),cprintMV(console,'Synchronizing batches with class III and IV asynchronisms.'); end
     X4 = cell(numel(asynDetection.batchcIII_IV.I),1);
     warpX4  = cell(numel(asynDetection.batchcIII_IV.I),1);
     warpingX4 = cell(numel(asynDetection.batchcIII_IV.I),1);
