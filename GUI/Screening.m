@@ -523,7 +523,7 @@ delete(handles.handles_subplots);
 handles.handles_subplots=plot3D_batchtools(handles.auxx,handles.test,handles.VariableslbIn(handles.rng_variables),handles.s_screening.varNames,handles.uipanelPlots);
 set(handles.e_variables,'String',[num2str(handles.rng_variables(1)) '-' num2str(handles.rng_variables(end)) '/' num2str(max(9,length(handles.VariableslbIn)))]);
 
-set(handles.figure1, 'pointer', 'arrow')
+set(handles.figure1, 'pointer', 'arrow');
 
 % Update handles structure
 guidata(hObject, handles);
