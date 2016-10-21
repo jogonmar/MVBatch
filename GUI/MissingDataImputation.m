@@ -456,6 +456,12 @@ set(handles.pushbuttonImpute,'Enable','on');
 set(handles.pushbuttonSave,'Enable','off');
 set(handles.pushbuttonPCs,'Enable','on');
 
+if isempty(handles.md)
+    % Enable option to save imputed data into data set
+    set(handles.pushbuttonClose,'Enable','on');
+    % Enable option to reset everything
+    set(handles.pushbuttonReset,'Enable','on');
+end
 
 % Update handles structure
 guidata(hObject, handles)
