@@ -515,7 +515,7 @@ drawnow;
 
 if handles.current_plot_window == handles.n_plots_windows,handles.rng_variables = (handles.current_plot_window-1)*9+1:length(handles.VariableslbIn);
 else
-    handles.rng_variables = (handles.current_plot_window-1)*9+1:handles.current_plot_window*min(9,numel(handles.VariableslbIn));
+    handles.rng_variables = (handles.current_plot_window-1)*9+1:min(handles.current_plot_window*9,numel(handles.VariableslbIn));
 end
     
 [handles.auxx handles.test] = prepareData(handles.s_screening.batch_data,handles.selectedBatch,handles.BatcheslbIn,handles.VariableslbIn(handles.rng_variables));
