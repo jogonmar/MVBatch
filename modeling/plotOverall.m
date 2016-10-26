@@ -223,7 +223,7 @@ if opt,
     bar(residualsoff,'b');
     hold on;
     xlabel('Batches','FontSize', 12,'FontWeight','bold');
-    ylabel('SPE','FontSize', 12,'FontWeight','bold');
+    ylabel('Q-statistic','FontSize', 12,'FontWeight','bold');
     
     plot(1:s(1),repmat(real(limar),s(1),1),'r--');
     plot(1:s(1),repmat(real(limbr),s(1),1),'r');

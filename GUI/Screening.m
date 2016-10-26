@@ -41,6 +41,7 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+
 % End initialization code - DO NOT EDIT
 
 
@@ -73,7 +74,6 @@ set(handles.figure1, 'pointer', 'watch')
 drawnow;
 handles.rng_variables = 1:min(9,length(handles.VariableslbIn));
 vars = handles.VariableslbIn(handles.rng_variables);
-obs = handles.BatcheslbIn;
 if length(handles.s_screening.batch_data) > 0
     [handles.auxx, handles.test] = prepareData(handles.s_screening.batch_data,handles.selectedBatch,handles.BatcheslbIn,vars);
     handles.handles_subplots=plot3D_batchtools(handles.auxx,handles.test,vars,handles.s_screening.varNames,handles.uipanelPlots);
@@ -82,10 +82,21 @@ else
 end
 set(handles.figure1, 'pointer', 'arrow');
 
-
-
+% Center GUI
+set(gcf,'Units', 'pixels' );
+%get your display size
+screenSize = get(0, 'ScreenSize');
+%calculate the center of the display
+position = get( gcf,'Position' );
+position(1) = (screenSize(3)-position(3))/2;
+position(2) = (screenSize(4)-position(4))/2;
+%center the window
+set( gcf,'Position', position );
+ 
 % Update handles structure
 guidata(hObject, handles);
+
+
 
 % UIWAIT makes Screening wait for user response (see UIRESUME)
 % uiwait(handles.figure1);

@@ -166,6 +166,6 @@ if opt,
     plot(1:lclu,repmat(limar/limbr,lclu,1),'r--');
     plot(1:lclu,repmat(limbr/limbr,lclu,1),'r');
     xlabel('Batches','FontSize', 12,'FontWeight','bold');
-    ylabel('SPE','FontSize', 12,'FontWeight','bold');
+    ylabel('Q-statistic','FontSize', 12,'FontWeight','bold');
     axis([0 lclu+1 0 max(1,max(max(res),rtest/limbr))*1.05]);
 end

@@ -63,6 +63,18 @@ handles.ParentFigure = guidata(handles.ParentsWindow);
 handles.calibration = varargin{2};
 handles.alignment = varargin{3};
 
+% Center GUI
+set(gcf,'Units', 'pixels' );
+%get your display size
+screenSize = get(0, 'ScreenSize');
+%calculate the center of the display
+position = get( gcf,'Position' );
+position(1) = (screenSize(3)-position(3))/2;
+position(2) = (screenSize(4)-position(4))/2;
+%center the window
+set( gcf,'Position', position );
+
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -90,17 +102,12 @@ handles.calibration.alpr=0.01;
 % Matrix containing the test batch to be projected onto the latent
 % structure.
 handles.calibration.test_batch = [];
-% Matrix containig the test batch to be check in the fault diagnosis step. 
-handles.calibration.test_batchFD = 1;
 % Flag indicating what mode must be used for fault diagnosis (by default
 % off-line, i.e. a value equal to 0.
 handles.modeMonitoring = 0;
 % Flag indicating what multivariate statistic should be investigated in
 % fault diagnosis. By default SPE is selected, i.e. a value equal to 0.
 handles.statFaultDiagnosis = 0;
-% Initialize the batch sampling point to take into account in the
-% contribution estimation to the first one.
-handles.batchTime = 0;
 % Inititialize the counter of the selected data set. 
 handles.selectedDataSet = 1;
 
@@ -411,6 +418,10 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+handles.calibration.test_batchFD = 1;
+% Update handles structure
+guidata(hObject,handles);
+
 % --- Executes on selection change in popupmenuTimePoint.
 function popupmenuTimePoint_Callback(hObject, eventdata, handles)
 % hObject    handle to popupmenuTimePoint (see GCBO)
@@ -434,6 +445,10 @@ function popupmenuTimePoint_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+handles.batchTime = 1;
+% Update handles structure
+guidata(hObject,handles);
 
 % --- Executes on button press in pbContribution.
 function pbContribution_Callback(hObject, eventdata, handles)

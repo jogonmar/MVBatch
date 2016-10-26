@@ -252,7 +252,7 @@ if opt,
     hold on;
 
     xlabel('Sampling time','FontSize', 12,'FontWeight','bold');
-    ylabel('SPE','FontSize', 12,'FontWeight','bold');
+    ylabel('Q-statistic','FontSize', 12,'FontWeight','bold');
 
     plot(real(limar),'r--');
     plot(real(limbr),'r');

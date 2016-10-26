@@ -78,6 +78,17 @@ handles.dataset.VariablesIn = [];
 % Setting a binary vector to track the modelling procedure.
 handles.track = zeros(5,1);
 
+% Center GUI
+set(gcf,'Units', 'pixels' );
+%get your display size
+screenSize = get(0, 'ScreenSize');
+%calculate the center of the display
+position = get( gcf,'Position' );
+position(1) = (screenSize(3)-position(3))/2;
+position(2) = (screenSize(4)-position(4))/2;
+%center the window
+set( gcf,'Position', position );
+
 % Update handles structure
 guidata(hObject, handles);
 

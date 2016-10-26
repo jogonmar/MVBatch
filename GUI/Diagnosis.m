@@ -72,7 +72,19 @@ plotcontrbGUI(handles)
 
 handles.selectedVariable = 1;
 
-Variable_popmenu_Callback(hObject, eventdata, handles)
+Variable_popmenu_Callback(hObject, eventdata, handles);
+
+% Center GUI
+set(gcf,'Units', 'pixels' );
+%get your display size
+screenSize = get(0, 'ScreenSize');
+%calculate the center of the display
+position = get( gcf,'Position' );
+position(1) = (screenSize(3)-position(3))/2;
+position(2) = (screenSize(4)-position(4))/2;
+%center the window
+set( gcf,'Position', position );
+
 % Update handles structure
 guidata(hObject, handles);
 
@@ -165,15 +177,15 @@ for j=1:s(2)
     line([j*s(1) j*s(1)],[min(handles.contrb) max(handles.contrb)],'LineStyle','--','Color','k');
 end
 
-xlabel('Variables','FontSize',10,'Color','k','fontweight','b');
+xlabel('Variables x Time','FontSize',10,'Color','k','fontweight','b');
 ylabel(handles.label,'FontSize',10,'Color','k','fontweight','b');
 axis tight
 
 
 axes(handles.axesVarContrib);
 bar(handles.contribJ,'FaceColor',[0 0 1]); axis tight;
-xlabel('Original Process Variables','FontSize',10,'Color','k','fontweight','b');
-ylabel([handles.label ' per variable'],'FontSize',10,'Color','k','fontweight','b');
+xlabel('Variables','FontSize',10,'Color','k','fontweight','b');
+ylabel([handles.label ' (J)'],'FontSize',10,'Color','k','fontweight','b');
 
 axes(handles.axesTimeContrib);
 bar(handles.contribK,'FaceColor',[0 0 1]);axis tight;
@@ -183,7 +195,7 @@ if not(isempty(handles.phases))
    end
 end
 xlabel('Batch Time','FontSize',10,'Color','k','fontweight','b');
-ylabel([handles.label ' per time'],'FontSize',10,'Color','k','fontweight','b');
+ylabel([handles.label ' (K)'],'FontSize',10,'Color','k','fontweight','b');
 
 
 % Fill the popmenu with tagnames

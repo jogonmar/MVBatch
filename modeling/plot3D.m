@@ -260,7 +260,7 @@ switch data_type,
                     ind=find(clu==i,1);
                     plot([ind ind],[maxy miny],'k--');
                 end
-               axis([1 maxk miny maxy]);
+               axis tight;%axis([1 maxk miny maxy]);
                 axes_h=get(hnd(end),'Children');
 %                 ticks=get(axes_h,'XTick');
 %                 tickl=get(axes_h,'XTickLabel');
