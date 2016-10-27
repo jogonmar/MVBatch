@@ -73,7 +73,6 @@ if iscell(handles.data.x),
         handles.data.type=1;
     elseif sb(2)>1 && sb(1)==1 && sd(1)==1
         for i=1:sb(2)
-            numel(find(isnan(handles.data.x{i}.data{1}(:,3:end))))
              handles.data.synchronization{handles.Stage2Syn}.nor_batches{i} = handles.data.x{i}.data{1}(:,3:end);
         end
         handles.data.stages = numel(unique(handles.data.x{1}.data{1}(find(~isnan(handles.data.x{1}.data{1}(:,2))),2)));
@@ -126,7 +125,7 @@ end
 handles.data.synchronization{1}.methodsyn = 'iv';
 
 % Center GUI
-set(gcf,'Units', 'pixels' );
+set(gcf,'Units','pixels');
 %get your display size
 screenSize = get(0, 'ScreenSize');
 %calculate the center of the display
@@ -134,7 +133,7 @@ position = get( gcf,'Position' );
 position(1) = (screenSize(3)-position(3))/2;
 position(2) = (screenSize(4)-position(4))/2;
 %center the window
-set( gcf,'Position', position );
+set( gcf,'Position', position);
     
 % Update handles structure
 guidata(hObject, handles);
