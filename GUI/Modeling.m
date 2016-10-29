@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 27-Oct-2016 18:17:09
+% Last Modified by GUIDE v2.5 16-Sep-2016 13:47:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -64,26 +64,24 @@ handles.ParentsWindow=varargin{1};
 handles.ParentFigure = guidata(handles.ParentsWindow);
 
 if length(varargin)>0,    
-    if ~exist('handles.data.x'), handles.data.x = handles.ParentFigure.s_alignment.alg_batches(:,2:end,:); end
+    handles.data.x = handles.ParentFigure.s_alignment.alg_batches(:,2:end,:);
 
-    if ~exist('handles.data.text'), handles.data.text = []; end
-    if ~exist('handles.data.man_mp_group'), handles.data.man_mp_group = {}; end
-    if ~exist('handles.data.mp_group'), handles.data.mp_group = {}; end
-    if ~exist('handles.data.mp_group2'), handles.data.mp_group2 = {}; end
-    if ~exist('handles.data.prep'), handles.data.prep = 2; end
-    if ~exist('handles.data.preptxt'), handles.data.preptxt = 'TCTS'; end
+    handles.data.text = [];
+    handles.data.man_mp_group = {};
+    handles.data.mp_group = {};
+    handles.data.mp_group2 = {};
+    handles.data.prep = 2;
+    handles.data.preptxt = 'TCTS';
 
-    if ~exist('handles.data.cross'),
-        s = size(handles.data.x);  % Fix the selection of blocks in the cross-validation
-        cross = cross_parameters; 
-        if cross.order.input==false,
-            cross.order.input=true;
-            cross.order.cols=rand(1,s(2)*s(1));
-            cross.order.rows=rand(1,s(3)); 
-        end
-        cross.leave_m = 'ckf';
-        handles.data.cross = cross;
+    s = size(handles.data.x);  % Fix the selection of blocks in the cross-validation
+    cross = cross_parameters; 
+    if cross.order.input==false,
+        cross.order.input=true;
+        cross.order.cols=rand(1,s(2)*s(1));
+        cross.order.rows=rand(1,s(3)); 
     end
+    cross.leave_m = 'ckf';
+    handles.data.cross = cross;
    
     if ~isempty(find(isnan(handles.data.x))), 
         handles.data.x = missTSR3D(handles.data.x,3,s(1)-1,2);
@@ -822,7 +820,6 @@ for i=1:sp(1),
     cprintMV(handles.console,sprintf('From %d to %d, %d PC(s) and %d LMV(s), PRESS = %g',model.phases(i,4),model.phases(i,5),model.phases(i,2),model.phases(i,3),model.phases(i,1)));
 end
 
-
 % --- Executes on button press in pushbuttonDyn.
 function pushbuttonDyn_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonDyn (see GCBO)
@@ -970,7 +967,7 @@ if ~isequal(file, 0)
         set(handles.popupmenuPhase,'Enable','off');
         set(handles.textPhase,'Enable','off'); 
         set(handles.pushbuttonMod,'Enable','off');
-        set(handles.pushbuttonMon,'Enable','off');
+        set(handles.pushbuttonApply,'Enable','off');
         set(handles.popupmenuMod,'Enable','off');
         set(handles.popupmenuMod,'String',' ');
         set(handles.popupmenuMod,'Value',1);
@@ -986,7 +983,7 @@ if ~isequal(file, 0)
     else
         set(handles.edit_Tm,'String',num2str(handles.data.Tms,'%g '));
         set(handles.pushbuttonMod,'Enable','on');
-        set(handles.pushbuttonMon,'Enable','on');
+        set(handles.pushbuttonApply,'Enable','on');
         set(handles.popupmenuMod,'Enable','on');
         set(handles.textMod,'Enable','on');
         set(handles.popupmenuPhase,'Enable','on');
@@ -1459,7 +1456,7 @@ if ok,
 
     
     set(handles.pushbuttonMod,'Enable','on');
-    set(handles.pushbuttonMon,'Enable','on');
+    set(handles.pushbuttonApply,'Enable','on');
     set(handles.popupmenuMod,'Enable','on');
     set(handles.textMod,'Enable','on');
     set(handles.popupmenuPhase,'Enable','on');
@@ -1659,37 +1656,3 @@ function console_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to console (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbuttonClose.
-function pushbuttonClose_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonClose (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-axes(handles.ParentFigure.main_window)
-image(handles.ParentFigure.images{5});
-axis off;
-axis image;
-set(handles.ParentFigure.pbMonitoring,'Enable','on');
-handles.ParentFigure.track(4) = 1;
-handles.ParentFigure.track(5) = 0;
-
-
-% --- Executes on button press in pushbuttonApply.
-function pushbuttonApply_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonApply (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-models.man_mp_group = handles.data.man_mp_group;
-models.mp_group = handles.data.mp_group;
-models.mp_group2 = handles.data.mp_group2;
- 
-handles.ParentFigure.s_calibration = models;
-handles.ParentFigure.s_calibration.x = handles.data.x;
-guidata(handles.ParentsWindow,handles.ParentFigure)
-
-% Update handles structure
-guidata(handles.ParentsWindow, handles.ParentFigure);
-guidata(hObject, handles);
