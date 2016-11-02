@@ -59,17 +59,88 @@ function Modeling_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 
 handles.PCAh = 0;
-    
-handles.ParentsWindow=varargin{1};
-handles.ParentFigure = guidata(handles.ParentsWindow);
 
-if length(varargin)>0,    
+if length(varargin)>0,   
+    handles.ParentsWindow=varargin{1};
+    handles.ParentFigure = guidata(handles.ParentsWindow);
+
     handles.data.x = handles.ParentFigure.s_alignment.alg_batches(:,2:end,:);
 
+    if ~isempty(handles.ParentFigure.s_calibration)
+        models = handles.ParentFigure.s_calibration;
+        handles.data.man_mp_group = models.man_mp_group;
+        handles.data.mp_group = models.mp_group;
+        handles.data.mp_group2 = models.mp_group2;
+       
+        set(handles.pushbuttonMod,'Enable','on');
+        set(handles.pushbuttonApply,'Enable','on');
+        set(handles.popupmenuMod,'Enable','on');
+        set(handles.textMod,'Enable','on');
+        set(handles.popupmenuPhase,'Enable','on');
+        set(handles.textPhase,'Enable','on');
+        set(handles.radiobutton1,'Enable','on');
+        
+        contents = get(handles.popupmenuCM,'String');
+        contents = strvcat(contents(1:3,:));
+        set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
+        contents = get(handles.popupmenuCM,'String');
+        set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
+        contents = get(handles.popupmenuCM,'String');
+        set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
+        contents = get(handles.popupmenuCM,'String');
+        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
+        contents = get(handles.popupmenuCM,'String');
+        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
+        contents = get(handles.popupmenuCM,'String');
+        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
+
+        set(handles.popupmenuMod,'String','');
+        for i=1:length(handles.data.man_mp_group),
+            contents = get(handles.popupmenuMod,'String');
+            set(handles.popupmenuMod,'String',strvcat(contents,sprintf(' Manual MPPCA Model %d',i)));
+        end
+        
+        for i=1:length(handles.data.mp_group),
+            contents = get(handles.popupmenuMod,'String');
+            set(handles.popupmenuMod,'String',strvcat(contents,sprintf(' MPPCA Model %d',i)));
+        end
+
+        set(handles.popupmenuPhase,'Value',1);
+        set(handles.popupmenuPhase,'String','');
+        if length(handles.data.man_mp_group)<1,
+            phases=handles.data.mp_group{1}.phases;
+        else
+            phases=handles.data.man_mp_group{1}.phases;
+        end
+        for i=1:size(phases,1),
+            contents = get(handles.popupmenuPhase,'String');
+            set(handles.popupmenuPhase,'String',strvcat(contents,sprintf(' Phase %d: from %d to %d, %d PC(s) and %d LMV(s)',i,phases(i,4),phases(i,5),phases(i,2),phases(i,3))));
+        end
+   
+        set(handles.text_Tm,'Enable','on');
+        set(handles.edit_Tm,'Enable','on');
+        set(handles.popupmenuM,'Enable','on');
+        set(handles.pushbutton_SS,'Enable','on');
+
+        if  length(handles.data.mp_group2)>0,
+            for i=1:length(handles.data.mp_group2),
+                contents = get(handles.popupmenuMod,'String');
+                set(handles.popupmenuMod,'String',strvcat(contents,sprintf(' Merged MPPCA Model %d',i)));
+            end
+
+            if length(handles.data.mp_group2)>2,
+                [P,TABLE,STATS] = anova2(handles.data.anova,1,'off');
+                h=figure;
+                multcompare(STATS,'ctype','lsd');
+            end
+        end
+    else      
+        handles.data.man_mp_group = {};
+        handles.data.mp_group = {};
+        handles.data.mp_group2 = {};
+    end
+ 
     handles.data.text = [];
-    handles.data.man_mp_group = {};
-    handles.data.mp_group = {};
-    handles.data.mp_group2 = {};
     handles.data.prep = 2;
     handles.data.preptxt = 'TCTS';
 
@@ -1656,3 +1727,39 @@ function console_ButtonDownFcn(hObject, eventdata, handles)
 % hObject    handle to console (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on button press in pushbuttonClose.
+function pushbuttonClose_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonClose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+axes(handles.ParentFigure.main_window)
+image(handles.ParentFigure.images{5});
+axis off;
+axis image;
+handles.ParentFigure.track(4) = 1;
+handles.ParentFigure.track(5) = 0;
+guidata(handles.ParentsWindow, handles.ParentFigure);
+
+
+% --- Executes on button press in pushbuttonApply.
+function pushbuttonApply_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonApply (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+models.man_mp_group = handles.data.man_mp_group;
+models.mp_group = handles.data.mp_group;
+models.mp_group2 = handles.data.mp_group2;
+ 
+handles.ParentFigure.s_calibration = models;
+handles.ParentFigure.s_calibration.x = handles.data.x;
+guidata(handles.ParentsWindow,handles.ParentFigure)
+
+% Update handles structure
+guidata(handles.ParentsWindow, handles.ParentFigure);
+guidata(hObject, handles);
+
+set(handles.ParentFigure.pbMonitoring,'Enable','on');
