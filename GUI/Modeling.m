@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 16-Sep-2016 13:47:49
+% Last Modified by GUIDE v2.5 08-Nov-2016 16:33:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -1735,14 +1735,14 @@ function pushbuttonClose_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-axes(handles.ParentFigure.main_window)
-image(handles.ParentFigure.images{5});
-axis off;
-axis image;
-handles.ParentFigure.track(4) = 1;
-handles.ParentFigure.track(5) = 0;
-guidata(handles.ParentsWindow, handles.ParentFigure);
-
+% axes(handles.ParentFigure.main_window)
+% image(handles.ParentFigure.images{5});
+% axis off;
+% axis image;
+% handles.ParentFigure.track(4) = 1;
+% handles.ParentFigure.track(5) = 0;
+% guidata(handles.ParentsWindow, handles.ParentFigure);
+delete(handles.figure1)
 
 % --- Executes on button press in pushbuttonApply.
 function pushbuttonApply_Callback(hObject, eventdata, handles)
@@ -1758,8 +1758,22 @@ handles.ParentFigure.s_calibration = models;
 handles.ParentFigure.s_calibration.x = handles.data.x;
 guidata(handles.ParentsWindow,handles.ParentFigure)
 
+% Update the main layout by enabling the monitoring GUI
+axes(handles.ParentFigure.main_window)
+image(handles.ParentFigure.images{5});
+axis off;
+axis image;
+% Update the tracking array of the bilinear modeling cycling (only updated
+% when the user presses the button "apply"
+handles.ParentFigure.track(:) = 1;
+handles.ParentFigure.track(5) = 0;
+
 % Update handles structure
 guidata(handles.ParentsWindow, handles.ParentFigure);
 guidata(hObject, handles);
 
+% Allow user to proceed with the design of the monitoring scheme
 set(handles.ParentFigure.pbMonitoring,'Enable','on');
+
+% Delete the current user interface
+delete(handles.figure1);
