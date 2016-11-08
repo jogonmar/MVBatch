@@ -124,13 +124,13 @@ function pbAlignment_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if numel(find(handles.track)) > 2
-    set(handles.pbCalibration,'Enable','off');
-    set(handles.pbMonitoring,'Enable','off');
-    image(handles.images{3});
-    axis off;
-    axis image;
-end
+% if numel(find(handles.track)) > 2
+%     set(handles.pbCalibration,'Enable','off');
+%     set(handles.pbMonitoring,'Enable','off');
+%     image(handles.images{3});
+%     axis off;
+%     axis image;
+% end
         
 set(handles.MVBatch, 'pointer', 'watch');
 drawnow;

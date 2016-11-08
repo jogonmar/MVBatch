@@ -23,7 +23,7 @@ function varargout = Alignment(varargin)
 
 % Edit the above text to modify the response to help Alignment
 
-% Last Modified by GUIDE v2.5 22-Sep-2014 17:53:56
+% Last Modified by GUIDE v2.5 08-Nov-2016 13:38:37
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -399,7 +399,7 @@ switch txt
         handles.data.synchronization{handles.data.stages}.param = handlesGUI.data.synchronization{handles.data.stages}.param;
 end
 
-set(handles.pushbuttonCalibration,'Enable','off');
+set(handles.pushbuttonApply,'Enable','off');
 guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -1178,7 +1178,7 @@ if handles.SynStage
     %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
 
     if isempty(find(handles.flagStagesSyn==0))
-        set(handles.pushbuttonCalibration,'Enable','on');
+        set(handles.pushbuttonApply,'Enable','on');
         guidata(hObject, handles);
     else
         handles.Stage2Syn = handles.data.stages(find(handles.flagStagesSyn==0,1,'first'));
@@ -1193,7 +1193,7 @@ if handles.SynStage
 end
 
 if isempty(find(handles.flagStagesSyn==0))
-    set(handles.pushbuttonCalibration,'Enable','on');
+    set(handles.pushbuttonApply,'Enable','on');
     guidata(hObject, handles);
 else
     handles.Stage2Syn = handles.data.stages(find(handles.flagStagesSyn==0,1,'first'));
@@ -1479,7 +1479,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
 
             if isempty(find(handles.flagStagesSyn==0))
-                set(handles.pushbuttonCalibration,'Enable','on');
+                set(handles.pushbuttonApply,'Enable','on');
                 guidata(hObject, handles);
             else
                 handles.Stage2Syn = handles.data.stages(find(handles.flagStagesSyn==0,1,'first'));
@@ -1505,7 +1505,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
                 ylabel('Test batch sampling point','FontSize',14);
                 plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches);
          end  
-        set(handles.pushbuttonCalibration,'Enable','on');
+        set(handles.pushbuttonApply,'Enable','on');
     end 
     
     elseif strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'multisynchro')
@@ -1607,7 +1607,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     end
         
     if isempty(find(handles.flagStagesSyn==0))
-        set(handles.pushbuttonCalibration,'Enable','on');
+        set(handles.pushbuttonApply,'Enable','on');
     else
         handles.Stage2Syn = handles.data.stages(find(handles.flagStagesSyn==0,1,'first'));
         %handles.StageSyn = handles.data.stages(find(handles.flagStagesSyn==1,1,'first'));
@@ -1686,7 +1686,7 @@ elseif strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'iv')
     end
         
     if isempty(find(handles.flagStagesSyn==0))
-        set(handles.pushbuttonCalibration,'Enable','on');
+        set(handles.pushbuttonApply,'Enable','on');
     else
         handles.Stage2Syn = handles.data.stages(find(handles.flagStagesSyn==0,1,'first'));
         % Initialize next stage
@@ -1742,9 +1742,9 @@ assignin('base','dataAlig',handles.data);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-% --- Executes on button press in pushbuttonCalibration.
-function pushbuttonCalibration_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonCalibration (see GCBO)
+% --- Executes on button press in pushbuttonApply.
+function pushbuttonApply_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonApply (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -1777,16 +1777,25 @@ for i=1:length(handles.data.synchronization)
     end
 end
 
+% Update alignment structure from main window and remove modeling information if any
 handles.ParentFigure.s_alignment = handles.data;
+handles.ParentFigure.s_calibration = [];
+
+% Update the parent handles
 guidata(handles.ParentsWindow,handles.ParentFigure)
+
+% Close the current user interface
 delete(handles.figure1);
 
+% Update the main layout
 axes(handles.ParentFigure.main_window)
 image(handles.ParentFigure.images{4});
 axis off;
 axis image;
 set(handles.ParentFigure.pbCalibration,'Enable','on');
-handles.ParentFigure.track(3) = 1;
+
+% Update the track array of the bilinear modeling
+handles.ParentFigure.track(:) = 1;
 handles.ParentFigure.track(4:end) = 0;
 
 % Update handles structure
@@ -2241,3 +2250,12 @@ function editTypeAsynchronisms_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in pushbuttonClose.
+function pushbuttonClose_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonClose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+delete(handles.figure1);

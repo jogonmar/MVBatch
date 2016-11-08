@@ -22,7 +22,7 @@ function varargout = Screening(varargin)
 
 % Edit the above text to modify the response to help Screening
 
-% Last Modified by GUIDE v2.5 26-Sep-2014 12:01:19
+% Last Modified by GUIDE v2.5 08-Nov-2016 16:27:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -573,8 +573,8 @@ guidata(hObject, handles);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function pb_DataSet_Callback(hObject, eventdata, handles)
-% hObject    handle to pb_DataSet (see GCBO)
+function pb_Apply_Callback(hObject, eventdata, handles)
+% hObject    handle to pb_Apply (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -590,18 +590,22 @@ md = zeros(length(handles.ParentFigure.x),1);
 for i=1:length(handles.ParentFigure.x)
     if numel(find(isnan(handles.ParentFigure.x{i}.data{1,1}(:,3:end))))>0, md(i)=1; end
 end
-
     
 % Save information related to the unit, process variables and batches
 % selected for bilinear process modelling
 % System variables keeping information about batches
 handles.ParentFigure.dataset.BatchesIn = handles.BatchesIn;
 
-% System valriables keeping information about the process variables
+% System variables keeping information about the process variables
 handles.ParentFigure.dataset.VariablesIn = handles.VariablesIn;
 
-handles.ParentFigure.track(2) = 1;
+% Update the track array of the bilinear modeling cycle
+handles.ParentFigure.track(:) = 1;
 handles.ParentFigure.track(3:end) = 0;
+
+% Remove the information related to the synchronization and modeling if any
+handles.ParentFigure.s_alignment = [];
+handles.ParentFigure.s_calibration = [];
 
 % Save the information of the parent handle    
 guidata(handles.ParentsWindow,handles.ParentFigure)
@@ -837,3 +841,12 @@ end
     handles.n_plots_windows=ceil(handles.nVariables/9);
     handles.current_plot_window = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% --- Executes on button press in pushbuttonClose.
+function pushbuttonClose_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonClose (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+delete(handles.figure1);
