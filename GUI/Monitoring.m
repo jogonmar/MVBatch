@@ -63,17 +63,6 @@ handles.ParentFigure = guidata(handles.ParentsWindow);
 handles.calibration = varargin{2};
 handles.alignment = varargin{3};
 
-% Center GUI
-set(gcf,'Units', 'pixels' );
-%get your display size
-screenSize = get(0, 'ScreenSize');
-%calculate the center of the display
-position = get( gcf,'Position' );
-position(1) = (screenSize(3)-position(3))/2;
-position(2) = (screenSize(4)-position(4))/2;
-%center the window
-set( gcf,'Position', position );
-
 
 % Update handles structure
 guidata(hObject, handles);
@@ -105,19 +94,74 @@ handles.calibration.test_batch = [];
 % Flag indicating what mode must be used for fault diagnosis (by default
 % off-line, i.e. a value equal to 0.
 handles.modeMonitoring = 0;
-% Flag indicating what multivariate statistic should be investigated in
+% Flag indicating what multivariate statistics should be investigated in
 % fault diagnosis. By default SPE is selected, i.e. a value equal to 0.
 handles.statFaultDiagnosis = 0;
 % Inititialize the counter of the selected data set. 
 handles.selectedDataSet = 1;
 
-set(handles.popupmenuVar,'Enable','off');
-set(handles.textVar,'Enable','off');
-set(handles.popupmenuBat,'Enable','off');
-set(handles.textBat,'Enable','off');
-%set(handles.pushbuttonRef,'Enable','off');
-set(handles.pushbuttonPlo,'Enable','off');
+% Enable the monitoring option for the calibration data set
+handles.calibration.test{1,1} = handles.alignment.synchronization{1,1}.nor_batches';
+
+set(handles.popupmenuVar,'String',' '); 
+set(handles.popupmenuVar,'String','calibration'); 
+set(handles.textData,'String','calibration'); 
+
+handles.calibration.test_batch = handles.calibration.test{handles.selectedDataSet}{1};
+handles.calibration.test_batchFD = 1;
+
+set(handles.popupmenuBat,'String','');
+set(handles.popupmenuBatFD,'String','');
+
+% Fill the popmenu with the number of batches
+set(handles.popupmenuBat,'String','');
+set(handles.popupmenuBatFD,'String','');
+for i=1:length(handles.calibration.test{handles.selectedDataSet})
+    contents = get(handles.popupmenuBat,'String');
+    set(handles.popupmenuBat,'String',strvcat(contents,[' ',num2str(i)]));
+    set(handles.popupmenuBatFD,'String',strvcat(contents,[' ',num2str(i)]));
+end
+
+set(handles.popupmenuBat,'Value',1);
+set(handles.popupmenuBatFD,'Value',1);
+
+% Fill the popmenu with the number of sampling points
+set(handles.popupmenuTimePoint,'String','');
+for i=1:size(handles.calibration.x,1)
+    contents = get(handles.popupmenuTimePoint,'String');
+    set(handles.popupmenuTimePoint,'String',strvcat(contents,[' ',num2str(i)]));
+end
+
+% Update the Monitoring options
+set(handles.pbContribution,'Enable','on');
+set(handles.popupmenuVar,'Enable','on');   
+set(handles.textVar,'Enable','on');
+set(handles.popupmenuBat,'Enable','on');
+set(handles.textBat,'Enable','on');
+set(handles.pushbuttonPlo,'Enable','on');
 set(handles.ImportMenuItem,'Enable','off');
+set(handles.radiobuttonCV,'Enable','on');
+set(handles.ImportMenuItem,'Enable','on');
+
+
+handles.ParentFigure.track(:) = 1;
+
+% set(handles.popupmenuVar,'Enable','off');
+% set(handles.textVar,'Enable','off');
+% set(handles.popupmenuBat,'Enable','off');
+% set(handles.textBat,'Enable','off');
+% set(handles.ImportMenuItem,'Enable','off');
+
+% Center GUI
+set(gcf,'Units', 'pixels' );
+%get your display size
+screenSize = get(0, 'ScreenSize');
+%calculate the center of the display
+position = get( gcf,'Position' );
+position(1) = (screenSize(3)-position(3))/2;
+position(2) = (screenSize(4)-position(4))/2;
+%center the window
+set( gcf,'Position', position );
 
 popupmenuMod_Callback(handles.popupmenuMod, eventdata, handles);
 
@@ -226,50 +270,9 @@ catch err
 end
 set(gcf,'pointer','arrow')
 
-
-% Enable the monitoring option for the calibration data set
-handles.calibration.test{1,1} = handles.alignment.synchronization{1,1}.nor_batches';
-
-set(handles.popupmenuVar,'String',' '); 
-set(handles.popupmenuVar,'String','calibration'); 
-set(handles.textData,'String','calibration'); 
-
-handles.calibration.test_batch = handles.calibration.test{handles.selectedDataSet}{1};
-handles.calibration.test_batchFD = 1;
-
-set(handles.popupmenuBat,'String','');
-set(handles.popupmenuBatFD,'String','');
-
-% Fill the popmenu with the number of batches
-set(handles.popupmenuBat,'String','');
-set(handles.popupmenuBatFD,'String','');
-for i=1:length(handles.calibration.test{handles.selectedDataSet})
-    contents = get(handles.popupmenuBat,'String');
-    set(handles.popupmenuBat,'String',strvcat(contents,[' ',num2str(i)]));
-    set(handles.popupmenuBatFD,'String',strvcat(contents,[' ',num2str(i)]));
-end
-
-set(handles.popupmenuBat,'Value',1);
-set(handles.popupmenuBatFD,'Value',1);
-
-% Fill the popmenu with the number of sampling points
-set(handles.popupmenuTimePoint,'String','');
-for i=1:size(handles.calibration.x,1)
-    contents = get(handles.popupmenuTimePoint,'String');
-    set(handles.popupmenuTimePoint,'String',strvcat(contents,[' ',num2str(i)]));
-end
-
-set(handles.pbContribution,'Enable','on');
-set(handles.popupmenuVar,'Enable','on');   
-set(handles.textVar,'Enable','on');
-set(handles.popupmenuBat,'Enable','on');
-set(handles.textBat,'Enable','on');
-set(handles.pushbuttonPlo,'Enable','on');
-set(handles.ImportMenuItem,'Enable','off');
+% Enable the option of using the control limits adjusted by
+% cross-validation
 set(handles.radiobuttonCV,'Enable','on');
-set(handles.ImportMenuItem,'Enable','on');
-
-handles.ParentFigure.track(5) = 1;
 
 % Store the values of the CV 
 handles.ParentFigure.s_monitoring = handles.calibration;
@@ -461,7 +464,7 @@ test_batch = handles.calibration.test{handles.selectedDataSet}{handles.calibrati
 test_batchSyn = onlineSynchronization(handles,test_batch);
     
 if ~handles.modeMonitoring && handles.calibration.model.phases(1,3) ~= size(handles.alignment.alg_batches,1)-1, 
-    warndlg('Overall contributions cannot be displayed because the model is not a batch-wise PCA. Only the option of contributions at a specific sampling time is possible.');
+    warndlg('Overall contributions cannot be displayed because the model is not a batch-wise PCA. Only contributions at a specific sampling time can be depicted. Please, enable the on-line fault diagnosis.');
     return;
 end
 
@@ -481,7 +484,7 @@ try
             contToStat = EvolvingQcontribution;
             label = 'Contribution to Q statistic ';
     end
-        
+   
     % Arrange the contributions based on the type (0: overall, 1:
     % intantaneous)
     
@@ -734,11 +737,11 @@ uipushtool(tbh,'CData',select_cdata,'Separator','on',...
 'HandleVisibility','off','ClickedCallback',@hSelectCallback);  
 
 uipushtool(tbh,'CData',Trace_cdata,'Separator','on',...
-'TooltipString','Select',...
+'TooltipString','Trace',...
 'HandleVisibility','off','ClickedCallback',{@VisualizeVariablesCallback,xini,test,av,tagnames});
 
 uipushtool(tbh,'CData',tags_cdata,...
-'TooltipString','Import data set',...
+'TooltipString','Tagname',...
 'HandleVisibility','off','ClickedCallback',{@hTagsCallback,tagnames});
     
 function hSelectCallback(hObject, eventdata)
@@ -747,13 +750,15 @@ brush on
 
 function hTagsCallback(hObject, eventdata, tagnames)
 % Callback function run when the Update button is pressed
-gname(tagnames);
+gcf
+gname(cell2str(tagnames));
 
 function VisualizeVariablesCallback(hObject,eventdata,xini,test,av,tagnames)
 
 hBrushLine = findall(gca, 'tag', 'Brushing');
 brushedData = get(hBrushLine, {'Xdata', 'Ydata'});
 if numel(find(~cellfun(@isempty,brushedData)))==0,
+    warndlg('Please, press the ''Select'' icon, select a bar and then press the ''Trace'' icon.')
     return;
 end
 if numel(find(brushedData{1,2}~=0))==0
