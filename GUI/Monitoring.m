@@ -745,7 +745,7 @@ uipushtool(tbh,'CData',tags_cdata,...
 'HandleVisibility','off','ClickedCallback',{@hTagsCallback,tagnames});
     
 function hSelectCallback(hObject, eventdata)
-% Callback function run when the Update button is pressed
+% Callback function run when the Update button is pressed 
 brush on
 
 function hTagsCallback(hObject, eventdata, tagnames)
