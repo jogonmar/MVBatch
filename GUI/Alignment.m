@@ -369,13 +369,11 @@ switch txt
         handlesGUI = guidata(hObject);editPsih_Callback(handlesGUI.editPsih, eventdata, handlesGUI);
         handlesGUI = guidata(hObject);
         
-        % Parameters of the manual asynchornism recognition
+        % Parameters of the manual asynchronism recognition
         set(handles.editTypeAsynchronisms,'String','1'); handles.TypeAsyn = 1;
         set(handles.editBatches,'String',strcat('1:',num2str(length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)))); handles.AsynBatches =  1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches);
         handles.selectedAsyn = 1;
         
-        eventdata.EventName = 'SelectionChanged';
-        eventdata.NewValue = handles.radiobuttonAutomatic;
         uipanelMultiSynchrpParameters_SelectionChangeFcn(handles.radiobuttonAutomatic, eventdata, handles)
         
         % Enable common GUI objects for the different synchronization
@@ -2030,7 +2028,7 @@ function uipanelParametersMultiSynchro_SelectionChangeFcn(hObject, eventdata, ha
 % handles    structure with handles and user data (see GUIDATA)
 
 
-switch get(eventdata.NewValue,'Tag')   % Get Tag of selected object
+switch get(handles.radiobuttonManualRecogniction,'Tag')   % Get Tag of selected object
      case 'radiobuttonAutomaticRecogniction'
         set(handles.editFraction,'Enable','on');
         handles.data.synchronization{handles.Stage2Syn}.param.k = str2double(get(handles.editFraction,'String'));
@@ -2046,7 +2044,7 @@ end
 guidata(hObject,handles);
 
 % --- Executes when selected object is changed in uipanelMultiSynchrpParameters.
-function uipanelMultiSynchrpParameters_SelectionChangeFcn(hObject, eventdata, handles)
+function uipanelMultiSynchrpParameters_SelectionChangeFcn(hObject, eventdata, handles,NewValue)
 % hObject    handle to the selected object in uipanelMultiSynchrpParameters 
 % eventdata  structure with the following fields (see UIBUTTONGROUP)
 %	EventName: string 'SelectionChanged' (read only)
@@ -2055,14 +2053,14 @@ function uipanelMultiSynchrpParameters_SelectionChangeFcn(hObject, eventdata, ha
 % handles    structure with handles and user data (see GUIDATA)
 
 
-switch get(eventdata.NewValue,'Tag')   % Get Tag of selected object
+switch get(handles.radiobuttonAutomatic,'Tag')   % Get Tag of selected object
      case 'radiobuttonAutomatic'
         set(handles.radiobuttonAutomaticRecogniction,'Enable','on');
         set(handles.radiobuttonManualRecogniction,'Enable','on');
         set(handles.editTypeAsynchronisms,'Enable','off');
         set(handles.editBatches,'Enable','off');
-        eventdata.EventName = 'SelectionChanged';
-        eventdata.NewValue = handles.radiobuttonManualRecogniction;
+        %eventdata.EventName = 'SelectionChanged';
+        %eventdata.NewValue = handles.radiobuttonManualRecogniction;
         set(handles.radiobuttonManualRecogniction,'Value',1);
         uipanelParametersMultiSynchro_SelectionChangeFcn(handles.uipanelMultiSynchrpParameters, eventdata, handles);
      case 'radiobuttonManual'
