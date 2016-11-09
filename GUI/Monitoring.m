@@ -750,25 +750,46 @@ brush on
 
 function hTagsCallback(hObject, eventdata, tagnames)
 % Callback function run when the Update button is pressed
-gcf
-gname(cell2str(tagnames));
+
+hLine = get(gca,'Children');
+gname(tagnames,hLine);
 
 function VisualizeVariablesCallback(hObject,eventdata,xini,test,av,tagnames)
 
-hBrushLine = findall(gca, 'tag', 'Brushing');
-brushedData = get(hBrushLine, {'Xdata', 'Ydata'});
-if numel(find(~cellfun(@isempty,brushedData)))==0,
-    warndlg('Please, press the ''Select'' icon, select a bar and then press the ''Trace'' icon.')
-    return;
-end
-if numel(find(brushedData{1,2}~=0))==0
-    errordlg('No variable has been selected, please select a variable and try again.','Error')
-    return
-end
-Variable = find(brushedData{1,2});
-if numel(Variable)>1
-    errordlg('You have selected multiple variables. Please, select a single variable.','Error')
-    return
+% Due to changes in the new version of Matlab as of 2015, we need to check
+% for special coding to indetify the bar
+
+versionMatlab = version('-release');
+versionMatlab = str2num(versionMatlab(1:4));
+
+if versionMatlab < 2015
+    hBrushLine = findall(gca, 'tag', 'Brushing');
+    brushedData = get(hBrushLine, {'Xdata', 'Ydata'});
+    if numel(find(~cellfun(@isempty,brushedData)))==0,
+        warndlg('Please, press the ''Select'' icon, select a bar and then press the ''Trace'' icon.')
+        return;
+    end
+    if numel(find(brushedData{1,2}~=0))==0
+        errordlg('No variable has been selected, please select a variable and try again.','Error')
+        return
+    end
+    Variable = find(brushedData{1,2});
+    if numel(Variable)>1
+        errordlg('You have selected multiple variables. Please, select a single variable.','Error')
+        return
+    end
+else
+    hLine = get(gca,'Children');
+    selection = logical(hLine.BrushData);
+    if numel(find(selection)) == 0
+        errordlg('No variable has been selected, please select a variable and try again.','Error')
+        return
+    end
+    if numel(find(selection)) > 1
+        errordlg('Only one variable at a time can be selected.','Error')
+        return
+    end
+    Variable = find(selection);
 end
 brush off;
 
