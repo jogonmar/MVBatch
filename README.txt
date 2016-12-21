@@ -1,7 +1,7 @@
 ﻿MVBatch for its use in MATLAB. 
 
 Contact: José María González Martínez (J.Gonzalez-Martinez@shell.com) & José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 18/Sep/16
+Last modification of this document: 21/Dec/16
 
 Installation
 
@@ -38,4 +38,6 @@ Items in the folder:
 - synchronization: synchronization routines.
 
 - GUI: Graphical User Interface routines.
+
+- MEDA Toolbox: submodule at repository https://github.com/josecamachop/MEDA-Toolbox
 
