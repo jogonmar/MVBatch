@@ -1596,14 +1596,30 @@ handles.man.fint = edit_man_fint_Callback(handles.edit_man_fint, eventdata, hand
 
 % Checking arguments
 ok=true;
-if find(isnan(handles.man.pcs)), ok=false; end;
-if find(isnan(handles.man.lmvs)), ok=false; end;
-if find(isnan(handles.man.init)), ok=false; end;
-if find(isnan(handles.man.fint)), ok=false; end;
+if find(isnan(handles.man.pcs)) | find(handles.man.pcs<1), 
+    cprintMV(handles.console,'Incorrect number of PCs.'); ok=false; end;
+if find(isnan(handles.man.lmvs)) | find(handles.man.lmvs<0), 
+    cprintMV(handles.console,'Incorrect number of LMVs.'); ok=false; end;
+if find(isnan(handles.man.init)) | find(handles.man.init<0) | find(handles.man.init>size(handles.data.x,1)), 
+    cprintMV(handles.console,'Incorrect initial time point.'); ok=false; end;
+if find(isnan(handles.man.fint)) | find(handles.man.fint<0) | find(handles.man.fint>size(handles.data.x,1)), 
+    cprintMV(handles.console,'Incorrect final time point.'); ok=false; end;
 n_phases = length(handles.man.pcs);
-if n_phases ~= length(handles.man.lmvs), ok=false; end;
-if n_phases ~= length(handles.man.init), ok=false; end;
-if n_phases ~= length(handles.man.fint), ok=false; end;
+if n_phases ~= length(handles.man.lmvs), 
+    cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
+if n_phases ~= length(handles.man.init),
+    cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
+if n_phases ~= length(handles.man.fint),
+    cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
+for i=1:n_phases,
+    if handles.man.init(i)>handles.man.fint(i),
+    cprintMV(handles.console,sprintf('Incorrect initial/final time in phase %d.',i)); ok=false; end;
+    if handles.man.lmvs(i)>(handles.man.fint(i)-handles.man.init(i)),
+    cprintMV(handles.console,sprintf('Incorrect number of LMVs in phase %d.',i)); ok=false; end;
+    if handles.man.pcs(i)>rank(unfold(handles.data.x(handles.man.init(i):handles.man.fint(i),:,:),handles.man.lmvs(i))),
+    cprintMV(handles.console,sprintf('Number of PCs in phase %d above the rank.',i)); ok=false; end;
+end
+
 if ok,
     pcs=handles.man.pcs;
     lmvs=handles.man.lmvs;
