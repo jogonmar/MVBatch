@@ -1501,6 +1501,8 @@ if n_phases ~= length(handles.man.fint),
 for i=1:n_phases,
     if handles.man.init(i)>handles.man.fint(i),
     cprintMV(handles.console,sprintf('Incorrect initial/final time in phase %d.',i)); ok=false; end;
+    if isinf(handles.man.lmvs(i)),
+        handles.man.lmvs(i)=(handles.man.fint(i)-handles.man.init(i)); end;
     if handles.man.lmvs(i)>(handles.man.fint(i)-handles.man.init(i)),
     cprintMV(handles.console,sprintf('Incorrect number of LMVs in phase %d.',i)); ok=false; end;
     if handles.man.pcs(i)>rank(unfold(handles.data.x(handles.man.init(i):handles.man.fint(i),:,:),handles.man.lmvs(i))),
@@ -1614,6 +1616,8 @@ if n_phases ~= length(handles.man.fint),
 for i=1:n_phases,
     if handles.man.init(i)>handles.man.fint(i),
     cprintMV(handles.console,sprintf('Incorrect initial/final time in phase %d.',i)); ok=false; end;
+    if isinf(handles.man.lmvs(i)),
+        handles.man.lmvs(i)=(handles.man.fint(i)-handles.man.init(i)); end;
     if handles.man.lmvs(i)>(handles.man.fint(i)-handles.man.init(i)),
     cprintMV(handles.console,sprintf('Incorrect number of LMVs in phase %d.',i)); ok=false; end;
     if handles.man.pcs(i)>rank(unfold(handles.data.x(handles.man.init(i):handles.man.fint(i),:,:),handles.man.lmvs(i))),
