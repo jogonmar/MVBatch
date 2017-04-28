@@ -1,4 +1,4 @@
-function y = unfold(x,lag)
+function y = unfold(x,lag,ind1t3)
 
 % Unfolding of batch process data.  
 %
@@ -15,6 +15,9 @@ function y = unfold(x,lag)
 % lag: (1x1) number of immediate lagged measurement-vectors (LMVs) added to the current
 % one in the row of the unfolded matrix (0 by default).
 %
+% ind1t3: (1x1) put together those observaions with same value in mode 1
+% and different in mode 3 (flase means the opposite).
+%
 %
 % OUTPUTS:
 %
@@ -22,10 +25,10 @@ function y = unfold(x,lag)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Oct/06
+% last modification: 20/Apr/17
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2017  University of Granada, Granada
+% Copyright (C) 2017  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -44,6 +47,7 @@ function y = unfold(x,lag)
 
 if nargin < 1, error('Error in the number of arguments.'); end;
 if nargin < 2, lag = 0; end;
+if nargin < 3, ind1t3 = true; end;
 
 if ndims(x)~=3, 
     if ndims(x)~=2, 
@@ -65,11 +69,13 @@ if lag>s(1)-1, lag=s(1)-1; end;
 % Unfolding
 
 y = ones(s(3)*(s(1)-lag),s(2)*(lag+1));
-yint = ones(s(2),s(3));
-
 for ind=0:lag,
     for o=(ind+1):(s(1)-lag+ind),
-        yint(:,:) = x(o,:,:);
-        y((o-ind-1)*s(3)+1:(o-ind)*s(3),(ind*s(2)+1):(s(2)*(ind+1))) = yint';
+        yint = squeeze(x(o,:,:));
+        if ind1t3,
+            y((o-ind-1)*s(3)+1:(o-ind)*s(3),(ind*s(2)+1):(s(2)*(ind+1))) = yint';
+        else
+            y((o-ind):(s(1)-lag):end,(ind*s(2)+1):(s(2)*(ind+1))) = yint';
+        end
     end
 end
