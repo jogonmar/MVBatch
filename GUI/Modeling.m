@@ -1646,7 +1646,7 @@ if ok,
     for i=1:length(pcs),
         c_2D = unfold(ccs(init(i):fint(i),:,:),lmvs(i));
         % ----- MEDA Toolbox ----- %
-        [x_var,cumpress] = var_pca(c_2D,[],0,0); 
+        [x_var,cumpress] = var_pca(c_2D,0:20,0,0); 
         plot_vec([x_var cumpress/cumpress(1)],0:length(x_var)-1,[],{'#PCs',sprintf('Phase %d',i)},[],0,{'% Res. Var','ckf PRESS'});
         legend('show');
         % ----- MEDA Toolbox ----- %
