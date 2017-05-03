@@ -80,19 +80,19 @@ if length(varargin)>0,
         set(handles.textPhase,'Enable','on');
         set(handles.radiobutton1,'Enable','on');
         
-        contents = get(handles.popupmenuCM,'String');
-        contents = strvcat(contents(1:3,:));
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         contents = strvcat(contents(1:3,:));
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
 
         set(handles.popupmenuMod,'String','');
         for i=1:length(handles.data.man_mp_group),
@@ -523,21 +523,21 @@ set(handles.popupmenuPhase,'Enable','on');
 set(handles.textPhase,'Enable','on');
 set(handles.radiobutton1,'Enable','on');
 
-contents = get(handles.popupmenuCM,'String');
-if size(contents,1)<=3,
-    contents = strvcat(contents);
-    set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
-    contents = get(handles.popupmenuCM,'String');
-    set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
-    contents = get(handles.popupmenuCM,'String');
-    set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
-    contents = get(handles.popupmenuCM,'String');
-    set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
-    contents = get(handles.popupmenuCM,'String');
-    set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
-    contents = get(handles.popupmenuCM,'String');
-    set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
-end
+% contents = get(handles.popupmenuCM,'String');
+% if size(contents,1)<=3,
+%     contents = strvcat(contents);
+%     set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
+%     contents = get(handles.popupmenuCM,'String');
+%     set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
+%     contents = get(handles.popupmenuCM,'String');
+%     set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
+%     contents = get(handles.popupmenuCM,'String');
+%     set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
+%     contents = get(handles.popupmenuCM,'String');
+%     set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
+%     contents = get(handles.popupmenuCM,'String');
+%     set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
+% end
     
 set(handles.popupmenuMod,'Value',1);
 contents = get(handles.popupmenuMod,'String');
@@ -758,31 +758,31 @@ handles=guidata(hObject);
 data = preprocess3D(handles.data.x(handles.cm.init:handles.cm.fint,handles.cm.vars,:),handles.data.prep);
 switch handles.cm.type,
     case {1,2,3}
-         map = cov_map(data,[],0.9,handles.cm.type,0.1,1,handles.console);
+         map = corr_map(data,0.9,handles.cm.type,0.1,1,handles.console);
                                                                 
-    case {4,5,6}
-         model = get(handles.popupmenuMod,'value');
-         if model <= length(handles.data.man_mp_group),             
-             model = handles.data.man_mp_group{model};
-         elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
-             model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
-         else
-             model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
-         end
-         [t,e] = evalMP_s(model);
-         map = cov_map(t(handles.cm.init:handles.cm.fint,handles.cm.vars,:),data,0.9,handles.cm.type-3,0.1,1,handles.console);                                                                
-                                                               
-    case {7,8,9}
-         model = get(handles.popupmenuMod,'value');
-         if model <= length(handles.data.man_mp_group),             
-             model = handles.data.man_mp_group{model};
-         elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
-             model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
-         else
-             model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
-         end
-         [t,e] = evalMP_s(model);
-         map = cov_map(e(handles.cm.init:handles.cm.fint,handles.cm.vars,:),data,0.9,handles.cm.type-6,0.1,1,handles.console);                                                                
+%     case {4,5,6}
+%          model = get(handles.popupmenuMod,'value');
+%          if model <= length(handles.data.man_mp_group),             
+%              model = handles.data.man_mp_group{model};
+%          elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
+%              model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
+%          else
+%              model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
+%          end
+%          [t,e] = evalMP_s(model);
+%          map = corr_map(t(handles.cm.init:handles.cm.fint,handles.cm.vars,:),data,0.9,handles.cm.type-3,0.1,1,handles.console);                                                                
+%                                                                
+%     case {7,8,9}
+%          model = get(handles.popupmenuMod,'value');
+%          if model <= length(handles.data.man_mp_group),             
+%              model = handles.data.man_mp_group{model};
+%          elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
+%              model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
+%          else
+%              model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
+%          end
+%          [t,e] = evalMP_s(model);
+%          map = corr_map(e(handles.cm.init:handles.cm.fint,handles.cm.vars,:),data,0.9,handles.cm.type-6,0.1,1,handles.console);                                                                
 
 end
 
@@ -1061,19 +1061,19 @@ if ~isequal(file, 0)
         set(handles.textPhase,'Enable','on');
         set(handles.radiobutton1,'Enable','on');
         
-        contents = get(handles.popupmenuCM,'String');
-        contents = strvcat(contents(1:3,:));
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         contents = strvcat(contents(1:3,:));
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
 
         set(handles.popupmenuMod,'String','');
         for i=1:length(handles.data.man_mp_group),
@@ -1563,21 +1563,21 @@ if ok,
         cprintMV(handles.console,sprintf('From %d to %d, %d PC(s) and %d LMV(s), PRESS = %g',mp_model.phases(i,4),mp_model.phases(i,5),mp_model.phases(i,2),mp_model.phases(i,3),mp_model.phases(i,1)));
     end
 
-    contents = get(handles.popupmenuCM,'String');
-    if size(contents,1)<=3,
-        contents = strvcat(contents);
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
-        contents = get(handles.popupmenuCM,'String');
-        set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
-    end
+%     contents = get(handles.popupmenuCM,'String');
+%     if size(contents,1)<=3,
+%         contents = strvcat(contents);
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Total Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Dynamic Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Model Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Total Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Dynamic Partial Covariance'));
+%         contents = get(handles.popupmenuCM,'String');
+%         set(handles.popupmenuCM,'String',strvcat(contents,' Residuals Partial Covariance'));
+%     end
 
     guidata(hObject,handles);
 else
