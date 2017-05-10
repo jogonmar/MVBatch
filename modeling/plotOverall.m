@@ -99,7 +99,7 @@ if pc(1)~=0,
     
     % experimental limit at 95% confidence level    
     esc=[];
-    esc = [esc ; hotellingoff./lima'];
+    esc = [esc ; hotellingcv./lima'];
     esc2 = sort(esc);
                         
     alp = 0.05;
@@ -109,7 +109,7 @@ if pc(1)~=0,
 
     % experimental limit at 99% confidence level 
     esc=[];
-    esc = [esc ; hotellingoff./limb'];
+    esc = [esc ; hotellingcv./limb'];
     esc2 = sort(esc);
     
     alp = 0.01;
