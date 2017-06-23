@@ -437,7 +437,7 @@ end
 
 for z=1:size(handles.s_screening.batch_data(1).data,2)
     for j=3:size(handles.auxx{1}.data{z},2);
-        plot(handles.handles_subplots(j-2),handles.auxx{pos}.data{z}(:,1),handles.auxx{pos}.data{z}(:,j),'-','Color',[0.466667 0.533333 0.68]);
+        plot(handles.handles_subplots(j-2),handles.auxx{pos}.data{z}(:,1),handles.auxx{pos}.data{z}(:,j),'-','Color',[0.466667 0.533333 0.68],'LineWidth',1);
         plot(handles.handles_subplots(j-2),handles.auxx{pos-1}.data{z}(:,1),handles.auxx{pos-1}.data{z}(:,j),'r-','LineWidth',1);
     end
 end
@@ -453,7 +453,7 @@ function pb_forwad_batch_Callback(hObject, eventdata, handles)
 
 pos = find(handles.BatcheslbIn == handles.selectedBatch);
 
-if pos == numel(handles.BatcheslbIn), errordlg('No batch forward is available','File Error')
+if pos == numel(handles.BatcheslbIn), errordlg('No batch forward is available','File Error'); return
 else
     handles.selectedBatch = handles.BatcheslbIn(pos+1);
     set(handles.e_batch,'String',handles.selectedBatch);
@@ -461,7 +461,7 @@ end
 
 for z=1:size(handles.s_screening.batch_data(1).data,2)
     for j=3:size(handles.auxx{1}.data{z},2);
-        plot(handles.handles_subplots(j-2),handles.auxx{pos}.data{z}(:,1),handles.auxx{pos}.data{z}(:,j),'-','Color',[0.466667 0.533333 0.68]);
+        plot(handles.handles_subplots(j-2),handles.auxx{pos}.data{z}(:,1),handles.auxx{pos}.data{z}(:,j),'-','Color',[0.466667 0.533333 0.68],'LineWidth',1);
         plot(handles.handles_subplots(j-2),handles.auxx{pos+1}.data{z}(:,1),handles.auxx{pos+1}.data{z}(:,j),'r-','LineWidth',1);
     end
 end
