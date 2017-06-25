@@ -1786,11 +1786,64 @@ function pushbuttonApply_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Generate the different latent variable models
+nmodels = length(handles.data.man_mp_group) + length(handles.data.mp_group) + length(handles.data.mp_group2);
+LVmodels = struct('latent_structure',[]);
+
+% Create an instance for each model and fit the model
+h = waitbar(0/nmodels,'Fitting a latent variable model','Name','Model building');
+
+try
+    for n=1:nmodels
+        if n <= length(handles.data.man_mp_group),             
+            model = handles.data.man_mp_group{n};
+        elseif n  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
+             model = handles.data.mp_group{n-length(handles.data.man_mp_group)};
+        else
+            model = handles.data.mp_group2{n-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
+        end
+
+        % Instantiate a class object
+        LVmodels(n).latent_structure = LatentStructure.LatentModel(handles.data.x,model.phases);
+
+        % Fit a latent variable model
+        [LVmodels(n).latent_structure.P,...
+         LVmodels(n).latent_structure.T,...
+         LVmodels(n).latent_structure.mn,...
+         LVmodels(n).latent_structure.stnd,...
+         ~,...
+         LVmodels(n).latent_structure.control_limits.online_cl.limd95,...
+         LVmodels(n).latent_structure.control_limits.online_cl.limd99,...
+         LVmodels(n).latent_structure.control_limits.online_cl.limq95,...
+         LVmodels(n).latent_structure.control_limits.online_cl.limq99,...
+         LVmodels(n).latent_structure.control_limits.offline_cl.limd95,...
+         LVmodels(n).latent_structure.control_limits.offline_cl.limd99,...
+         LVmodels(n).latent_structure.control_limits.offline_cl.limq95,...
+         LVmodels(n).latent_structure.control_limits.offline_cl.limq99] = multiphaseFit(handles.data.x,model.phases,handles.data.prep,1);
+
+        % Update the waitbar
+        waitbar(n/nmodels,h,'Fitting a latent variable model','Name','Model building');
+    end
+catch err
+   errordlg(err.message);
+   close(h);
+   return
+end
+
+close(h)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 models.man_mp_group = handles.data.man_mp_group;
 models.mp_group = handles.data.mp_group;
 models.mp_group2 = handles.data.mp_group2;
  
 handles.ParentFigure.s_calibration = models;
+handles.ParentFigure.s_calibration.LVmodels = LVmodels;
 handles.ParentFigure.s_calibration.x = handles.data.x;
 guidata(handles.ParentsWindow,handles.ParentFigure)
 
