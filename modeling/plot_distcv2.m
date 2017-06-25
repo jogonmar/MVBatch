@@ -155,10 +155,15 @@ for i=1:sp(1),
 
      if ind_ini<phases(i,3)+1,
         menor_en=phases(i,3)-ind_ini;
+        % Estimate covariance matrices for TSR-based imputation
+        theta = cov(tAll);
+        theta_A = cov(t);
         for j=0:menor_en,
             indb=1:s(2)*(ind_ini+j);
             ind2=phases(i,4)+j;
-            t_t = inv(p(indb,:)'*p(indb,:))*p(indb,:)'*xu(1:s(3),indb)';
+            % IMPUTATION USING TSR
+            t_t = theta_A*p(indb,:)'*p(indb,:)*inv(p(indb,:)'*pAll(indb,:)*theta*pAll(indb,:)'*p(indb,:))*p(indb,:)'*xu(1:(s(3)),indb)';
+            cov_inv=inv(cov(t_t'));
             res(:,:,ind2)=permute(xce(ind2,:,:),[3 2 1])-t_t'*p(indb(end-s(2)+1:end),:)';   
             q=[q ;sum((permute(xce(ind2,:,:),[3 2 1])-t_t'*p(indb(end-s(2)+1:end),:)').^2,2)'];
         end        
