@@ -22,7 +22,7 @@ function varargout = Monitoring(varargin)
 
 % Edit the above text to modify the response to help Monitoring
 
-% Last Modified by GUIDE v2.5 25-Sep-2014 15:34:52
+% Last Modified by GUIDE v2.5 16-Jun-2017 11:02:45
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -54,18 +54,20 @@ function Monitoring_OpeningFcn(hObject, eventdata, handles, varargin)
 
 % Choose default command line output for Monitoring
 handles.output = hObject;
+handles.batchTime = 1;
 
 if length(varargin)<1, error('Error in the number of arguments.'); end;
 
+
+% Obtain the parent windoe handles
 handles.ParentsWindow=varargin{1};
 handles.ParentFigure = guidata(handles.ParentsWindow);
 
 handles.calibration = varargin{2};
 handles.alignment = varargin{3};
-
-
-% Update handles structure
-guidata(hObject, handles);
+ 
+% Populate the model popmenu
+handles.models = []; 
 
 set(handles.popupmenuMod,'String','');
 for i=1:length(handles.calibration.man_mp_group),
@@ -82,11 +84,6 @@ for i=1:length(handles.calibration.mp_group2),
     contents = get(handles.popupmenuMod,'String');
     set(handles.popupmenuMod,'String',strvcat(contents,sprintf(' Merged MPPCA Model %d',i)));
 end
-
-handles.calibration.alph95=0.05;
-handles.calibration.alph=0.01;
-handles.calibration.alpr95=0.05;
-handles.calibration.alpr=0.01;
 
 % Matrix containing the test batch to be projected onto the latent
 % structure.
@@ -108,22 +105,17 @@ set(handles.popupmenuVar,'String','calibration');
 set(handles.textData,'String','calibration'); 
 
 handles.calibration.test_batch = handles.calibration.test{handles.selectedDataSet}{1};
-handles.calibration.test_batchFD = 1;
 
 set(handles.popupmenuBat,'String','');
-set(handles.popupmenuBatFD,'String','');
 
 % Fill the popmenu with the number of batches
 set(handles.popupmenuBat,'String','');
-set(handles.popupmenuBatFD,'String','');
 for i=1:length(handles.calibration.test{handles.selectedDataSet})
     contents = get(handles.popupmenuBat,'String');
     set(handles.popupmenuBat,'String',strvcat(contents,[' ',num2str(i)]));
-    set(handles.popupmenuBatFD,'String',strvcat(contents,[' ',num2str(i)]));
 end
 
 set(handles.popupmenuBat,'Value',1);
-set(handles.popupmenuBatFD,'Value',1);
 
 % Fill the popmenu with the number of sampling points
 set(handles.popupmenuTimePoint,'String','');
@@ -133,24 +125,18 @@ for i=1:size(handles.calibration.x,1)
 end
 
 % Update the Monitoring options
-set(handles.pbContribution,'Enable','on');
+set(handles.pbContribution,'Enable','off');
 set(handles.popupmenuVar,'Enable','on');   
 set(handles.textVar,'Enable','on');
-set(handles.popupmenuBat,'Enable','on');
+set(handles.popupmenuBat,'Enable','off');
 set(handles.textBat,'Enable','on');
-set(handles.pushbuttonPlo,'Enable','on');
+set(handles.pushbuttonPlo,'Enable','off');
 set(handles.ImportMenuItem,'Enable','off');
 set(handles.radiobuttonCV,'Enable','on');
 set(handles.ImportMenuItem,'Enable','on');
 
 
 handles.ParentFigure.track(:) = 1;
-
-% set(handles.popupmenuVar,'Enable','off');
-% set(handles.textVar,'Enable','off');
-% set(handles.popupmenuBat,'Enable','off');
-% set(handles.textBat,'Enable','off');
-% set(handles.ImportMenuItem,'Enable','off');
 
 % Center GUI
 set(gcf,'Units', 'pixels' );
@@ -163,12 +149,13 @@ position(2) = (screenSize(4)-position(4))/2;
 %center the window
 set( gcf,'Position', position );
 
+% Update handles structure
+guidata(hObject, handles);
+
 popupmenuMod_Callback(handles.popupmenuMod, eventdata, handles);
 
-
 % UIWAIT makes Monitoring wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-
+% uiwait(handles.figureMonitoring);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = Monitoring_OutputFcn(hObject, eventdata, handles) 
@@ -193,7 +180,6 @@ varargout{1} = handles.output;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                   1.- MODEL PANEL
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -208,23 +194,40 @@ function popupmenuMod_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns popupmenuMod contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenuMod
 
-model = get(hObject,'Value');
-if model <= length(handles.calibration.man_mp_group),             
-    model = handles.calibration.man_mp_group{model};
-elseif model  <= length(handles.calibration.man_mp_group)+length(handles.calibration.mp_group),
-     model = handles.calibration.mp_group{model-length(handles.calibration.man_mp_group)};
+nmodel = get(hObject,'Value');
+if nmodel <= length(handles.calibration.man_mp_group),             
+    model = handles.calibration.man_mp_group{nmodel};
+elseif nmodel  <= length(handles.calibration.man_mp_group)+length(handles.calibration.mp_group),
+     model = handles.calibration.mp_group{nmodel-length(handles.calibration.man_mp_group)};
 else
-    model = handles.calibration.mp_group2{model-length(handles.calibration.man_mp_group)-length(handles.calibration.mp_group)};
+    model = handles.calibration.mp_group2{nmodel-length(handles.calibration.man_mp_group)-length(handles.calibration.mp_group)};
 end
 
 handles.calibration.model = model;
 
-set(handles.radiobuttonCV,'Enable','off');
-set(handles.radiobuttonCV,'Value',0);
+% Check whether the monitoring systems of the selected model has been
+% cross-validated
+if isempty(handles.calibration.LVmodels(nmodel).latent_structure.cvD) % If no cross-validation has been performed
+    set(handles.radiobuttonCV,'Enable','off');
+    set(handles.radiobuttonCV,'Value',0);
+else
+    set(handles.radiobuttonCV,'Enable','on');
+    set(handles.radiobuttonCV,'Value',1);
+end
+
+% Check whether the current test set has been projected on the latent model
+if isempty(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolD)
+   set(handles.popupmenuBat,'Enable','off');
+   set(handles.pushbuttonPlo,'Enable','off');
+   set(handles.pbContribution,'Enable','off');
+else
+   set(handles.popupmenuBat,'Enable','on');
+   set(handles.pushbuttonPlo,'Enable','on');
+   set(handles.pbContribution,'Enable','on');
+end
 
 guidata(hObject,handles);
 %pushbuttonRef_Callback(handles.pushbuttonRef, eventdata, handles);
-
 
 % --- Executes during object creation, after setting all properties.
 function popupmenuMod_CreateFcn(hObject, eventdata, handles)
@@ -238,37 +241,98 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
 % --- Executes on button press in pushbuttonCV.
 function pushbuttonCV_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonCV (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-set(gcf,'pointer','watch'); pause(.001);
+% Retrieve the model ID
+nmodel = get(handles.popupmenuMod,'Value');
 
-try
-    [handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95] = plot_distcv2(handles.calibration.x, handles.calibration.model.phases, handles.calibration.model.arg.prep,1, handles.axes1, handles.axes2, handles.axesPostBatchT2, handles.axesPostBatchSPE);
-catch err
-   errordlg(err.message); 
-   set(gcf,'pointer','arrow');
+
+if isinf(handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_alpha.alpd95cv)
+    % cross-validate the monitoring systems, yielding the cross-validated control limits     
+     [handles.calibration.LVmodels(nmodel).latent_structure.cvevolD,...  
+     handles.calibration.LVmodels(nmodel).latent_structure.cvevolQ,...
+     handles.calibration.LVmodels(nmodel).latent_structure.cvD,...
+     handles.calibration.LVmodels(nmodel).latent_structure.cvQ,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd99cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq99cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_alpha.alpd95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_alpha.alpd99cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_alpha.alpq95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_alpha.alpq99cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd99cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq99cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_alpha.alpd95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_alpha.alpd99cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_alpha.alpq95cv,...
+     handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_alpha.alpq99cv] = crossvalMVstatistics(handles.calibration.x,handles.calibration.LVmodels(nmodel).latent_structure.phases);
 end
+ 
+%% Display the control charts for the cross-validated multivariate statistics
+visualizeStatEvolving(handles.calibration.LVmodels(nmodel).latent_structure.cvevolD, ...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd95,...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd99,...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd95cv,...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd99cv,...
+[],...
+'D-statistic',...
+handles.axes1);
+
+visualizeStatEvolving(handles.calibration.LVmodels(nmodel).latent_structure.cvevolQ, ...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq95,...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq99,...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq95cv,...
+handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq99cv,...
+[],...
+'Q-statistic',...
+handles.axes2);
 
 cla(handles.axes3);
-cla(handles.axesPostBatchWI);
 set(handles.axes3,'Visible','off');
-set(handles.axesPostBatchWI,'Visible','off');
 
 try
     if strcmp(handles.alignment.synchronization{handles.alignment.stages,1}.methodsyn,'dtw') || strcmp(handles.alignment.synchronization{handles.alignment.stages,1}.methodsyn,'multisynchro')
-        plot_onwarp(handles.alignment.synchronization{handles.alignment.stages,1}.warp, handles.alignment.synchronization{handles.alignment.stages,1}.band,[],[],[],true,handles.axes3);
+        visualizeWarping(handles.alignment.synchronization{handles.alignment.stages,1}.warp, handles.alignment.synchronization{handles.alignment.stages,1}.band,[],[],[],true,handles.axes3);
          set(handles.axes3,'Visible','on');
     end
 catch err
    errordlg(err.message); 
-   set(gcf,'pointer','arrow');
 end
-set(gcf,'pointer','arrow')
+
+% If the model is batch-wise, visualize the overall D and Q statistic values
+% for all batches
+if ~isnan(handles.calibration.LVmodels(nmodel).latent_structure.cvD)
+    
+    visualizeStatGlobal(handles.calibration.LVmodels(nmodel).latent_structure.cvD,...
+                        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd95,...
+                        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd99,...
+                        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd95cv,...
+                        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd99cv,...
+                        [],...
+                        [],...
+                        'D-statistic',handles.axesPostBatchT2);
+
+    visualizeStatGlobal(handles.calibration.LVmodels(nmodel).latent_structure.cvQ,...
+        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq95,...
+        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq99,...
+        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq95cv,...
+        handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq99cv,...
+        [],...
+        [],...
+        'Q-statistic',handles.axesPostBatchSPE)
+else
+    cla(handles.axesPostBatchT2);
+    set(handles.axesPostBatchT2,'Visible','off');
+    cla(handles.axesPostBatchSPE);
+    set(handles.axesPostBatchSPE,'Visible','off');
+end
 
 % Enable the option of using the control limits adjusted by
 % cross-validation
@@ -280,7 +344,6 @@ handles.ParentFigure.s_monitoring = handles.calibration;
 % Update handles structure
 guidata(handles.ParentsWindow, handles.ParentFigure);
 guidata(hObject,handles);
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                  2.- MONITORING SYSTEM PANEL
@@ -299,17 +362,31 @@ vars = get(handles.popupmenuVar,'String');
 handles.selectedDataSet = get(handles.popupmenuVar,'Value');
 set(handles.textData,'String',vars(handles.selectedDataSet,:));
 set(handles.popupmenuBat,'String','');
-set(handles.popupmenuBatFD,'String','');
 
+
+% Populate the popmenu Batches for the selected data set
 for i=1:length(handles.calibration.test{handles.selectedDataSet})
     contents = get(handles.popupmenuBat,'String');
     set(handles.popupmenuBat,'String',strvcat(contents,[' ',num2str(i)]));
-    set(handles.popupmenuBatFD,'String',strvcat(contents,[' ',num2str(i)]));
 end
 
+% Visualize the first batch ID of the data set
 set(handles.popupmenuBat,'Value',1);
 handles.calibration.test_batch = handles.calibration.test{handles.selectedDataSet}{1};
 
+% Check whether the current test set has been projected on the latent model
+nmodel = get(handles.popupmenuMod,'Value');
+if isempty(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolD)
+   set(handles.popupmenuBat,'Enable','off');
+   set(handles.pushbuttonPlo,'Enable','off');
+   set(handles.pbContribution,'Enable','off');
+else
+   set(handles.popupmenuBat,'Enable','on');
+   set(handles.pushbuttonPlo,'Enable','on');
+   set(handles.pbContribution,'Enable','on');
+end
+
+% Update handles structure
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -336,6 +413,7 @@ function popupmenuBat_Callback(hObject, eventdata, handles)
 indx=get(handles.popupmenuBat,'Value');
 handles.calibration.test_batch = handles.calibration.test{handles.selectedDataSet}{indx};
 
+% Update handles structure
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -356,6 +434,13 @@ function pushbuttonPlo_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Obtain the batch ID to monitor
+nbatch = get(handles.popupmenuBat,'Value');
+
+% Retrieve the index of the current LV model
+nmodel = get(handles.popupmenuMod,'Value');
+
+% Synchronize the corresponding batch
 [synTestBatch,nsamplesToPlot,warptest] = onlineSynchronization(handles, handles.calibration.test_batch);
 
 vars = cellstr(get(handles.popupmenuVar,'String'));
@@ -364,23 +449,91 @@ if strcmp(vars{get(handles.popupmenuVar,'Value')},'calibration')
     posTest = get(handles.popupmenuBat,'Value');
 end
 
-try 
-    if get(handles.radiobuttonCV,'Value')
-        plot_onstat(handles.calibration.x, synTestBatch, handles.calibration.model.phases, handles.calibration.model.arg.prep, 1, handles.calibration.alph, handles.calibration.alpr, handles.calibration.alph95, handles.calibration.alpr95,nsamplesToPlot, handles.axes1, handles.axes2, handles.calibration.alpoh, handles.calibration.alpor, handles.calibration.alpoh95, handles.calibration.alpor95, handles.axesPostBatchT2, handles.axesPostBatchSPE, posTest);
-    else
-        plot_onstat(handles.calibration.x, synTestBatch, handles.calibration.model.phases, handles.calibration.model.arg.prep, 1, 0.01, 0.01, 0.05, 0.05, nsamplesToPlot, handles.axes1, handles.axes2, 0.01, 0.01, 0.05, 0.05, handles.axesPostBatchT2, handles.axesPostBatchSPE, posTest);
-    end
-catch err
-   errordlg(err.message); 
+% Clear up the axes for the post-batch monitoring
+cla(handles.axesPostBatchT2);
+cla(handles.axesPostBatchSPE);
+set(handles.axesPostBatchT2,'Visible','off');
+set(handles.axesPostBatchSPE,'Visible','off');
+
+
+%% Visualize the multivariate statistics
+
+if get(handles.radiobuttonCV,'Value')
+    % cross-validated online limits
+    olimd95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd95cv;
+    olimd99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd99cv;
+    olimq95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq95cv;
+    olimq99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq99cv;
+    % cross-validated offline limits
+    offlimd95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd95cv;
+    offlimd99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd99cv;
+    offlimq95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq95cv;
+    offlimq99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq99cv;
+else
+    % online limits
+    olimd95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd95;
+    olimd99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limd99; 
+    olimq95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq95;
+    olimq99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.online_cl.limq99;
+    % offline limits
+    offlimd95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd95;
+    offlimd99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limd99;
+    offlimq95 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq95;
+    offlimq99 = handles.calibration.LVmodels(nmodel).latent_structure.control_limits.offline_cl.limq99;
 end
+
+% Online D statistics
+visualizeStatEvolving(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolD(:,nbatch), ...
+olimd95,...
+olimd99,...
+[],...
+[],...
+1,...
+'D-statistic',...
+handles.axes1);
+
+% Online Q statistic
+visualizeStatEvolving(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolQ(:,nbatch), ...
+olimq95,...
+olimq99,...
+[],...
+[],...
+1,...
+'Q-statistic',...
+handles.axes2);
 
 if strcmp(handles.alignment.synchronization{handles.alignment.stages}.methodsyn,'dtw') || strcmp(handles.alignment.synchronization{handles.alignment.stages}.methodsyn,'multisynchro')
     try
-        plot_onwarp(handles.alignment.synchronization{handles.alignment.stages}.warp, handles.alignment.synchronization{handles.alignment.stages}.band,warptest,[],[],false,handles.axes3);
+        visualizeWarping(handles.alignment.synchronization{handles.alignment.stages}.warp, handles.alignment.synchronization{handles.alignment.stages}.band,warptest,[],[],false,handles.axes3);
     catch err
        errordlg(err.message); 
     end
 end
+
+% If the model is batch-wise, visualize the overall D and Q statistic values
+% for all batches
+if ~isempty(offlimd95)
+    % Offline D statistics
+    visualizeStatGlobal(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).D,...
+                        offlimd95,...
+                        offlimd99,...
+                        [],...
+                        [],...
+                        1,...
+                        nbatch,...
+                        'D-statistic',handles.axesPostBatchT2);
+
+    % Offline Q statistics
+    visualizeStatGlobal(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).Q,...
+                        offlimq95,...
+                        offlimq99,...
+                        [],...
+                        [],...
+                        1,...
+                        nbatch,...
+                        'Q-statistic',handles.axesPostBatchSPE)
+end
+
 
 set(handles.pbContribution,'Enable','on');
 
@@ -389,41 +542,69 @@ function radiobuttonCV_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hint: get(hObject,'Value') returns toggle state of radiobuttonCV
+% --- Executes on button press in pushbuttonMonitorBatches.
+function pushbuttonMonitorBatches_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonMonitorBatches (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
+% Retrieve the model ID
+nmodel = get(handles.popupmenuMod,'Value');
+
+if ~isempty(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolD)
+    warndlg('Test data set already projected on the latent variable model','Message');
+    return;
+end
+
+% Check whether the test batches have already been projected
+% Total number of test batches
+ntestbatches = length(handles.calibration.test{handles.selectedDataSet});
+
+% Check whether the selected test set has already been projected. 
+if isempty(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolD)        
+    h = waitbar(0/ntestbatches,sprintf('Projecting Batch #%d onto the latent structure',0),'Name','Model exploitation');
+    try
+        for b=1:ntestbatches
+            [synTestBatch,nsamplesToPlot,warptest] = onlineSynchronization(handles, handles.calibration.test{handles.selectedDataSet}{b});
+
+            %  Load the dataset for theright  [handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet). evolD...,
+             [evolD,evolQ,D,Q,cont_evolD,cont_evolQ] = multiphaseProjection(handles.calibration.x,synTestBatch,...
+                                                                              handles.calibration.LVmodels(nmodel).latent_structure.phases,...
+                                                                              handles.calibration.LVmodels(nmodel).latent_structure.P,...
+                                                                              handles.calibration.LVmodels(nmodel).latent_structure.T,...
+                                                                              handles.calibration.LVmodels(nmodel).latent_structure.mn,...
+                                                                              handles.calibration.LVmodels(nmodel).latent_structure.stnd,1);
+
+             handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolD = [handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolD,evolD];
+             handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolQ = [handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).evolQ,evolQ];
+             handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).D     = [handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).D;D];
+             handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).Q     = [handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).Q;Q];
+             handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).cont_evolD = [handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).cont_evolD,cont_evolD];
+             handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).cont_evolQ = [handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).cont_evolQ,cont_evolQ];
+             waitbar(b/ntestbatches,h,sprintf('Projecting Batch #%d onto the latent structure',b),'Name','Model exploitation');
+        end
+    catch err
+       errordlg(sprintf('Error when projecting test batches on the latent structure. %s',err.message)); 
+       close(h);
+       return;
+    end
+    close(h);
+end
+% Update handles structure
+guidata(hObject,handles);
+
+% Enable fault diagnosis
+set(handles.pbContribution,'Enable','on');
+% Enable the rest of functions
+set(handles.popupmenuBat,'Enable','on');
+set(handles.pushbuttonPlo,'Enable','on');
+
+% Update handles structure
+guidata(hObject,handles);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                  3.- FAULT DIAGNOSIS PANEL
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% --- Executes on selection change in popupmenuBatFD.
-function popupmenuBatFD_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenuBatFD (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenuBatFD contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenuBatFD
-
-handles.calibration.test_batchFD = get(handles.popupmenuBatFD,'Value');
-
-guidata(hObject,handles);
-
-% --- Executes during object creation, after setting all properties.
-function popupmenuBatFD_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenuBatFD (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-handles.calibration.test_batchFD = 1;
-% Update handles structure
-guidata(hObject,handles);
 
 % --- Executes on selection change in popupmenuTimePoint.
 function popupmenuTimePoint_Callback(hObject, eventdata, handles)
@@ -435,6 +616,7 @@ function popupmenuTimePoint_Callback(hObject, eventdata, handles)
 %        contents{get(hObject,'Value')} returns selected item from popupmenuTimePoint
 
 handles.batchTime = get(handles.popupmenuTimePoint,'Value');
+% Update handles structure
 guidata(hObject,handles);
 
 % --- Executes during object creation, after setting all properties.
@@ -449,17 +631,14 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-handles.batchTime = 1;
-% Update handles structure
-guidata(hObject,handles);
-
 % --- Executes on button press in pbContribution.
 function pbContribution_Callback(hObject, eventdata, handles)
 % hObject    handle to pbContribution (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-test_batch = handles.calibration.test{handles.selectedDataSet}{handles.calibration.test_batchFD};
+ibatch = get(handles.popupmenuBat,'Value');
+test_batch = handles.calibration.test{handles.selectedDataSet}{ibatch};
 
 test_batchSyn = onlineSynchronization(handles,test_batch);
     
@@ -469,7 +648,16 @@ if ~handles.modeMonitoring && handles.calibration.model.phases(1,3) ~= size(hand
 end
 
 try 
-    [EvolvingDcontribution,EvolvingQcontribution]=EvolvingContributionToDQ(handles.calibration.x,test_batchSyn,handles.calibration.model.phases,handles.calibration.model.arg.prep);
+    % Retrieve the index of the current LV model
+    nmodel = get(handles.popupmenuMod,'Value');
+
+    % Retrieve the position of the process variables in the two-way array for the selected batch of the test set 
+    indx = (handles.calibration.LVmodels(nmodel).latent_structure.dimensions.nvariables*(ibatch-1))+1:handles.calibration.LVmodels(nmodel).latent_structure.dimensions.nvariables*ibatch;
+
+    % Pull out the contributions of the whole batch selected
+    EvolvingDcontribution = handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).cont_evolD(:,indx);
+    EvolvingQcontribution = handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).cont_evolQ(:,indx);
+
     s=size(handles.calibration.x);
     
     % Retrieve the two-array containing the evolving contribution to the
@@ -500,11 +688,11 @@ try
         end 
         jContrib = nan(s(2),1);
         for j=1:s(2)
-            jContrib(j,1) = sum(contToStat(:,j));
+            jContrib(j,1) = nansum(contToStat(:,j));
         end
         kContrib = nan(s(1),1);
         for k=1:s(1)
-            kContrib(k,1)= sum(contToStat(k,:));
+            kContrib(k,1)= nansum(contToStat(k,:));
         end
         % Call function to display the overall contribution, and the
         % contribution per variable and batch time
@@ -527,7 +715,7 @@ try
         createFigure(handles.calibration.x,test_batchSyn,av,handles.ParentFigure.varNames(:,1));
         bar(contToStat);
         xlabel('Variables','FontSize',12,'FontWeight','bold');
-        ylabel(strcat(label,sprintf('(k=%d)',handles.batchTime)),'FontSize',12,'FontWeight','bold');
+        ylabel(strcat(label,sprintf(' (k=%d)',handles.batchTime)),'FontSize',12,'FontWeight','bold');
     end
 catch err
    errordlg(err.message); 
@@ -562,6 +750,7 @@ switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
         errordlg('An error has ocurred when the process monitoring mode has changed');
         
 end
+% Update handles structure
 guidata(hObject,handles);
 
 % --- Executes when selected object is changed in uipanelStatistics.
@@ -584,6 +773,7 @@ switch get(eventdata.NewValue,'Tag') % Get Tag of selected object.
         % Code for when there is no match.
         errordlg('An error has ocurred when the multivariate statistic has changed');
 end
+% Update handles structure
 guidata(hObject,handles);
 
 
@@ -677,8 +867,6 @@ handles.calibration.test = [handles.calibration.test; {x}];
 
 handles.calibration.test_batch = x{1};
 
-handles.calibration.test_batchFD = 1;
-
 contents = strvcat(get(handles.popupmenuVar,'String'),filename); 
 set(handles.popupmenuVar,'String',contents); 
 set(handles.popupmenuVar,'Value',size(get(handles.popupmenuVar,'String'),1));
@@ -690,20 +878,29 @@ set(handles.popupmenuBat,'String','');
 for i=1:length(x)
     contents = get(handles.popupmenuBat,'String');
     set(handles.popupmenuBat,'String',strvcat(contents,[' ',num2str(i)]));
-    set(handles.popupmenuBatFD,'String',strvcat(contents,[' ',num2str(i)]));
 end
-set(handles.popupmenuBat,'Value',1);
-set(handles.popupmenuBatFD,'Value',1);
 
-  
+% Create a new instance of the Monitoring Parameters class object in each
+% model
+
+nmodels = length(handles.calibration.LVmodels);
+
+for n=1:nmodels 
+    ntestsets = length(handles.calibration.LVmodels(n).latent_structure.monitoring_statistics);
+    handles.calibration.LVmodels(n).latent_structure.monitoring_statistics(ntestsets+1) = LatentStructure.MonitoringParameters(filename);
+end
+
+
+% Update the user interface
+set(handles.popupmenuBat,'Value',1);
 set(handles.popupmenuVar,'Enable','on'); 
 set(handles.textVar,'Enable','on');
-set(handles.popupmenuBatFD,'Enable','on');
 set(handles.textData,'Enable','on');
-set(handles.popupmenuBat,'Enable','on');
+set(handles.popupmenuBat,'Enable','off');
 set(handles.textBat,'Enable','on');
-set(handles.pushbuttonPlo,'Enable','on');
+set(handles.pushbuttonPlo,'Enable','off');
 
+% Update handles structure
 guidata(hObject,handles);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -856,5 +1053,6 @@ case 'multisynchro'
     otherwise
         errordlg('An error has ocurred in the selection of the synchronization method.','Synchronization Error');
 end
+
 
 
