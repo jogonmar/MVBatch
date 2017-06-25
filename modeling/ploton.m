@@ -141,8 +141,6 @@ if pc(1)~=0,
         hi(i,:) = hotelling(:,i)>limb';
         hi95(i,:) = hotelling(:,i)>lima';
     end
-    axis([1,s(1),0,2])
-    
 else
     if opt,
         axes(axes1)
@@ -162,18 +160,18 @@ limbr=[];
 for i=1:s(1),   
    
    % Estimation of the SPE control limits following Box's approximation
-    sumRes = sum(resmod(:,:,i).^2,2);    
-    m = mean(sumRes);
-    v = var(sumRes);
-    limar=[limar (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v)];         
-    limbr=[limbr (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)];             
+%     sumRes = sum(resmod(:,:,i).^2,2);    
+%     m = mean(sumRes);
+%     v = var(sumRes);
+    %limar=[limar (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v)];         
+    %limbr=[limbr (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)];             
    % Estimation of the SPE control limits following Jackson & Mudholkar's
    % approach
-%      limar=[limar spe_lim(resmod(:,:,i),alpr95)]; 
-%      limbr=[limbr spe_lim(resmod(:,:,i),alpr)]; 
+     limar=[limar spe_lim(resmod(:,:,i),alpr95)]; 
+     limbr=[limbr spe_lim(resmod(:,:,i),alpr)]; 
 end
 
-res = residuals./(limbr'*ones(1,s(1)));
+res = residuals;
 
 if opt,
     axes(axes2)
@@ -184,11 +182,11 @@ if opt,
     xlabel('Sampling time','FontSize', 12,'FontWeight','Bold');
     ylabel('Q-statistic','FontSize', 12,'FontWeight','Bold');
 
-    plot(1:s(1),real(limar)./real(limbr),'r--','LineWidth',1.2);
-    plot(1:s(1),real(limbr)./real(limbr),'r','LineWidth',1.2);
+    plot(1:s(1),real(limar),'r--','LineWidth',1.2);
+    plot(1:s(1),real(limbr),'r','LineWidth',1.2);
     v = axis;
     v2=max(real(limbr));
-    axis([1,s(1),0,2])
+    axis([1,s(1),0,min(max(v(4),v2),4*v2)])
 end
 
 ri95=zeros(s(2),s(1));
