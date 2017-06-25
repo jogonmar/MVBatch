@@ -204,18 +204,18 @@ end
     % Adjust of the confidence level to meet the imposed 99% confidence
     % level following Jackson & Mudholkar's approach
     
-%    alpr=spe_pvalue(resmod,(limbr * ind));
+    % alpr=spe_pvalue(resmod,(limbr * ind));
    
     % Estimation of the SPE control limits using CV follwing Box's
     % approximation
     
-     limarcv = (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v);
-     limbrcv = (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v);
+      limarcv = (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v);
+      limbrcv = (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v);
     
     % Estimation of the SPE control limits using CV Jackson & Mudholkar's approach
     
-    %limarcv= spe_lim(unfold(permute(resmod,[3 2 1]),Inf),alpr95); % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
-    %limbrcv= spe_lim(unfold(permute(resmod,[3 2 1]),Inf),alpr); % limite al 99% de conf.  
+    %limarcv= spe_lim(resmod,alpr95); % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
+    %limbrcv= spe_lim(resmod,alpr); % limite al 99% de conf.  
 
 if opt,
     axes(axes2)

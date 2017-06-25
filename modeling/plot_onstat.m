@@ -226,10 +226,10 @@ if phases(:,2)>0,
         testu=unfold(teste(ind,:,:),phases(i,3));
         tpred = testu*p;
         
-        resb=xu-t*p';
-        ssqres = sum(resb.^2,2);
-        resb=fold(resb,s(3),phases(i,3));
-        res(:,:,ind(ind_ini:end))=permute(resb(ind_ini:end,:,:),[3 2 1]);
+        resa=xu-t*p';
+        ssqres = sum(resa.^2,2);
+        resa=fold(resa,s(3),phases(i,3));
+        res(:,:,ind(ind_ini:end))=permute(resa(ind_ini:end,:,:),[3 2 1]);
 
 
         
@@ -287,7 +287,7 @@ end
 [h95,r95,h,r]=ploton(t2,q,res,s(3),['k.-'],pcs,opt,alph,alpr,alph95,alpr95,s_sBn,axes1,axes2);
 
 if phases(i,3) == s(1)-1
-    plotoff(res,T2v,ssqres,T2vpred,ssqrespred,posTest,s(3),pcs(1),opt,alpoh,alpor,alpoh95,alpor95,axes3,axes4)
+    plotoff(unfold(resa,phases(i,3)),T2v,ssqres,T2vpred,ssqrespred,posTest,s(3),pcs(1),opt,alpoh,alpor,alpoh95,alpor95,axes3,axes4)
 end
 
 ph95=sum(h95)/length(h95);

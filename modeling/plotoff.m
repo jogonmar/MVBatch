@@ -110,8 +110,8 @@ end;
 % D-statistic
 
 s=size(resmod);
-lclu = s(1);
-if pos > s(1), lclu = pos; end
+lclu = sh(1);
+if pos > sh(1), lclu = pos; end
 
     if pc(1)~=0,
         lima =(pc*(lotes*lotes-1)/(lotes*(lotes-pc)))*finv(1-alpoh95,pc,lotes-pc); % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
@@ -162,7 +162,7 @@ if opt,
     bar(res,'b');
     hold on;
     bar(pos,rtest/limbr,'k');
-    if sr(1)>s(1), bar(sr(1),residuals(sr(1)),'k'); end
+    %if sr(1)>s(1), bar(sr(1),residuals(sr(1)),'k'); end
     plot(1:lclu,repmat(limar/limbr,lclu,1),'r--');
     plot(1:lclu,repmat(limbr/limbr,lclu,1),'r');
     xlabel('Batches','FontSize', 12,'FontWeight','bold');
