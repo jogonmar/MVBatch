@@ -256,12 +256,14 @@ if phases(:,2)>0,
                 jindb=1:s(2)*(ind_ini+j);
                 jind2=phases(i,4)+j; 
                 % IMPUTATION USING TSR
-                t_t = theta_A*p(jindb,:)'*p(jindb,:)*inv(p(jindb,:)'*pAll(jindb,:)*theta*pAll(jindb,:)'*p(jindb,:))*p(jindb,:)'*xu(1:(s(3)-1),jindb)';
+                t_t = theta_A*p(jindb,:)'*p(jindb,:)*inv(p(jindb,:)'*pAll(jindb,:)*theta*pAll(jindb,:)'*p(jindb,:))*p(jindb,:)'*xu(1:(s(3)),jindb)';
                 cov_inv=inv(cov(t_t'));
+                res(:,:,jind2)=permute(xce(jind2,:,:),[3 2 1])-t_t'*p(jindb(end-s(2)+1:end),:)';
                 t_t = theta_A*p(jindb,:)'*p(jindb,:)*inv(p(jindb,:)'*pAll(jindb,:)*theta*pAll(jindb,:)'*p(jindb,:))*p(jindb,:)'*testu(1,jindb)';
                 % CALCULATE STATISTICS
                 t2=[t2;t_t'*cov_inv*t_t];
                 q=[q ;sum((permute(teste(jind2,:,:),[3 2 1])-t_t'*p(jindb(end-s(2)+1:end),:)').^2)];
+                   
             end        
         end
         ssc=size(t);
