@@ -176,12 +176,12 @@ for i=1:s(1),
     sumRes = sum(resmod(:,:,i).^2,2);    
     m = mean(sumRes);
     v = var(sumRes);
-    %limar=[limar (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v)];         
-    %limbr=[limbr (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)];             
+    limar=[limar (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v)];         
+    limbr=[limbr (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)];             
    % Estimation of the SPE control limits following Jackson & Mudholkar's
    % approach
-     limar=[limar spe_lim(resmod(:,:,i),0.05)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
-     limbr=[limbr spe_lim(resmod(:,:,i),0.01)]; % limite al 99% de conf.
+     %limar=[limar spe_lim(resmod(:,:,i),0.05)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
+     %limbr=[limbr spe_lim(resmod(:,:,i),0.01)]; % limite al 99% de conf.
 end
 
 % experimental limit
@@ -200,11 +200,14 @@ end
     
     % Adjust of the confidence level to meet the imposed 95% confidence
     % level following Box's approximation
-    %alpr95 = 1-chi2cdf((limar(ind2) * ind)/(v/(2*m)),(2*m^2)/v);
+    sumRes = sum(resmod(:,:,ind2).^2,2);    
+    m = mean(sumRes);
+    v = var(sumRes);
+    alpr95 = 1-chi2cdf((limar(ind2) * ind)/(v/(2*m)),(2*m^2)/v);
     
     % Adjust of the confidence level to meet the imposed 95% confidence
     % level following Jackson & Mudholkar's approach
-    alpr95=spe_pvalue(resmod(:,:,ind2),(limar(ind2) * ind));
+    %alpr95=spe_pvalue(resmod(:,:,ind2),(limar(ind2) * ind));
     
     esc=[];
     for i=1:s(2),
@@ -220,30 +223,33 @@ end
     
     % Adjust of the confidence level to meet the imposed 95% confidence
     % level following Box's approximation
-    %alpr = 1-chi2cdf((limbr(ind2) * ind)/(v/(2*m)),(2*m^2)/v);
+    sumRes = sum(resmod(:,:,ind2).^2,2);    
+    m = mean(sumRes);
+    v = var(sumRes);
+    alpr = 1-chi2cdf((limbr(ind2) * ind)/(v/(2*m)),(2*m^2)/v);
     
      % Adjust of the confidence level to meet the imposed 99% confidence
     % level following Jackson & Mudholkar's approach
-    alpr=spe_pvalue(resmod(:,:,ind2),(limbr(ind2) * ind));
+    %alpr=spe_pvalue(resmod(:,:,ind2),(limbr(ind2) * ind));
   
     limarcv=[];
     limbrcv=[];
 
     % Estimation of the SPE control limits using CV follwing Box's
     % approximation
-%     for i=1:s(1),
-%         sumRes = sum(resmod(:,:,i).^2,2);    
-%         m = mean(sumRes);
-%         v = var(sumRes);
-%         limarcv=[limarcv (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
-%         limbrcv=[limbrcv (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)]; % limite al 99% de conf.
-%     end 
+    for i=1:s(1),
+        sumRes = sum(resmod(:,:,i).^2,2);    
+        m = mean(sumRes);
+        v = var(sumRes);
+        limarcv=[limarcv (v/(2*m))*chi2inv(1-alpr95,(2*m^2)/v)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
+        limbrcv=[limbrcv (v/(2*m))*chi2inv(1-alpr,(2*m^2)/v)]; % limite al 99% de conf.
+    end 
 
       % Estimation of the SPE control limits using CV Jackson & Mudholkar's approach
-     for i=1:s(1),
-         limarcv=[limarcv spe_lim(resmod(:,:,i),alpr95)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
-         limbrcv=[limbrcv spe_lim(resmod(:,:,i),alpr)]; % limite al 99% de conf.
-     end
+%      for i=1:s(1),
+%          limarcv=[limarcv spe_lim(resmod(:,:,i),alpr95)]; % limite al 95% de conf., importante pasarle a residuallimit una matriz para que identifique residuos
+%          limbrcv=[limbrcv spe_lim(resmod(:,:,i),alpr)]; % limite al 99% de conf.
+%      end
 
 if opt,
     axes(axes2)
