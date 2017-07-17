@@ -432,7 +432,7 @@ if pos == 1
     errordlg('No batch backward is available','File Error'); return;
 else
     handles.selectedBatch = handles.BatcheslbIn(pos-1);
-    set(handles.e_batch,'String',handles.selectedBatch);
+    set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
 end
 
 for z=1:size(handles.s_screening.batch_data(1).data,2)
@@ -456,7 +456,7 @@ pos = find(handles.BatcheslbIn == handles.selectedBatch);
 if pos == numel(handles.BatcheslbIn), errordlg('No batch forward is available','File Error'); return
 else
     handles.selectedBatch = handles.BatcheslbIn(pos+1);
-    set(handles.e_batch,'String',handles.selectedBatch);
+    set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
 end
 
 for z=1:size(handles.s_screening.batch_data(1).data,2)
@@ -644,7 +644,8 @@ handles.VariableslbIn = handles.VariableslbInprev;
 handles.selectedBatch = handles.BatcheslbIn(1);
 
 % Set the batch to plot
-set(handles.e_batch,'String',handles.selectedBatch);
+set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
+
 
 % Update the number of window plots
 handles.n_plots_windows=ceil(numel(handles.VariableslbIn)/9);
@@ -829,7 +830,7 @@ end
     set(handles.lb_VariablesOut,'Value',1);
     
     % Put the first batch of the list to plot
-    set(handles.e_batch,'String',handles.selectedBatch);
+    set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
     % Set the parameter of the number of plots windows in the GUI
     set(handles.e_variables,'String',['1-' num2str(min(9,length(handles.VariableslbIn))) '/' num2str(max(9,length(handles.VariableslbIn)))]);
 
