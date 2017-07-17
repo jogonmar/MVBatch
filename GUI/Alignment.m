@@ -23,7 +23,7 @@ function varargout = Alignment(varargin)
 
 % Edit the above text to modify the response to help Alignment
 
-% Last Modified by GUIDE v2.5 08-Nov-2016 13:38:37
+% Last Modified by GUIDE v2.5 17-Jul-2017 18:44:53
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -63,6 +63,8 @@ handles.ParentFigure = guidata(handles.ParentsWindow);
 handles.data.x = handles.ParentFigure.x;
 
 handles.SynStage = 0;
+
+% TO DO: identify the number of phases from variable #1
 handles.Stage2Syn = 1;
 
 handles.data.type=0;
@@ -361,7 +363,8 @@ switch txt
         set(handles.editFraction,'String',num2str(Inf));
         set(handles.editPsiv,'String',num2str(3));
         set(handles.editPsih,'String',num2str(3));
-        set(handles.editPcs,'String',num2str(6));
+        set(handles.editPcs,'Enable','off');
+        set(handles.radiobuttonPCsAutomatic,'Value',1);
 
         handlesGUI = guidata(hObject);editPcs_Callback(handlesGUI.editPcs, eventdata, handlesGUI);
         handlesGUI = guidata(hObject);editFraction_Callback(handlesGUI.editFraction, eventdata, handlesGUI);
@@ -839,13 +842,17 @@ set(handles.uib_RGTW,'Enable','off');
 switch txt,
     case 'Kassidas',
         method = 'kass';
+        set(handles.editMaxIter,'Enable','on');
     case 'Ramaker'
-        method = 'ram';       
+        method = 'ram'; 
+        set(handles.editMaxIter,'Enable','off');
     case 'Geo. average'
-        method = 'geo';        
+        method = 'geo';
+        set(handles.editMaxIter,'Enable','on');
     case 'Select'
         method = 'nomethod';
         set(handles.uite_DTW_Weights,'Enable','on');
+        set(handles.editMaxIter,'Enable','off');
         nVariables = size(handles.data.synchronization{handles.Stage2Syn}.nor_batches{1},2);
         % Check if there are variables constrained for batch
         % synchronization. If so, estimate the weights properly.
@@ -933,6 +940,26 @@ guidata(hObject, handles);
 % --- Executes during object creation, after setting all properties.
 function uite_DTW_Weights_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to uite_DTW_Weights (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function editMaxIter_Callback(hObject, eventdata, handles)
+% hObject    handle to editMaxIter (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+maxIter = str2double(get(handles.editMaxIter,'String'));
+if isnan(maxIter), set(handles.editMaxIter,'String','20'); end
+
+% --- Executes during object creation, after setting all properties.
+function editMaxIter_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editMaxIter (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -1302,14 +1329,12 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
         case 'kass'
             
             cprintMV(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
-                        
-%             set(handles.uite_DTW_Window,'String','');
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing...Be patient, please.', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
+            
+            % Get the maximum number of iterations
+            handles.data.synchronization{handles.Stage2Syn}.maxIter = str2double(get(handles.editMaxIter,'String'));
             
             % Synchronize the batch trajectories using the procedure proposed by Kassidas et al.
-            [handles.data.synchronization{handles.Stage2Syn}.W, alg_batches, handles.data.synchronization{handles.Stage2Syn}.warp, handles.data.synchronization{handles.Stage2Syn}.rng, handles.data.synchronization{handles.Stage2Syn}.warpingOri,flag] = DTW_Kassidas(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.Wconstr);
+            [handles.data.synchronization{handles.Stage2Syn}.W, alg_batches, handles.data.synchronization{handles.Stage2Syn}.warp, handles.data.synchronization{handles.Stage2Syn}.rng, handles.data.synchronization{handles.Stage2Syn}.warpingOri,handles.data.synchronization{handles.Stage2Syn}.diffW,flag] = DTW_Kassidas(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.Wconstr,handles.data.synchronization{handles.Stage2Syn}.maxIter);
             if flag, return;end
             
             handles.data.synchronization{handles.Stage2Syn}.alg_batches = zeros(size(alg_batches,1),size(alg_batches,2)+1,size(alg_batches,3));
@@ -1317,18 +1342,19 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
                      handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,i)= [handles.data.synchronization{handles.Stage2Syn}.warp(:,i) squeeze(alg_batches(:,:,i))];
             end
             
+            if ~isempty(find(handles.data.synchronization{handles.Stage2Syn}.diffW(end,:)>0.01))
+                bar(handles.data.synchronization{handles.Stage2Syn}.diffW(end-1:end,:));
+                xlabel('Process variables','FontSize',16);
+                ylabel('Weights','FontSize',16);
+                title('Weights in the last two iterations','FontSize',14);
+                cprintMV(handles.uite_DTW_Window,'Maximum number of iterations reached in Kassidas et al.´s synchronization');
+            end
+            
             cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
         case 'ram'
             
             cprintMV(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
-%             set(handles.uite_DTW_Window,'String','');
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing...Be patient, please.', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
             
             % Synchronize the batch trajectories using the procedure proposed by Ramaker et al.
             [handles.data.synchronization{handles.Stage2Syn}.W, alg_batches, handles.data.synchronization{handles.Stage2Syn}.warp, handles.data.synchronization{handles.Stage2Syn}.rng,handles.data.synchronization{handles.Stage2Syn}.warpingOri] = DTW_Ramaker(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.Wconstr);            
@@ -1339,40 +1365,31 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             end
             cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
         case 'geo'
             cprintMV(handles.uite_DTW_Window,'It takes some time. Please, be patient.',[],0);
-            cprintMV(handles.uite_DTW_Window,'Synchronizing... (Kassidas approach)');
-%             set(handles.uite_DTW_Window,'String','');
-%             set(handles.uite_DTW_Window,'String',strvcat('It takes some time. Please, be patient.', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing... (Kassidas approach)', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
+            cprintMV(handles.uite_DTW_Window,'Synchronizing... (Kassidas approach)');  
             
-             % Synchronize the batch trajectories using the classical DTW with the weights estimated as the geometric mean of Kassidas et al. and Ramaker et al.'s approach
-            Wkass = DTW_Kassidas(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref);
+            % Get the maximum number of iterations
+            handles.data.synchronization{handles.Stage2Syn}.maxIter = str2double(get(handles.editMaxIter,'String'));
+            
+            % Synchronize the batch trajectories using the classical DTW with the weights estimated as the geometric mean of Kassidas et al. and Ramaker et al.'s approach
+            [Wkass,~,~,~,~,handles.data.synchronization{handles.Stage2Syn}.diffW] = DTW_Kassidas(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.maxIter);
+            
+            if ~isempty(find(handles.data.synchronization{handles.Stage2Syn}.diffW(end,:)>0.01))
+                bar(handles.data.synchronization{handles.Stage2Syn}.diffW(end-1:end,:));
+                xlabel('Process variables','FontSize',16);
+                ylabel('Weights','FontSize',16);
+                title('Weights in the last two iterations','FontSize',14);
+                cprintMV(handles.uite_DTW_Window,'Maximum number of iterations reached in Kassidas et al.´s synchronization');
+            end
             
             cprintMV(handles.uite_DTW_Window,'Synchronization (Kassidas approach) finished');
             
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronization (Kassidas approach) finished', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
-
             cprintMV(handles.uite_DTW_Window,'Synchronizing... (Ramaker approach)');
             
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing... (Ramaker approach)', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
-
             Wram  = DTW_Ramaker(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref);
 
             cprintMV(handles.uite_DTW_Window,'Synchronization (Ramaker approach) finished');
-%             set(handles.uite_DTW_Window,'String',strvcat( 'Synchronization (Ramaker approach) finished', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));
-%             pause(0.01);
 
             % Estimating the geometric average between Kassidas et al. and Ramaker et al.'s weights
             handles.data.synchronization{handles.Stage2Syn}.W = sqrt(Wram.*Wkass)/sum(sqrt(Wram.*Wkass))*size(Wkass,1);
@@ -1383,8 +1400,6 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             % Synchronizing the batch trajectories using DTW and the weight matrix W
             cprintMV(handles.uite_DTW_Window,'Synchronizing... (classical DTW)');
             
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing... (classical DTW)', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), '')); pause(0.01);
             warp = zeros(size(X{handles.data.synchronization{handles.Stage2Syn}.Bref},1),length(handles.data.synchronization{handles.Stage2Syn}.nor_batches));
             warpingOri = cell(length(handles.data.synchronization{handles.Stage2Syn}.nor_batches),1);
             for i=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)
@@ -1395,9 +1410,6 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             
             cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));  pause(0.01);
-
             % Unscaling the batch trajectories
             handles.data.synchronization{handles.Stage2Syn}.alg_batches = zeros(size(alg_batches{1},1),size(alg_batches{1},2)+1,size(alg_batches{1},3));
             for i=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)
@@ -1543,7 +1555,11 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     end
     
     cprintMV(handles.uite_DTW_Window,'Synchronizing... Phase II: specific synchronization');
-    [alg_batches,handles.data.synchronization{handles.Stage2Syn}.warp,handles.data.synchronization{handles.Stage2Syn}.specSynchronization] = low_multisychro(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.asynDetection,handles.data.synchronization{handles.Stage2Syn}.Wconstr,handles.data.synchronization{handles.Stage2Syn}.param.pcsMon,[],handles.uite_DTW_Window);   
+    % Obtain max number of components to extratct
+    handles.data.synchronization{handles.Stage2Syn}.param.pcsMon = handles.pcsMon;
+    % Obtain max number of iterations to allow
+    handles.data.synchronization{handles.Stage2Syn}.maxIter = str2double(get(handles.editMaxIterMultiSynchro,'String'));
+    [alg_batches,handles.data.synchronization{handles.Stage2Syn}.warp,handles.data.synchronization{handles.Stage2Syn}.specSynchronization,handles.data.synchronization{handles.Stage2Syn}.diffW] = low_multisychro(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.asynDetection,handles.data.synchronization{handles.Stage2Syn}.Wconstr,handles.data.synchronization{handles.Stage2Syn}.param.pcsMon,handles.data.synchronization{handles.Stage2Syn}.maxIter,[],handles.uite_DTW_Window);   
    
     handles.data.synchronization{handles.Stage2Syn}.alg_batches = zeros(size(alg_batches,1),size(alg_batches,2)+1,size(alg_batches,3));
     for i=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)
@@ -1959,10 +1975,10 @@ function editPcs_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of editPcs as a double
 
 pcs = str2double(get(hObject,'String'));
-handles.data.synchronization{handles.Stage2Syn}.param.pcsMon = pcs;
+handles.pcsMon = pcs;
 if pcs < 0 || pcs > 50, 
     pcs = 50; set(hObject,'String',num2str(pcs)); 
-    handles.data.synchronization{handles.Stage2Syn}.param.pcsMon = pcs; 
+    handles.pcsMon = pcs; 
     errordlg('The number of PCs for monitoring purpose is bounded to 50 PCs'); 
 end
 
@@ -1979,6 +1995,8 @@ function editPcs_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+handles.pcsMon = 1;
+guidata(hObject,handles);
 
 % --- Executes on button press in pushbuttonPlotBatches.
 function pushbuttonPlotBatches_Callback(hObject, eventdata, handles)
@@ -2117,6 +2135,27 @@ if ~isempty(find(TypeAsyn<=1)) && ~isempty(find(TypeAsyn>4)), errordlg('There ar
 handles.TypeAsyn = TypeAsyn;
 guidata(hObject,handles);
 
+function editMaxIterMultiSynchro_Callback(hObject, eventdata, handles)
+% hObject    handle to editMaxIterMultiSynchro (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+maxIter = str2double(get(handles.editMaxIterMultiSynchro,'String'));
+if isnan(maxIter), set(handles.editMaxIterMultiSynchro,'String','20'); end
+
+% --- Executes during object creation, after setting all properties.
+function editMaxIterMultiSynchro_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to editMaxIterMultiSynchro (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                11.- MISCELLANEOUS
@@ -2178,6 +2217,7 @@ function enable_DTW(value,handles)
 % Objects from the DTW panel
 set(handles.uipu_DTW_Weights,'Enable',value);
 set(handles.uite_DTW_Weights,'Enable','off');
+set(handles.editMaxIter,'Enable',value);
 
 function enable_RGTW(value,handles)
 
@@ -2215,14 +2255,21 @@ set(handles.radiobuttonAutomaticRecogniction,'Enable',value);
 set(handles.radiobuttonManualRecogniction,'Enable',value);
 set(handles.radiobuttonAutomatic,'Enable',value);
 set(handles.radiobuttonManual,'Enable',value);
+set(handles.radiobuttonPCsAutomatic,'Enable',value);
+set(handles.radiobuttonPCsManual,'Enable',value);
+set(handles.editMaxIterMultiSynchro,'Enable',value);
+
+if strcmp('on',value) && get(handles.radiobuttonPCsAutomatic,'Value')
+    set(handles.editPcs,'Enable',value);
+end
 
 if strcmp('off',value)
     set(handles.pushbuttonInfo,'Enable',value);
     set(handles.pushbuttonWI,'Enable',value);
     set(handles.pushbuttonPlotBatches,'Enable',value);    
     set(handles.editTypeAsynchronisms,'Enable',value);
+    set(handles.editPcs,'Enable',value);
 end
-
 
 function plotWI(warp,batches,label)
 figure;
@@ -2235,7 +2282,6 @@ xlabel('Reference batch time sampling point','FontSize',14);
 legend([h1 h2],'all',label);
 title('Warping information','FontSize',12,'FontWeight','b');
 axis tight
-
 
 % --- Executes during object creation, after setting all properties.
 function editTypeAsynchronisms_CreateFcn(hObject, eventdata, handles)
@@ -2257,3 +2303,21 @@ function pushbuttonClose_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 delete(handles.figure1);
+
+
+% --- Executes when selected object is changed in uibuttongroupNPCsLowLevel.
+function uibuttongroupNPCsLowLevel_SelectionChangedFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in uibuttongroupNPCsLowLevel 
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+switch eventdata.NewValue.Tag   % Get Tag of selected object
+     case 'radiobuttonPCsManual'
+        set(handles.editPcs,'Enable','on');
+        handles.pcsMon = str2double(get(handles.editPcs,'String'));
+     case 'radiobuttonPCsAutomatic'
+        set(handles.editPcs,'Enable','off');  
+        handles.pcsMon = NaN;
+end
+
+guidata(hObject,handles);

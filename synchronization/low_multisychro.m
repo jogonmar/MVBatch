@@ -1,4 +1,4 @@
-function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wconstr,pcs,offset,console,specSynchronization)
+function [Xs,F,specSynchronization,diffW] = low_multisychro(cal,ref,asynDetection,Wconstr,pcs,maxIter,offset,console,specSynchronization)
 
 % Low level rountine of the Multyisynchro algorithm to synchronize the variable trajectories of each of the 
 % batches with a specific procedure based on the type of asynchronism. 
@@ -37,7 +37,9 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 % Wconstr: (Jx1) boolean array indicating if a specific variables is
 % considered in the synchronization (0) or not (1).
 %
-% pcs: (1x1) number of principal components.
+% pcs: (1x1) number of principal components. By default, the selection of the number of PCs
+% is computed as that component leaving less than 50% of residual variance.
+% To enable this option, pcs must be either empty ([]) or NaN.
 %
 % offset: (Jx1) offset to apply to the warping profiles in case that the
 % algorithm is applied to different stages (by default array of zeros).
@@ -84,6 +86,7 @@ function [Xs,F,specSynchronization] = low_multisychro(cal,ref,asynDetection,Wcon
 %       - offsetnext: (Jx1) offset to apply to the warping profiles in case that the
 %       algorithm is applied to another stage.
 %
+% diffW: (FxJ) array of dissimisilarities among weights across F iterations
 %
 % coded by: Jose Maria Gonzalez-Martinez (jogonmar@gmail.com)
 %           
@@ -119,12 +122,16 @@ if ~isfield(asynDetection.batchcIII,'I'), error('The indices of the batches affe
 if ~isfield(asynDetection.batchcIV,'I'), error('The indices of the batches affected by class IV asynchronism.'); end
 if ~isfield(asynDetection.batchcIII_IV,'I'), error('The indices of the batches affected by class III and class IV asynchronisms.'); end
 if nargin < 4, Wconstr = zeros(size(cal{1,1},2),1); end
-if nargin < 5 || isempty(pcs), pcs = 6; end
-if nargin < 6 || isempty(offset), offset = zeros(nBatches,1);end
+if nargin < 5, pcs = NaN; end
+if pcs < 0, error('The number of PCs must be greater than 0'); end 
+if isempty(pcs), pcs = NaN; end
+if nargin < 6, maxIter = 20; end
+if isempty(maxIter), maxIter = 20; end
+if nargin < 7 || isempty(offset), offset = zeros(nBatches,1);end
 if size(offset,1) ~= nBatches, error('Unexpected number offsets. It does not coincide with the number of batches.'); end 
-if nargin < 7 || isempty(console), console = 0;end
+if nargin < 8 || isempty(console), console = 0;end
 mode = 1;
-if nargin < 8, mode = 0; end
+if nargin < 9, mode = 0; end
 if mode
     if ~isstruct(specSynchronization), error('specSynchronization must be a struct contaning the fields required to proceed with the synchronization of test batches. For further information, type help MultiSynchro on the Matlab prompt');end
     if ~isfield(specSynchronization,'W'), error('The non-negative array W does not exist in the structure specSynchronization.'); end
@@ -159,7 +166,7 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
 
         while(~isempty(Ift))     
             % Step (i): DTW-based synchronization
-            [W,X1G,warpX1G,rng] = DTW_Kassidas(XG,ref,Wconstr);
+            [W,X1G,warpX1G,rng,~,diffW] = DTW_Kassidas(XG,ref,Wconstr,maxIter);
             sGsyn = size(X1G);
 
             X1G = missTSR3D(X1G,4,sGsyn(1)-1,2);
@@ -168,7 +175,11 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
 
             % Step (iii): Batch-wise unfolding and PCA
             xu=unfold(xce,sGsyn(1)-1); % BW unfolding
-            pcs = min(pcs,rank(xu));
+            if isnan(pcs)
+                res_var = var_pca(xu,1:rank(xu),2,00); 
+                pcs = find(res_var<0.5,1,'first')-1;
+                if isempty(pcs), pcs = rank(xu); end
+            end
             [U,S,V] = svd(xu,'econ');
             tAll = U*S;
             pAll = V;

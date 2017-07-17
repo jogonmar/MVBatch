@@ -1,4 +1,4 @@
-function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal,ref,Wconstr)
+function [W,X,warping,rng,warpingOri,diffW,flag] = DTW_Kassidas(cal,ref,Wconstr,maxIter)
 
 % Function to synchronize a set of batch trajectories against a stated
 % batch (ref batch) through an iterative procedure. The synchonization
@@ -8,8 +8,8 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal,ref,Wconstr)
 % trajectories using dynamic time warping, AIChE Journal 44:864-875.
 %
 % CALLS:
-%        [W,X,warping,rng] = DTW_Kassidas(cal, ref)           % minimum call
-%        [W,X,warping,rng] = DTW_Kassidas(cal, ref, Wconstr)  % complete call
+%        [W,X,warping,rng] = DTW_Kassidas(cal, ref)                   % minimum call
+%        [W,X,warping,rng] = DTW_Kassidas(cal, ref, Wconstr,maxIter)  % complete call
 %
 %
 % INPUTS:
@@ -22,6 +22,9 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal,ref,Wconstr)
 % Wconstr: (Jx1) boolean array indicating if a specific variable is
 %            considered in the synchronization (0) or not (1).
 %        
+% maxIter: (1x1) maximum number of iteration allowed for the Kassidas et
+% al.'s synchronization. By default, maxIter is equal to 20.
+%
 % OUTPUTS:
 %
 % W:       (JxJ) weights to give more importance to those variables are more 
@@ -37,6 +40,9 @@ function [W,X,warping,rng,warpingOri,flag] = DTW_Kassidas(cal,ref,Wconstr)
 %
 % warpingOri:(1xI) warping information derived from the offline synchronization 
 %             of I historical batches.
+%
+% diffW: (FxJ) array of dissimisilarities among weights across F iterations
+%
 %
 % flag: flag to indicate if the synchronization was unexpectedly
 % interrupted.
@@ -68,6 +74,8 @@ if ~iscell(cal), error('The first input parameter must be a cell array containin
 nBatches = size(cal,2); nVariables = size(cal{1,1},2);
 if nargin < 3 || isempty(Wconstr) , Wconstr = zeros(size(cal{1,1},2),1); end
 if find(Wconstr==0) < 1, error('If all the process variables are constrained, no synchronization can be performed.');end
+if nargin < 4, maxIter = 20; end
+if isempty(maxIter), maxIter = 20; end
 
 %% Initialization
 calsy = cell(1, nBatches);
@@ -75,6 +83,7 @@ warping = zeros(size(ref,1), nBatches);
 warpingOri = cell(1, nBatches);
 X = zeros(size(ref,1),nVariables,nBatches);
 W = zeros(nVariables,1);
+diffW = [];
 Bmean = [];
 flag = true;
 iter = 0;
@@ -131,8 +140,9 @@ while(flag || iter <=4)
     % Step 4: Normalize W so that the sum of the weights is equal to the number of
     %         variables.
 
-    Wnew = diag((diag(Wnew)./sum(diag(Wnew)))*nVariables);   
-    if  isempty(find(((abs(Wnew) - abs(W))) > 0.01))
+    Wnew = diag((diag(Wnew)./sum(diag(Wnew)))*nVariables);    
+    diffW = [diffW; diag(abs(Wnew) - abs(W))'];
+    if  isempty(find(diffW(end,:) > 0.01)) || iter == maxIter
         flag = false;
     end 
     W = Wnew;
