@@ -1,4 +1,4 @@
-function [cvevolD,cvevolQ,cvD,cvQ,limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99cv,limdo95cv,limdo99cv,limqo95cv,limqo99cv,alpdo95cv,alpdo99cv,alpqo95cv,alpqo99cv] = crossvalMVstatistics(xini,phases,prep)
+function [cvevolD,cvevolQ,cvD,cvQ,limdo95cv,limdo99cv,limqo95cv,limqo99cv,alpdo95cv,alpdo99cv,alpqo95cv,alpqo99cv,limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99cv] = crossvalMVstatistics(xini,phases,prep)
 
 % Computes D-statistic and SPE values for the calibration batches using leave-one-out cross-validation. 
 %
@@ -34,22 +34,6 @@ function [cvevolD,cvevolQ,cvD,cvQ,limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,a
 %
 % cvQ: (Ix1) cross-validated overall Q-statistic values for the test batch (if batch-wise modeling).
 %
-% limd95cv: (Kx1) or (1x1) cross-validated 95% control limit of the D statistic for offline applications.
-%
-% limd99cv: (Kx1) or (1x1) cross-validated 99% control limit of the D statistic for offline applications.
-%
-% limq95cv: (Kx1) or (1x1) cross-validated 95% control limit of the Q statistic for offline applications.
-%
-% limq99cv: (Kx1) or (1x1) cross-validated 99% control limit of the Q statistic for offline applications. 
-%
-% alpd95cv: (1x1) cross-validated significance level (alpha) for the 99% control limit of the offline D statistic. 
-%
-% alpd99cv: (1x1) cross-validated significance level (alpha) for the 99% control limit of the offline D statistic.
-%
-% alpq95cv: (1x1) cross-validated significance level (alpha) for the 95% control limit of the offline Q statistic. 
-%
-% alpq99cv: (1x1) cross-validated significance level (alpha) for the 95% control limit of the offline Q statistic.
-%
 % limdo95cv: (Kx1) cross-validated 95% control limit of the D statistic for online applications.
 %
 % limdo99cv: (Kx1) cross-validated 99% control limit of the D statistic for online applications.
@@ -65,6 +49,23 @@ function [cvevolD,cvevolQ,cvD,cvQ,limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,a
 % alpqo95cv: (1x1) cross-validated significance level (alpha) for the 95% control limit of the online Q statistic. 
 %
 % alpqo99cv: (1x1) cross-validated significance level (alpha) for the 95% control limit of the online Q statistic.
+%
+% limd95cv: (1x1) cross-validated 95% control limit of the D statistic for offline applications.
+%
+% limd99cv: (1x1) cross-validated 99% control limit of the D statistic for offline applications.
+%
+% limq95cv: (1x1) cross-validated 95% control limit of the Q statistic for offline applications.
+%
+% limq99cv: (1x1) cross-validated 99% control limit of the Q statistic for offline applications. 
+%
+% alpd95cv: (1x1) cross-validated significance level (alpha) for the 99% control limit of the offline D statistic. 
+%
+% alpd99cv: (1x1) cross-validated significance level (alpha) for the 99% control limit of the offline D statistic.
+%
+% alpq95cv: (1x1) cross-validated significance level (alpha) for the 95% control limit of the offline Q statistic. 
+%
+% alpq99cv: (1x1) cross-validated significance level (alpha) for the 95% control limit of the offline Q statistic.
+%
 % 
 % coded by:  José M. González Martínez (jogonmar@gmail.com)
 %
@@ -155,13 +156,13 @@ for p=1:sp(1), pcs = [pcs; phases(p,2)*ones(1,phases(p,5)-phases(p,4)+1)]; end
 
 % Cross-validate control limits
 % On-line 
-[limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99cv] = crossval_limits(reson,cvevolD,cvevolQ,limdo95,limdo99,limqo95,limqo99,s(3),pcs);
+[limdo95cv,limdo99cv,limqo95cv,limqo99cv,alpdo95cv,alpdo99cv,alpqo95cv,alpqo99cv] = crossval_limits(reson,cvevolD,cvevolQ,limdo95,limdo99,limqo95,limqo99,s(3),pcs);
 % Off-linw
 if sp(1) == 1 && phases(1,3) == s(1)-1
     xce = preprocess3D(xini,prep);
     xu=unfold(xce,phases(1,3));
     resoff = xu-to{1}(:,1:phases(1,2))*po{1}(:,1:phases(1,2))';
-    [limdo95cv,limdo99cv,limqo95cv,limqo99cv,alpdo95cv,alpdo99cv,alpqo95cv,alpqo99cv] = crossval_limits(resoff,cvD,cvQ,limd95,limd99,limq95,limq99,s(3),repmat(pcs(1),s(3),1));    
+    [limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99cv] = crossval_limits(resoff,cvD,cvQ,limd95,limd99,limq95,limq99,s(3),repmat(pcs(1),s(3),1));    
 end
 
 
