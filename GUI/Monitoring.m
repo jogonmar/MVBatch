@@ -512,7 +512,7 @@ end
 
 % If the model is batch-wise, visualize the overall D and Q statistic values
 % for all batches
-if ~isempty(offlimd95)
+if ~isempty(offlimd95) && ~isnan(offlimd95)
     % Offline D statistics
     visualizeStatGlobal(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).D,...
                         offlimd95,...

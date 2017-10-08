@@ -205,6 +205,8 @@ if ~isequal(filename,0)
     
     try 
        S = load(strcat(pathname,filename), 'calibration');
+       
+       
        handles.s_screening = S.calibration;
     catch err
         % Give more information for mismatch.
@@ -338,6 +340,9 @@ if ~isequal(file, 0)
             errordlg('An error has been produced opening the project.');
     end
 end
+
+% Update handles structure
+guidata(hObject, handles);
 
 % --------------------------------------------------------------------
 function menuSaveProject_Callback(hObject, eventdata, handles)
