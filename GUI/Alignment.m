@@ -23,7 +23,7 @@ function varargout = Alignment(varargin)
 
 % Edit the above text to modify the response to help Alignment
 
-% Last Modified by GUIDE v2.5 17-Jul-2017 18:44:53
+% Last Modified by GUIDE v2.5 08-Oct-2017 17:41:28
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -91,6 +91,7 @@ switch handles.data.type,
         enable_DTW('off',handles)
         enable_RGTW('off',handles)
         enable_SCT('off',handles)
+        enable_MultiSynchro('off',handles)
         % Disable the equalization panel
         enable_EQ('off',handles);
         % Enable the fields of the form corresponding to the IV
@@ -334,7 +335,7 @@ switch txt
         % Disabling the objects from the Multinchro panel
         enable_MultiSynchro('off',handles);
         % Setting parameters to apply off-line DTW synchronization
-        handles.data.synchronization{handles.Stage2Syn}.method = 'kass';
+        handles.data.synchronization{handles.Stage2Syn}.method = 'Kassidas';
         set(handles.uite_DTW_Weights,'String',' ');
         set(handles.uipu_DTW_Weights,'Value',1);
         set(handles.uipu_DTW_Reference,'Value',1);
@@ -364,6 +365,8 @@ switch txt
         set(handles.editPsiv,'String',num2str(3));
         set(handles.editPsih,'String',num2str(3));
         set(handles.editPcs,'Enable','off');
+        set(handles.editPsih,'Enable','off');
+        set(handles.editPsiv,'Enable','off');
         set(handles.radiobuttonPCsAutomatic,'Value',1);
 
         handlesGUI = guidata(hObject);editPcs_Callback(handlesGUI.editPcs, eventdata, handlesGUI);
@@ -374,7 +377,7 @@ switch txt
         
         % Parameters of the manual asynchronism recognition
         set(handles.editTypeAsynchronisms,'String','1'); handles.TypeAsyn = 1;
-        set(handles.editBatches,'String',strcat('1:',num2str(length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)))); handles.AsynBatches =  1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches);
+        set(handles.editBatches,'String',strcat('1:',num2str(length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)))); handles.AsynBatches =  {1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)};
         handles.selectedAsyn = 1;
         
         uipanelMultiSynchrpParameters_SelectionChangeFcn(handles.radiobuttonAutomatic, eventdata, handles)
@@ -393,7 +396,7 @@ switch txt
         
         % Setting parameters to apply Multi-synchro
         handles.data.synchronization{handles.Stage2Syn}.methodsyn = 'multisynchro';
-        handles.data.synchronization{handles.Stage2Syn}.method = 'nomethod';
+        handles.data.synchronization{handles.Stage2Syn}.method = 'Select';
         handles.data.synchronization{handles.Stage2Syn}.Bref = -1; 
         handles.data.synchronization{handles.Stage2Syn}.W = ones(nVariables,1);
         handles.data.synchronization{handles.Stage2Syn}.Wconstr = zeros(nVariables,1);
@@ -692,31 +695,11 @@ end
 
 if sum(Wconstr)==nVariables, errordlg('To proceed with the synchronization of the batch trajectories, at least one process variable is required to be weighted.','File Error'); return;  end
 
-if strcmp(handles.data.synchronization{handles.Stage2Syn}.method,'nomethod')
+if strcmp(handles.data.synchronization{handles.Stage2Syn}.method,'Select')
     if sum(Wconstr-handles.data.synchronization{handles.Stage2Syn}.Wconstr) ~= 0
-        % Construct a questdlg with three options
-        choice = questdlg('Are you sure of introducing new constraints', ...
-            'Yes', ...
-            'No');
-        % Handle response
-        switch choice
-            case 'Yes'
-                 handles.data.synchronization{handles.Stage2Syn}.Wconstr = Wconstr; 
-            case 'No'
-                formats = [];
-                for i=1:nVariables
-                     formats = [formats '%d '];
-                end
-                set(handles.editConstraintVariables,'String',sprintf(formats,handles.data.synchronization{handles.Stage2Syn}.Wconstr));
-                return;
-            otherwise
-                formats = [];
-                for i=1:nVariables
-                     formats = [formats '%d '];
-                end
-                set(handles.editConstraintVariables,'String',sprintf(formats,handles.data.synchronization{handles.Stage2Syn}.Wconstr));
-                return;                
-        end
+       
+         handles.data.synchronization{handles.Stage2Syn}.Wconstr = Wconstr; 
+
         NonconstrainedVars = find(Wconstr==0);
         handles.data.synchronization{handles.Stage2Syn}.W = zeros(nVariables,1);
         handles.data.synchronization{handles.Stage2Syn}.W(NonconstrainedVars) = nVariables/numel(NonconstrainedVars); 
@@ -841,16 +824,16 @@ set(handles.uib_RGTW,'Enable','off');
     
 switch txt,
     case 'Kassidas',
-        method = 'kass';
+        method = 'Kassidas';
         set(handles.editMaxIter,'Enable','on');
     case 'Ramaker'
-        method = 'ram'; 
+        method = 'Ramaker'; 
         set(handles.editMaxIter,'Enable','off');
     case 'Geo. average'
-        method = 'geo';
+        method = 'Geo. average';
         set(handles.editMaxIter,'Enable','on');
     case 'Select'
-        method = 'nomethod';
+        method = 'Select';
         set(handles.uite_DTW_Weights,'Enable','on');
         set(handles.editMaxIter,'Enable','off');
         nVariables = size(handles.data.synchronization{handles.Stage2Syn}.nor_batches{1},2);
@@ -1326,7 +1309,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     set(handles.uib_RGTW,'Enable','off');
       
     switch handles.data.synchronization{handles.Stage2Syn}.method
-        case 'kass'
+        case 'Kassidas'
             
             cprintMV(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
             
@@ -1352,7 +1335,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             
             cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
-        case 'ram'
+        case 'Ramaker'
             
             cprintMV(handles.uite_DTW_Window,'Synchronizing...Be patient, please.',[],0);
             
@@ -1365,7 +1348,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             end
             cprintMV(handles.uite_DTW_Window,'Synchronization finished');
             
-        case 'geo'
+        case 'Geo. average'
             cprintMV(handles.uite_DTW_Window,'It takes some time. Please, be patient.',[],0);
             cprintMV(handles.uite_DTW_Window,'Synchronizing... (Kassidas approach)');  
             
@@ -1420,7 +1403,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             end
             %handles.data.dtw.cv = 1;
             
-        case 'nomethod'
+        case 'Select'
             uite_DTW_Weights_Callback(handles.uite_DTW_Weights, eventdata, handles);
             if size(handles.data.synchronization{handles.Stage2Syn}.W,1) ~= size(handles.data.synchronization{handles.Stage2Syn}.nor_batches{1},2) || sum(handles.data.synchronization{handles.Stage2Syn}.W)-size(handles.data.synchronization{handles.Stage2Syn}.nor_batches{1},2) > .001 || sum(handles.data.synchronization{handles.Stage2Syn}.W)-size(handles.data.synchronization{handles.Stage2Syn}.nor_batches{1},2) < -0.001, return; end
             
@@ -1532,6 +1515,11 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     cprintMV(handles.uite_DTW_Window,'Synchronizing... Phase I: asynchronisms detection');
     % Execute the high-level routine of Multisynchro    
     if get(handles.radiobuttonManual,'Value'),
+        if size(handles.TypeAsyn,2) ~=  length(handles.AsynBatches)
+           errordlg('The number of manual asynchronisms and set of batches differ. Please, introduce the manual parameters again.'); 
+           return;
+        end
+           
         asynDetection.batchcI_II.I = [];
         asynDetection.batchcIII.I = [];
         asynDetection.batchcIV.I = [];
@@ -2045,42 +2033,61 @@ function uipanelParametersMultiSynchro_SelectionChangeFcn(hObject, eventdata, ha
 %	NewValue: handle of the currently selected object
 % handles    structure with handles and user data (see GUIDATA)
 
-
-switch get(handles.radiobuttonManualRecogniction,'Tag')   % Get Tag of selected object
+if strcmpi(eventdata.EventName,'SelectionChanged')
+    string = eventdata.NewValue.Tag;
+else
+    string = get(handles.radiobuttonAutomaticRecogniction,'Tag');
+end
+    
+    
+switch  string  % Get Tag of selected object
      case 'radiobuttonAutomaticRecogniction'
         set(handles.editFraction,'Enable','on');
         handles.data.synchronization{handles.Stage2Syn}.param.k = str2double(get(handles.editFraction,'String'));
         set(handles.editPsiv,'Enable','off');
         set(handles.editPsih,'Enable','off');  
+        set(handles.radiobuttonAutomaticRecogniction,'Enable','on')
+        set(handles.radiobuttonManualRecogniction,'Enable','on')
      case 'radiobuttonManualRecogniction'
         set(handles.editFraction,'Enable','off');
         set(handles.editPsiv,'Enable','on');
         set(handles.editPsih,'Enable','on');       
         handles.data.synchronization{handles.Stage2Syn}.param.k = Inf;
+        set(handles.radiobuttonAutomaticRecogniction,'Enable','on')
+        set(handles.radiobuttonManualRecogniction,'Enable','on')
 end
 
 guidata(hObject,handles);
 
-% --- Executes when selected object is changed in uipanelMultiSynchrpParameters.
-function uipanelMultiSynchrpParameters_SelectionChangeFcn(hObject, eventdata, handles,NewValue)
-% hObject    handle to the selected object in uipanelMultiSynchrpParameters 
+% --- Executes when selected object is changed in uipanelMultiSynchroParameters.
+function uipanelMultiSynchrpParameters_SelectionChangeFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in uipanelMultiSynchroParameters 
 % eventdata  structure with the following fields (see UIBUTTONGROUP)
 %	EventName: string 'SelectionChanged' (read only)
 %	OldValue: handle of the previously selected object or empty if none was selected
 %	NewValue: handle of the currently selected object
 % handles    structure with handles and user data (see GUIDATA)
 
+if strcmpi(eventdata.EventName,'SelectionChanged')
+    string = eventdata.NewValue.Tag;
+else
+    string = get(handles.radiobuttonAutomaticRecogniction,'Tag'); 
+end
 
-switch get(handles.radiobuttonAutomatic,'Tag')   % Get Tag of selected object
+switch string
+    % Get Tag of selected object
      case 'radiobuttonAutomatic'
-        set(handles.radiobuttonAutomaticRecogniction,'Enable','on');
-        set(handles.radiobuttonManualRecogniction,'Enable','on');
+         aux_event = struct('EventName','SelectionChanged','NewValue',struct('Tag',''));
+         if get(handles.radiobuttonAutomaticRecogniction,'Value')
+             aux_event.NewValue.Tag = 'radiobuttonAutomaticRecogniction';
+         else
+             aux_event.NewValue.Tag = 'radiobuttonManualRecogniction';
+         end
+
+        uipanelParametersMultiSynchro_SelectionChangeFcn(handles.radiobuttonAutomaticRecogniction, aux_event, handles)
         set(handles.editTypeAsynchronisms,'Enable','off');
         set(handles.editBatches,'Enable','off');
-        %eventdata.EventName = 'SelectionChanged';
-        %eventdata.NewValue = handles.radiobuttonManualRecogniction;
-        set(handles.radiobuttonManualRecogniction,'Value',1);
-        uipanelParametersMultiSynchro_SelectionChangeFcn(handles.uipanelMultiSynchrpParameters, eventdata, handles);
+
      case 'radiobuttonManual'
         set(handles.radiobuttonAutomaticRecogniction,'Enable','off');
         set(handles.radiobuttonManualRecogniction,'Enable','off');
@@ -2245,6 +2252,7 @@ set(handles.popupmenu_zeta,'Enable',value);
 
 function enable_MultiSynchro(value,handles)
 
+
 % Objects from the DTW panel
 set(handles.listboxAsynchronisms,'Enable',value);
 set(handles.editFraction,'Enable',value);
@@ -2258,6 +2266,12 @@ set(handles.radiobuttonManual,'Enable',value);
 set(handles.radiobuttonPCsAutomatic,'Enable',value);
 set(handles.radiobuttonPCsManual,'Enable',value);
 set(handles.editMaxIterMultiSynchro,'Enable',value);
+set(handles.radiobuttonAutomaticRecogniction,'Enable',value);
+set(handles.radiobuttonManualRecogniction,'Enable',value);
+set(handles.radiobuttonAutomatic,'Enable',value);
+set(handles.radiobuttonManual,'Enable',value);
+
+
 
 if strcmp('on',value) && get(handles.radiobuttonPCsAutomatic,'Value')
     set(handles.editPcs,'Enable',value);
