@@ -74,8 +74,8 @@ set(handles.figure1, 'pointer', 'watch')
 drawnow;
 handles.rng_variables = 1:min(9,length(handles.VariableslbIn));
 vars = handles.VariableslbIn(handles.rng_variables);
-if length(handles.s_screening.batch_data) > 0
-    [handles.auxx, handles.test] = prepareData(handles.s_screening.batch_data,handles.selectedBatch,handles.BatcheslbIn,vars);
+if length(handles.s_screening.data) > 0
+    [handles.auxx, handles.test] = prepareData(handles.s_screening.data,handles.selectedBatch,handles.BatcheslbIn,vars);
     handles.handles_subplots=plot3D_batchtools(handles.auxx,handles.test,vars,handles.s_screening.varNames,handles.uipanelPlots);
 else
     errodlg('The data set selected is empty','!!Error!!');
@@ -432,16 +432,14 @@ if pos == 1
     errordlg('No batch backward is available','File Error'); return;
 else
     handles.selectedBatch = handles.BatcheslbIn(pos-1);
-    set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
 end
 
-for z=1:size(handles.s_screening.batch_data(1).data,2)
-    for j=3:size(handles.auxx{1}.data{z},2);
-        plot(handles.handles_subplots(j-2),handles.auxx{pos}.data{z}(:,1),handles.auxx{pos}.data{z}(:,j),'-','Color',[0.466667 0.533333 0.68],'LineWidth',1);
-        plot(handles.handles_subplots(j-2),handles.auxx{pos-1}.data{z}(:,1),handles.auxx{pos-1}.data{z}(:,j),'r-','LineWidth',1);
-    end
+for j=1:size(handles.auxx{1},2)
+    plot(handles.handles_subplots(j),handles.auxx{pos}(:,j),'-','Color',[0.466667 0.533333 0.68],'LineWidth',1);
+    plot(handles.handles_subplots(j),handles.auxx{pos-1}(:,j),'r-','LineWidth',1);
 end
 
+set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
 % Update handles structure
 guidata(hObject, handles);
 
@@ -456,17 +454,15 @@ pos = find(handles.BatcheslbIn == handles.selectedBatch);
 if pos == numel(handles.BatcheslbIn), errordlg('No batch forward is available','File Error'); return
 else
     handles.selectedBatch = handles.BatcheslbIn(pos+1);
-    set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
-end
-
-for z=1:size(handles.s_screening.batch_data(1).data,2)
-    for j=3:size(handles.auxx{1}.data{z},2);
-        plot(handles.handles_subplots(j-2),handles.auxx{pos}.data{z}(:,1),handles.auxx{pos}.data{z}(:,j),'-','Color',[0.466667 0.533333 0.68],'LineWidth',1);
-        plot(handles.handles_subplots(j-2),handles.auxx{pos+1}.data{z}(:,1),handles.auxx{pos+1}.data{z}(:,j),'r-','LineWidth',1);
-    end
 end
 
 
+for j=1:size(handles.auxx{1},2)
+    plot(handles.handles_subplots(j),handles.auxx{pos}(:,j),'-','Color',[0.466667 0.533333 0.68],'LineWidth',1);
+    plot(handles.handles_subplots(j),handles.auxx{pos+1}(:,j),'r-','LineWidth',1);
+end
+
+set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
 
 % Update handles structure
 guidata(hObject, handles);
@@ -529,7 +525,7 @@ else
     handles.rng_variables = (handles.current_plot_window-1)*9+1:min(handles.current_plot_window*9,numel(handles.VariableslbIn));
 end
     
-[handles.auxx handles.test] = prepareData(handles.s_screening.batch_data,handles.selectedBatch,handles.BatcheslbIn,handles.VariableslbIn(handles.rng_variables));
+[handles.auxx handles.test] = prepareData(handles.s_screening.data,handles.selectedBatch,handles.BatcheslbIn,handles.VariableslbIn(handles.rng_variables));
 delete(handles.handles_subplots);
 handles.handles_subplots=plot3D_batchtools(handles.auxx,handles.test,handles.VariableslbIn(handles.rng_variables),handles.s_screening.varNames,handles.uipanelPlots);
 set(handles.e_variables,'String',[num2str(handles.rng_variables(1)) '-' num2str(handles.rng_variables(end)) '/' num2str(max(9,length(handles.VariableslbIn)))]);
@@ -557,7 +553,7 @@ else
     handles.rng_variables = (handles.current_plot_window-1)*9+1:handles.current_plot_window*9;
 end
     
-[handles.auxx handles.test] = prepareData(handles.s_screening.batch_data,handles.selectedBatch,handles.BatcheslbIn,handles.VariableslbIn(handles.rng_variables));
+[handles.auxx handles.test] = prepareData(handles.s_screening.data,handles.selectedBatch,handles.BatcheslbIn,handles.VariableslbIn(handles.rng_variables));
 delete(handles.handles_subplots);
 handles.handles_subplots=plot3D_batchtools(handles.auxx,handles.test,handles.VariableslbIn(handles.rng_variables),handles.s_screening.varNames,handles.uipanelPlots);
 set(handles.e_variables,'String',[num2str(handles.rng_variables(1)) '-' num2str(handles.rng_variables(end)) '/' num2str(max(9,length(handles.VariableslbIn)))]);
@@ -580,7 +576,7 @@ function pb_Apply_Callback(hObject, eventdata, handles)
 
 handles.rng_variables = handles.VariableslbInprev;
 handles.ParentFigure.varNames = handles.ParentFigure.s_screening.varNames(handles.rng_variables,:);
-handles.ParentFigure.x = prepareData(handles.s_screening.batch_data,handles.selectedBatch,handles.BatcheslbIn,handles.rng_variables)';
+handles.ParentFigure.x = prepareData(handles.s_screening.data,handles.selectedBatch,handles.BatcheslbIn,handles.rng_variables)';
 
 %% Section to impute missing values in the batch trajectories if exist
 
@@ -588,7 +584,7 @@ handles.ParentFigure.x = prepareData(handles.s_screening.batch_data,handles.sele
 md = zeros(length(handles.ParentFigure.x),1);
 
 for i=1:length(handles.ParentFigure.x)
-    if numel(find(isnan(handles.ParentFigure.x{i}.data{1,1}(:,3:end))))>0, md(i)=1; end
+    if numel(find(isnan(handles.ParentFigure.x{i})))>0, md(i)=1; end
 end
     
 % Save information related to the unit, process variables and batches
@@ -653,7 +649,7 @@ handles.current_plot_window = 1;
 set(handles.e_variables,'String',['1-' num2str(min(9,length(handles.VariableslbIn))) '/' num2str(numel(handles.VariableslbIn))]);
 
 handles.rng_variables = 1:min(9,length(handles.VariableslbIn));
-[handles.auxx handles.test] = prepareData(handles.s_screening.batch_data,handles.selectedBatch,handles.BatcheslbIn,handles.VariableslbIn(handles.rng_variables));
+[handles.auxx handles.test] = prepareData(handles.s_screening.data,handles.selectedBatch,handles.BatcheslbIn,handles.VariableslbIn(handles.rng_variables));
 handles.handles_subplots=plot3D_batchtools(handles.auxx,handles.test,handles.VariableslbIn(handles.rng_variables),handles.s_screening.varNames,handles.uipanelPlots);
 
 set(handles.figure1, 'pointer', 'arrow')
@@ -729,118 +725,91 @@ function uipushtool_open_ClickedCallback(hObject, eventdata, handles)
 
 function [x,test] = prepareData(xtest,ybatch,obs,vars)
 
-s = size(xtest);
-x = cell(size(obs,1),1); 
-counterb = 0;
-test{1} = struct('data',[]);
-for k=1:numel(obs), % batches
-    i = obs(k);
-    x{counterb+1} = struct('data',cell(size(xtest(i).data,2),1));
-    for j=1:size(xtest(i).data,2) % sampling frequencies
-        %x{counterb+1}.data{j} = [];
-        if ~isempty(find(obs==i)),counterb = counterb + 1; x{counterb}.data{j} = xtest(i).data{j}(:,1:2);
-        else
-        break;    
-        end
-        if ybatch == i, test{1}.data{j} = xtest(i).data{j}(:,1:2); end
-        for z=1:size(xtest(i).data{j},2)-2 % variables
-            [auxv, auxpos] = find(vars' == z);
-            if ~isempty(auxv)
-                 if ~isempty(find(obs==i))
-                    x{counterb}.data{j} = [x{counterb}.data{j} xtest(i).data{j}(:,2+vars(auxpos))];
-                 end
-                 if ybatch == i
-                    test{1}.data{j} = [test{1}.data{j} xtest(i).data{j}(:,2+vars(auxpos))];
-                 end
-            end
-        end
-    end 
-end
+test = xtest{ybatch}(:,vars);
+x = xtest(obs);
 
+for i=1:length(x)
+   x{i} = x{i}(:,vars); 
+end
 
 function handles = Initialize_visualization(handles)
 
-%     if ~iscell(handles.s_screening.batch_data)
-%         handles.nBatches = size(handles.s_screening.batch_data,3);
-%     else
-        handles.nBatches = size(handles.s_screening.batch_data,1);
-%     end
-    for i=1:handles.nBatches, handles.nBatchesID(i,1) = size(handles.s_screening.batch_data,1);end
+handles.nBatches = size(handles.s_screening.data,1);
 
-if handles.ParentFigure.track(2) == 0 
-
+if handles.ParentFigure.track(2) == 0
+    
     % Setting the variables for the number of batches
     handles.BatchesIn = ones(handles.nBatches,1);
-
+    
     % Number of process variables
     handles.nVariables = size(handles.s_screening.varNames,1);
-    handles.VariablesIn = ones(handles.nVariables,1);   
-else 
+    handles.VariablesIn = ones(handles.nVariables,1);
+else
     % When a dataset is already set in the system, the window will only
     % show the unit, process variables and batches selected previously.
     
     % Setting the variables for the number of batches
     handles.BatchesIn = handles.ParentFigure.dataset.BatchesIn;
-
+    
     % Number of process variables
     handles.VariablesIn = handles.ParentFigure.dataset.VariablesIn;
 end
 
-    % Setting the variables for the number of batches
-    handles.BatcheslbIn = find(handles.BatchesIn==1); handles.BatcheslbInprev = handles.BatcheslbIn;
-    handles.BatcheslbOut = [];
+% Setting the variables for the number of batches
+handles.BatcheslbIn = find(handles.BatchesIn==1); handles.BatcheslbInprev = handles.BatcheslbIn;
+handles.BatcheslbOut = [];
 
-    % Number of process variables
-    handles.nVariables = size(handles.s_screening.varNames,1);
-    handles.VariableslbIn = find(handles.VariablesIn==1); handles.VariableslbInprev = handles.VariableslbIn;
-    handles.VariableslbOut = find(handles.VariablesIn==0);
+% Number of process variables
+handles.nVariables = size(handles.s_screening.varNames,1);
+handles.VariableslbIn = find(handles.VariablesIn==1); handles.VariableslbInprev = handles.VariableslbIn;
+handles.VariableslbOut = find(handles.VariablesIn==0);
 
-    % Creating the variables to track the selected and unselected process
-    % variables and batches
-    handles.selectedVariablesOut = [];
-    if ~isempty(handles.VariableslbOut), handles.selectedVariablesOut=1;end
-    handles.selectedVariablesIn = 1;
-    handles.selectedBatchesOut = [];
-    handles.selectedBatchesIn = 1;    
+% Creating the variables to track the selected and unselected process
+% variables and batches
+handles.selectedVariablesOut = [];
+if ~isempty(handles.VariableslbOut), handles.selectedVariablesOut=1;end
+handles.selectedVariablesIn = 1;
+handles.selectedBatchesOut = [];
+handles.selectedBatchesIn = 1;
 
-    % Cleaning the list menus of the GUI
-    set(handles.lb_VariablesIn,'String',num2str(handles.VariableslbIn));
-    set(handles.lb_VariablesOut,'String',handles.VariableslbOut);
-    set(handles.lb_BatchesIn,'String',handles.BatcheslbIn);
-    set(handles.lb_BatchesOut,'String',handles.BatcheslbOut);
-    
-    % Clean and new setting of the listbox IN
-    set(handles.lb_VariablesIn,'String',' ');
-    set(handles.lb_VariablesIn,'String',handles.s_screening.varNames(find(handles.VariablesIn==1),1));
-    % Clean and new setting of the listbox OUT
-    set(handles.lb_VariablesOut,'String',' ');
-    set(handles.lb_VariablesOut,'String',handles.s_screening.varNames(find(handles.VariablesIn==0),1));
+% Cleaning the list menus of the GUI
+set(handles.lb_VariablesIn,'String',num2str(handles.VariableslbIn));
+set(handles.lb_VariablesOut,'String',handles.VariableslbOut);
+set(handles.lb_BatchesIn,'String',handles.BatcheslbIn);
+set(handles.lb_BatchesOut,'String',handles.BatcheslbOut);
 
-    % Clean and new setting of the listbox IN
-    set(handles.lb_BatchesIn,'String',' ');
-    set(handles.lb_BatchesIn,'String',handles.s_screening.batchNames(find(handles.BatchesIn==1),1));
+% Clean and new setting of the listbox IN
+set(handles.lb_VariablesIn,'String',' ');
+set(handles.lb_VariablesIn,'String',handles.s_screening.varNames(find(handles.VariablesIn==1),1));
+% Clean and new setting of the listbox OUT
+set(handles.lb_VariablesOut,'String',' ');
+set(handles.lb_VariablesOut,'String',handles.s_screening.varNames(find(handles.VariablesIn==0),1));
 
-    % Clean and new setting of the listbox OUT
-    set(handles.lb_BatchesOut,'String',' ');
-    set(handles.lb_BatchesOut,'String',handles.s_screening.batchNames(find(handles.BatchesIn==0),1));
+% Clean and new setting of the listbox IN
+set(handles.lb_BatchesIn,'String',' ');
+set(handles.lb_BatchesIn,'String',handles.s_screening.batchNames(find(handles.BatchesIn==1),1));
 
-    set(handles.lb_BatchesIn,'Value',1);
-    set(handles.lb_BatchesOut,'Value',1);
-    set(handles.lb_VariablesIn,'Value',1);
-    set(handles.lb_VariablesOut,'Value',1);
-    
-    % Put the first batch of the list to plot
-    set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
-    % Set the parameter of the number of plots windows in the GUI
-    set(handles.e_variables,'String',['1-' num2str(min(9,length(handles.VariableslbIn))) '/' num2str(max(9,length(handles.VariableslbIn)))]);
+% Clean and new setting of the listbox OUT
+set(handles.lb_BatchesOut,'String',' ');
+set(handles.lb_BatchesOut,'String',handles.s_screening.batchNames(find(handles.BatchesIn==0),1));
 
-    %Selected batch        
-    handles.selectedBatch = handles.BatcheslbIn(1);
-    
+set(handles.lb_BatchesIn,'Value',1);
+set(handles.lb_BatchesOut,'Value',1);
+set(handles.lb_VariablesIn,'Value',1);
+set(handles.lb_VariablesOut,'Value',1);
+
+% Put the first batch of the list to plot
+set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
+% Set the parameter of the number of plots windows in the GUI
+set(handles.e_variables,'String',['1-' num2str(min(9,length(handles.VariableslbIn))) '/' num2str(max(9,length(handles.VariableslbIn)))]);
+
+%Selected batch
+handles.selectedBatch = handles.BatcheslbIn(1);
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Setting the number of plots windows
-    handles.n_plots_windows=ceil(handles.nVariables/9);
-    handles.current_plot_window = 1;
+% Setting the number of plots windows
+handles.n_plots_windows=ceil(handles.nVariables/9);
+handles.current_plot_window = 1;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -851,3 +820,112 @@ function pushbuttonClose_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 delete(handles.figure1);
+
+function  [varargout] = plot3D_batchtools(x,test,vars,varNames,uipanelPlots)
+
+% Plots 3-way batch data for each process variable in the layout of the GUI. 
+%
+% CALLS:
+%
+% hnd = plot3D_batchtools(x,test,vars)                        % minimum call
+% hnd = plot3D_batchtools(x,test,vars,varNames,uipanelPlots)  % complete call 
+%
+% INPUTS:
+%
+% x: (Ix1) cell array contains I batches measured at Ki different sampling
+% intervals for J process variables. 
+%
+% test: (KxJ) three-way batch data matrix for test, K(sampling times) 
+%       x J(variables)
+%
+% vars: (nx1) vector with indices of the process variables to plot. 
+%
+% varNames: (Jx3) cell array with the tagnames of the process variables:
+% 1st column: variable name, 2nd column: x label, and 3rd column: y label.
+%
+% uipanelPlots: (1x1) handle to the figure.
+%
+%
+% OUTPUTS:
+%
+% varargout: (1x1) handle to the figure.
+%
+% coded by: José M. González-Martínez (jogonmar@gmail.com)       
+% last modification: Aug/14.
+%
+% Copyright (C) 2016  Technical University of Valencia, Valencia
+% Copyright (C) 2016  José M. González-Martínez
+% 
+% This program is free software: you can redistribute it and/or modify
+% it under the terms of the GNU General Public License as published by
+% the Free Software Foundation, either version 3 of the License, or
+% (at your option) any later version.
+% 
+% This program is distributed in the hope that it will be useful,
+% but WITHOUT ANY WARRANTY; without even the implied warranty of
+% MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+% GNU General Public License for more details.
+% 
+% You should have received a copy of the GNU General Public License
+% along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+% Parameters checking
+if nargin < 3, error('Error in the number of arguments.'); end;
+if ~isvector(vars), error('Incorrect type of data structure for vars.');end
+sv = numel(vars);
+if nargin < 4, varNames = repmat({'Variable ','Sampling point','Units'},sv,1); end
+if nargin < 5, uipanelPlots = figure; end
+
+if sv >4 
+    columns = 3;
+    rows = 3;
+elseif sv >=3 && sv <=4
+    columns = 2;
+    rows = 2;
+elseif sv ==2
+    columns = 1;
+    rows = 2;
+else
+    columns = 1;
+    rows = 1;
+end
+    
+ max_var = rows*columns;
+
+% Computation
+s2=size(vars);
+
+indj = 1:min(s2(1),max_var);
+lenj = length(indj);
+hnd = zeros(lenj,1);
+
+for j=1:lenj,
+    hnd(j) = subplot(rows,columns,j, 'Parent',uipanelPlots);
+    cla reset
+    hold on
+    for i=1:length(x),
+  
+            maxy = nanmax(x{1}(:,indj(j)));
+            miny = nanmin(x{1}(:,indj(j)));
+            maxk = Inf;
+            plot(x{i}(:,indj(j)),'b-','Color',[0.466667 0.533333 0.68],'LineWidth',1); hold on;
+            plot(test(:,indj(j)),'r-','LineWidth',1);
+            maxy = nanmax(nanmax(x{1}(:,indj(j))),maxy);
+            miny = nanmin(nanmin(x{1}(:,indj(j))),miny);
+            maxk = nanmax(maxk,size(x{1},1));
+        
+    end
+    title(varNames(vars(indj(j)),1),'fontweight','b');
+    xlabel(varNames(vars(indj(j)),2));
+    ylabel(varNames(vars(indj(j)),3));
+    if miny==maxy, axis([1 maxk miny-1 maxy+1]);
+    else
+        if ~isnan(miny) && ~isnan(maxy), axis([1 maxk miny maxy]); end
+    end
+axis tight
+end
+
+if nargout>0,   
+    varargout{1} = hnd;
+end
+

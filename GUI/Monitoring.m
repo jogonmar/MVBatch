@@ -819,8 +819,8 @@ eq = 0;
 
 if ~isequal(filename,0)
     try 
-       aux = load(strcat(pathname,filename), 'test');
-       xtest = aux.test;
+       aux = load(strcat(pathname,filename),'data');
+       xtest = aux.data;
     catch 
         % Give more information for mismatch.
         errordlg('An expected problem trying to load the test set from the selected file has occurred.');
@@ -832,40 +832,19 @@ end
 if isvector(xtest) && size(xtest,1)>0
     x = cell(size(xtest,1),1);
     for j=1:size(xtest,1)
-        if size(xtest(j).data,1) ~=  size(handles.ParentFigure.s_screening.batch_data(1,1).data,1)
-            errordlg('The batches of the test set do not have the same frequency sampling as the calibration data set');
+        if size(xtest{j},2)~=size(handles.ParentFigure.s_screening.data{1,1},2)
+            errordlg('The test data set does not contain the same number of variables with common sampling frequency as the calibration data set.');
             return;
         end
-     
-        for z=1:size(xtest(j).data,2)
-            if size(xtest(j).data{z},2)~=size(handles.ParentFigure.s_screening.batch_data(1,1).data{z},2)
-                errordlg('The test data set does not contain the same number of variables with common sampling frequency as the calibration data set.');
-                return;
-            end
-        end
-        
-        if size(xtest(j).data,1) == 1
-            varsIn = find(handles.ParentFigure.dataset.VariablesIn==1); 
-            x{j} = xtest(j).data{1,1}(:,varsIn+ones(size(varsIn)).*2);
-        else
-            eq=1;
-        end
+
     end
 else
    errordlg('Recall that the variable trajectories must be contained in a Matlab column-wise cell array.'); 
 end
-
-if eq
-    x = arrange2D(xtest,handles.ParentFigure.s_alignment.equalization.inter,handles.ParentFigure.s_alignment.equalization.units,handles.ParentFigure.s_alignment.equalization.method_interp);
-    varsIn = find(handles.ParentFigure.dataset.VariablesIn==1);
-    for i=1:length(x),
-        x{i} =  x(:,varsIn+ones(size(varsIn)).*2);
-    end
-end
    
-handles.calibration.test = [handles.calibration.test; {x}];
+handles.calibration.test = [handles.calibration.test; {xtest}];
 
-handles.calibration.test_batch = x{1};
+handles.calibration.test_batch = xtest{1};
 
 contents = strvcat(get(handles.popupmenuVar,'String'),filename); 
 set(handles.popupmenuVar,'String',contents); 
@@ -949,7 +928,7 @@ function hTagsCallback(hObject, eventdata, tagnames)
 % Callback function run when the Update button is pressed
 
 hLine = get(gca,'Children');
-gname(tagnames,hLine);
+gname(tagnames,hLine(end));
 
 function VisualizeVariablesCallback(hObject,eventdata,xini,test,av,tagnames)
 
@@ -977,7 +956,7 @@ if versionMatlab < 2015
     end
 else
     hLine = get(gca,'Children');
-    selection = logical(hLine.BrushData);
+    selection = logical(hLine(end).BrushData);
     if numel(find(selection)) == 0
         errordlg('No variable has been selected, please select a variable and try again.','Error')
         return

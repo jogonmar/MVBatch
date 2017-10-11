@@ -204,10 +204,11 @@ if ~isequal(filename,0)
     end
     
     try 
-       S = load(strcat(pathname,filename), 'calibration');
+       load(strcat(pathname,filename));
+       handles.s_screening.data = data;
+       handles.s_screening.varNames = varNames;
+       handles.s_screening.batchNames = batchNames;
        
-       
-       handles.s_screening = S.calibration;
     catch err
         % Give more information for mismatch.
         errordlg('An expected problem trying to load the structure ''calibration'' from the selected file has occurred');
@@ -272,7 +273,7 @@ if ~isequal(file, 0)
     end
     switch numel(find(track==1))
         case 1
-            handles.data = dataStruct.data;
+            handles.x = dataStruct.data;
             set(handles.pbLoad,'Enable','on');
             set(handles.pbCleaning,'Enable','on');
             set(handles.pbAlignment,'Enable','off');
@@ -283,7 +284,7 @@ if ~isequal(file, 0)
             axis off;
             axis image;
         case 2
-            handles.data = dataStruct.data;
+            handles.x = dataStruct.data;
             handles.s_screening = dataStruct.s_screening;
             set(handles.pbLoad,'Enable','on');
             set(handles.pbCleaning,'Enable','on');
@@ -295,7 +296,7 @@ if ~isequal(file, 0)
             axis off;
             axis image;
         case 3
-            handles.data = dataStruct.data;
+            handles.x = dataStruct.data;
             handles.s_screening = dataStruct.s_screening;
             handles.s_alignment = dataStruct.s_alignment;
             set(handles.pbLoad,'Enable','on');
@@ -308,7 +309,7 @@ if ~isequal(file, 0)
             axis off;
             axis image;
         case 4
-            handles.data = dataStruct.data;
+            handles.x = dataStruct.data;
             handles.s_screening = dataStruct.s_screening;
             handles.s_alignment = dataStruct.s_alignment;
             handles.s_calibration = dataStruct.s_calibration;
@@ -322,7 +323,7 @@ if ~isequal(file, 0)
             axis off;
             axis image;
         case 5
-            handles.data = dataStruct.data;
+            handles.x = dataStruct.data;
             handles.s_screening = dataStruct.s_screening;
             handles.s_alignment = dataStruct.s_alignment;
             handles.s_calibration = dataStruct.s_calibration;
@@ -360,21 +361,21 @@ end
 if ~isequal(file, 0)
     switch numel(find(handles.track==1))
         case 1
-            dataStruct.data = handles.data;
+            dataStruct.data = handles.x;
         case 2
-            dataStruct.data = handles.data;
+            dataStruct.data = handles.x;
             dataStruct.s_screening = handles.s_screening;
         case 3
-            dataStruct.data = handles.data;
+            dataStruct.data = handles.x;
             dataStruct.s_screening = handles.s_screening;
             dataStruct.s_alignment = handles.s_alignment;
         case 4
-            dataStruct.data = handles.data;
+            dataStruct.data = handles.x;
             dataStruct.s_screening = handles.s_screening;
             dataStruct.s_alignment = handles.s_alignment;
             dataStruct.s_calibration = handles.s_calibration;
         case 5
-            dataStruct.data = handles.data;
+            dataStruct.data = handles.x;
             dataStruct.s_screening = handles.s_screening;
             dataStruct.s_alignment = handles.s_alignment;
             dataStruct.s_calibration = handles.s_calibration;
@@ -387,25 +388,3 @@ if ~isequal(file, 0)
         eval(['save ''' fullfile(pathname, file) ''' dataStruct track dataset']);
 end
 
-
-
-function edit1_Callback(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit1 as text
-%        str2double(get(hObject,'String')) returns contents of edit1 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit1_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end

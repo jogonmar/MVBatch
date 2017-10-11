@@ -67,62 +67,39 @@ handles.SynStage = 0;
 % TO DO: identify the number of phases from variable #1
 handles.Stage2Syn = 1;
 
-handles.data.type=0;
-if iscell(handles.data.x),
-    sb=size(handles.data.x);
-    sd = size(handles.data.x{1}.data);
-    if sb(2)>1 && sb(1)==1 && sd(1)>1
-        handles.data.type=1;
-    elseif sb(2)>1 && sb(1)==1 && sd(1)==1
-        for i=1:sb(2)
-             handles.data.synchronization{handles.Stage2Syn}.nor_batches{i} = handles.data.x{i}.data{1}(:,3:end);
-        end
-        handles.data.stages = numel(unique(handles.data.x{1}.data{1}(find(~isnan(handles.data.x{1}.data{1}(:,2))),2)));
-        handles.data.type=2;
-    end
+for i=1:length(handles.data.x)
+    handles.data.synchronization{handles.Stage2Syn}.nor_batches{i} = handles.data.x{i};
 end
+handles.data.stages = 1;
 
-switch handles.data.type,
-    case 1,
-        enable_EQ('on',handles);
-    case 2,
-        % Clean the fields and disable the panels corresponding to the
-        % other methods (DTW, RGTW), including SCT panel
-        enable_DTW('off',handles)
-        enable_RGTW('off',handles)
-        enable_SCT('off',handles)
-        enable_MultiSynchro('off',handles)
-        % Disable the equalization panel
-        enable_EQ('off',handles);
-        % Enable the fields of the form corresponding to the IV
-        enable_IV('on',handles);    
-        set(handles.popupmenu_alg,'Value',1);
-        %set(handles.lbUnsyn,'String','');
-%         for st=1:length(handles.data.stages)
-%             content = get(handles.lbUnsyn,'String');
-%             set(handles.lbUnsyn,'String',strvcat(content,num2str(handles.data.stages(st))));
-%         end
-        set(handles.radiobuttonPlotResults,'Enable','on');
-        set(handles.text_syn_method,'Enable','on');
-        set(handles.popupmenu_alg,'Enable','on');
-        set(handles.uib_equalize,'Enable','off');
-        set(handles.uib_synchronize,'Enable','on');
-        % Create arrays of structures for synchronization based on stage by stage
-        %handles.data.synchronization{1}= struct;
-        % Create array of flags to determine the stages that have been
-        % already synchronized (by default 0 since no stage option is set)
-        handles.flagStagesSyn(1) = 0;
-        handles.SynStage = false;
-        % If there is only a stage, disable the option stages
-        %if numel(handles.data.stages)==1, set(handles.radiobuttonStages,'Enable','off'); end
-        % initialize parameters for IV-based synchronization
-        handles.data.synchronization{handles.Stage2Syn}.var = 1;
-        handles.data.synchronization{handles.Stage2Syn}.method = 'linear';
-        handles.data.synchronization{handles.Stage2Syn}.steps = 100;
+
+% Clean the fields and disable the panels corresponding to the
+% other methods (DTW, RGTW), including SCT panel
+enable_DTW('off',handles)
+enable_RGTW('off',handles)
+enable_SCT('off',handles)
+enable_MultiSynchro('off',handles)
+% Enable the fields of the form corresponding to the IV
+enable_IV('on',handles);
+set(handles.popupmenu_alg,'Value',1);
+set(handles.radiobuttonPlotResults,'Enable','on');
+set(handles.text_syn_method,'Enable','on');
+set(handles.popupmenu_alg,'Enable','on');
+set(handles.uib_synchronize,'Enable','on');
+% Create arrays of structures for synchronization based on stage by stage
+%handles.data.synchronization{1}= struct;
+% Create array of flags to determine the stages that have been
+% already synchronized (by default 0 since no stage option is set)
+handles.flagStagesSyn(1) = 0;
+handles.SynStage = false;
+% If there is only a stage, disable the option stages
+%if numel(handles.data.stages)==1, set(handles.radiobuttonStages,'Enable','off'); end
+% initialize parameters for IV-based synchronization
+handles.data.synchronization{handles.Stage2Syn}.var = 1;
+handles.data.synchronization{handles.Stage2Syn}.method = 'linear';
+handles.data.synchronization{handles.Stage2Syn}.steps = 100;
         
-    otherwise,
-        error('Incorrect input data structure.'); 
-end
+
 
 % Set IV the synchronization by default for the first stage
 handles.data.synchronization{1}.methodsyn = 'iv';
@@ -158,125 +135,21 @@ varargout{1} = handles;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%  STRUCTURE
 %% 
-%%  1.- GUI PANEL for DATA INTERPOLATION
-%%  2.- SELECTION OF THE APPROACH FOR BATCH SYNCHRONIZATION
-%%  3.- GUI PANEL for IV
-%%  4.- GUI PANEL for Common parameters of SCT-based methods
-%%  5.- GUI PANEL for DTW
-%%  6.- GUI PANEL for RGTW
-%%  7.- FUNCTIONS TO EQUALIZE AND SYNCHRONIZE BATCH DATA
-%%  8.- FUNCTIONS TO CONTROL THE WHOLE GUI
-%%  9.- FUNCTION TO MOVE ON THE NEXT MODELING STEP
-%%  10.- GUI PANEL for Multi-synchro
-%%  11.- MISCELLANEOUS
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                   1.- GUI PANEL for DATA INTERPOLATION
+%%  1.- SELECTION OF THE APPROACH FOR BATCH SYNCHRONIZATION
+%%  2.- GUI PANEL for IV
+%%  3.- GUI PANEL for Common parameters of SCT-based methods
+%%  4.- GUI PANEL for DTW
+%%  5.- GUI PANEL for RGTW
+%%  6.- FUNCTIONS TO EQUALIZE AND SYNCHRONIZE BATCH DATA
+%%  7.- FUNCTIONS TO CONTROL THE WHOLE GUI
+%%  8.- FUNCTION TO MOVE ON THE NEXT MODELING STEP
+%%  9.- GUI PANEL for Multi-synchro
+%%  10.- MISCELLANEOUS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-function edit_units_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_units (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_units as text
-%        str2double(get(hObject,'String')) returns contents of edit_units as a double
-
-handles.data.equalization.units = str2num(get(hObject,'String'));
-guidata(hObject,handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_units_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_units (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-edit_units_Callback(hObject, eventdata, handles)
-% --- Executes on selection change in popupmenu_interp.
-function popupmenu_interp_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu_interp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu_interp contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu_interp
-
-contents = get(hObject,'String');
-txt=contents{get(hObject,'Value')};
- 
-switch txt,
-    case ' Nearest Neighbor',
-        method = 'nearest';
-    case ' Linear',
-        method = 'linear';
-    case ' Spline',
-        method = 'spline';
-    case ' Cubic',
-        method = 'cubic';
-    case ' V5cubic',
-        method = 'v5cubic';
-end
-        
-handles.data.equalization.method_interp = method;
-guidata(hObject,handles);
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu_interp_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu_interp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-set(hObject,'Value',2);
-popupmenu_interp_Callback(hObject, eventdata, handles)
-
-
-% --- Executes on selection change in popupmenu_inter.
-function popupmenu_inter_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu_inter (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = get(hObject,'String') returns popupmenu_inter contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu_inter
-     
-handles.data.equalization.inter = get(hObject,'Value')-1;
-guidata(hObject,handles);
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu_inter_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu_inter (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-set(hObject,'Value',2);
-
-popupmenu_inter_Callback(hObject, eventdata, handles)
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                         2.- SELECTION OF THE APPROACH FOR BATCH SYNCHRONIZATION
+%%                                                         1.- SELECTION OF THE APPROACH FOR BATCH SYNCHRONIZATION
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -390,8 +263,7 @@ switch txt
         set(handles.uipu_DTW_Reference,'Value',1);
         set(handles.uite_DTW_Reference,'Enable','off');
         set(handles.uite_DTW_Reference,'String',' ');
-         cprintMV(handles.uite_DTW_Window,[],[],-1);
-%         set(handles.uite_DTW_Window,'String',' ');
+        cprintMV(handles.uite_DTW_Window,[],[],-1);
         set(handles.editConstraintVariables,'String',num2str(zeros(1,nVariables)));
         
         % Setting parameters to apply Multi-synchro
@@ -477,20 +349,10 @@ else
 end    
 
 if value 
-    %set(handles.lbUnsyn,'Enable','on');
-    %set(handles.lbSyn,'Enable','on');
-    %set(handles.lbSyn,'String','');
-    %set(handles.lbUnsyn,'String','');
-%     for st=1:length(handles.data.stages)
-%         content = get(handles.lbUnsyn,'String');
-%         set(handles.lbUnsyn,'String',strvcat(content,num2str(handles.data.stages(st))));
-%     end
     handles.SynStage = 1;
     handles.Stage2Syn = 1;
     
 else
-    %set(handles.lbUnsyn,'Enable','off');
-    %set(handles.lbSyn,'Enable','off'); 
     handles.SynStage = 0;
 end
 
@@ -560,7 +422,7 @@ guidata(hObject,handles);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                   3.- GUI PANEL for IV
+%%                                                                   2.- GUI PANEL for IV
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % --- Executes on selection change in popupmenu_method.
@@ -660,7 +522,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                  4.- GUI PANEL for Common parameters of SCT-based methods
+%%                                                  3.- GUI PANEL for Common parameters of SCT-based methods
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -800,7 +662,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                     5.- GUI PANEL for DTW
+%%                                                                     4.- GUI PANEL for DTW
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -954,7 +816,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                     6- GUI PANEL for RGTW
+%%                                                                     5- GUI PANEL for RGTW
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 function uite_DTW_Window_Callback(hObject, eventdata, handles)
@@ -1159,13 +1021,8 @@ function uib_RGTW_Callback(hObject, eventdata, handles)
 for l=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)
     [Sn,warp(:,l)] = onSyn(handles.data.synchronization{handles.Stage2Syn}.nor_batches{l},Bref, handles.data.synchronization{handles.Stage2Syn}.band,diag(handles.data.synchronization{handles.Stage2Syn}.W), handles.data.synchronization{handles.Stage2Syn}.zeta, handles.data.synchronization{handles.Stage2Syn}.rng);
     st = size(Sn);
-%    xrec = reconstructX([warp(1:st(1),l) Sn],t,p,pcs,M,Sstd);
-%    handles.data.synchronization{handles.Stage2Syn}.warp(:,l) = [warp(1:st(1),l); xrec(st(1)+1:end,1)];
-%    handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,l) = [handles.data.synchronization{handles.Stage2Syn}.warp(:,l) [Sn(1:st(1),:); xrec(st(1)+1:end,2:end)]];
     handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,l) = [handles.data.synchronization{handles.Stage2Syn}.warp(:,l) [Sn; repmat(Sn(st(1),:), sr(1)-st(1),1)]];
 end
-
- %handles.data.synchronization{handles.Stage2Syn}.warp = warp;
 
 if get(handles.radiobuttonPlotResults,'Value')
     plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches);
@@ -1179,18 +1036,12 @@ handles.flagStagesSyn(handles.Stage2Syn) = 1;
 if handles.SynStage
     % Remove the stage from the pending one to be synchronized and add it
     % to the list of the stages already synchronized.
-    %set(handles.lbUnsyn,'String','');
-    %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
-
-    %set(handles.lbSyn,'String','');
-    %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
 
     if isempty(find(handles.flagStagesSyn==0))
         set(handles.pushbuttonApply,'Enable','on');
         guidata(hObject, handles);
     else
         handles.Stage2Syn = handles.data.stages(find(handles.flagStagesSyn==0,1,'first'));
-        %handles.StageSyn = handles.data.stages(find(handles.flagStagesSyn==1,1,'first'));
         % Disabling the objects from the RGTW panel
         enable_RGTW('off',handles)
         % Set parameters for next stage
@@ -1214,54 +1065,8 @@ end
 guidata(hObject, handles);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                             7.- FUNCTIONS TO EQUALIZE AND SYNCHRONIZE BATCH DATA
+%%                                                             6.- FUNCTIONS TO EQUALIZE AND SYNCHRONIZE BATCH DATA
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% --- Executes on button press in uib_equalize.
-function uib_equalize_Callback(hObject, eventdata, handles)
-% hObject    handle to uib_equalize (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-handles.data.synchronization{handles.Stage2Syn}.nor_batches = arrange2D(handles.data.x,handles.data.equalization.inter,handles.data.equalization.units,handles.data.equalization.method_interp);
-for i=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches),
-    handles.data.synchronization{handles.Stage2Syn}.nor_batches{i} =  handles.data.synchronization{handles.Stage2Syn}.nor_batches{i}(:,3:end);
-end
-
-% Enabling some objects of the user interface
-set(handles.text_syn_method,'Enable','on');
-set(handles.popupmenu_alg,'Enable','on');
-set(handles.popupmenu_alg,'Value',1);
-set(handles.uib_synchronize,'Enable','on');
-% Setting the variable of the synchronization method to 'iv' (IV)
-handles.data.synchronization{1}.methodsyn = 'iv';
-
-% Disabling the objects from the SCT panel
-enable_SCT('off',handles)
-% Disabling the objects from the DTW panel
-enable_DTW('off',handles);
-% Enabling the objects from the IV panel
-enable_IV('on',handles);
-% Disabling the objects from the RGTW panel
-enable_RGTW('off',handles)
-% Enabling the objects from the RGTW panel
-enable_MultiSynchro('off',handles);
-handles.data.synchronization{handles.Stage2Syn}.cv = 0;
-set(handles.uib_RGTW,'Enable','off');
-% Removing the information shown in the information window
- cprintMV(handles.uite_DTW_Window,[],[],-1);
-% set(handles.uite_DTW_Window,'String',' ');
-
-% Setting the parameters for IV synchronization
-set(handles.edit_var,'String',1);
-handles.data.synchronization{1}.var = 1;
-set(handles.edit_steps,'String',100);
-handles.data.synchronization{1}.steps = 100;
-set(handles.popupmenu_method,'Value',2);
-handles.data.synchronization{1}.method = 'linear';
-set(handles.radiobutton_cut,'Value',1);
-
-guidata(hObject,handles);
 
 % --- Executes on button press in uib_synchronize.
 function uib_synchronize_Callback(hObject, eventdata, handles)
@@ -1280,12 +1085,6 @@ end
 if ~isfield(handles.data.synchronization{handles.Stage2Syn},'nor_batches')
     handles.data.synchronization{handles.Stage2Syn}.nor_batches = handles.data.x;
 end
-
-% if handles.SynStage
-%     handles.data.synchronization{handles.Stage2Syn}.nor_batches = SplitStage(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.Stage2Syn);
-% else
-%     handles.data.synchronization{handles.Stage2Syn}.nor_batches = SplitStage(handles.data.synchronization{handles.Stage2Syn}.nor_batches);
-% end
     Stage2Syn = handles.Stage2Syn;
 
 
@@ -1401,7 +1200,6 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
                      handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,j+1,i)=alg_batches{i}(:,j).*handles.data.synchronization{handles.Stage2Syn}.rng(j);
                 end
             end
-            %handles.data.dtw.cv = 1;
             
         case 'Select'
             uite_DTW_Weights_Callback(handles.uite_DTW_Weights, eventdata, handles);
@@ -1412,10 +1210,6 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
 
             cprintMV(handles.uite_DTW_Window,'Synchronizing... (classical DTW)',[],0);
             
-%             set(handles.uite_DTW_Window,'String','');
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronizing... (classical DTW)', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), '')); pause(0.01);
-
             warp = zeros(size(X{handles.data.synchronization{handles.Stage2Syn}.Bref},1),length(handles.data.synchronization{handles.Stage2Syn}.nor_batches));
             for i=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)
                 [Syn{i}, warp(:,i),handles.data.synchronization{handles.Stage2Syn}.warpingOri{i}] = DTW(X{i},X{handles.data.synchronization{handles.Stage2Syn}.Bref},diag(handles.data.synchronization{handles.Stage2Syn}.W),0,handles.data.synchronization{handles.Stage2Syn}.Wconstr);
@@ -1432,8 +1226,6 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             end
             
             cprintMV(handles.uite_DTW_Window,'Synchronization finished');
-%             set(handles.uite_DTW_Window,'String',strvcat('Synchronization finished', get(handles.uite_DTW_Window,'String')));
-%             set(handles.uite_DTW_Window,'String',strvcat(get(handles.uite_DTW_Window,'String'), ''));  pause(0.01);      
     end
 
     handles.data.synchronization{handles.Stage2Syn}.maxi = 0; 
@@ -1465,11 +1257,6 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
         if handles.SynStage
             % Remove the stage from the pending one to be synchronized and add it
             % to the list of the stages already synchronized.
-            %set(handles.lbUnsyn,'String','');
-            %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
-
-            %set(handles.lbSyn,'String','');
-            %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
 
             if isempty(find(handles.flagStagesSyn==0))
                 set(handles.pushbuttonApply,'Enable','on');
@@ -1598,13 +1385,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
         % corresponding stage at the Stages vector to know that it has been
         % already synchronized.
         handles.flagStagesSyn(handles.Stage2Syn) = 1;
-    
-        %set(handles.lbUnsyn,'String','');
-        %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
-
-        %set(handles.lbSyn,'String','');
-        %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
-    else
+     else
         handles.flagStagesSyn(1) = 1;
     end
         
@@ -1677,12 +1458,6 @@ elseif strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'iv')
         % corresponding stage at the Stages vector to know that it has been
         % already synchronized.
         handles.flagStagesSyn(handles.Stage2Syn) = 1;
-    
-        %set(handles.lbUnsyn,'String','');
-        %set(handles.lbUnsyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==0))));
-
-        %set(handles.lbSyn,'String','');
-        %set(handles.lbSyn,'String',num2str(handles.data.stages(find(handles.flagStagesSyn==1))));
     else
         handles.flagStagesSyn(1) = 1;
     end
@@ -1708,7 +1483,7 @@ guidata(hObject,handles);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                   8.- FUNCTIONS TO CONTROL THE WHOLE GUI
+%%                                                                   7.- FUNCTIONS TO CONTROL THE WHOLE GUI
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % --------------------------------------------------------------------
@@ -1740,7 +1515,7 @@ assignin('base','dataAlig',handles.data);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                             9.- FUNCTION TO MOVE ON THE NEXT MODELLING STEP
+%%                                                             8.- FUNCTION TO MOVE ON THE NEXT MODELLING STEP
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -1805,7 +1580,7 @@ guidata(handles.ParentsWindow, handles.ParentFigure);
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                   10.- GUI PANEL for Multi-synchro
+%%                                                                   9.- GUI PANEL for Multi-synchro
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % --- Executes on selection change in listboxAsynchronisms.
@@ -2165,7 +1940,7 @@ end
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%                                                                11.- MISCELLANEOUS
+%%                                                                10.- MISCELLANEOUS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -2187,15 +1962,7 @@ StageData = cell(1,length(x));
         end
     end
 
-function enable_EQ(value,handles)
-
-set(handles.text_inter,'Enable',value);
-set(handles.popupmenu_inter,'Enable',value);
-set(handles.text_units,'Enable',value);
-set(handles.edit_units,'Enable',value);
-set(handles.text_interp,'Enable',value);
-set(handles.popupmenu_interp,'Enable',value);
-        
+       
 function enable_IV(value,handles)
 
 % Objects from the IV panel
