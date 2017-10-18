@@ -68,7 +68,7 @@ handles.alignment = varargin{3};
  
 % Populate the model popmenu
 handles.models = []; 
-
+handles.monitoringFlag = 1; % flag in case the user imports data sets with missing data to be treated internally
 set(handles.popupmenuMod,'String','');
 for i=1:length(handles.calibration.man_mp_group),
     contents = get(handles.popupmenuMod,'String');
@@ -512,7 +512,7 @@ end
 
 % If the model is batch-wise, visualize the overall D and Q statistic values
 % for all batches
-if ~isempty(offlimd95) && ~isnan(offlimd95)
+if ~isempty(offlimd95) && numel(find(isnan(offlimd95))) ~= length(offlimd95)
     % Offline D statistics
     visualizeStatGlobal(handles.calibration.LVmodels(nmodel).latent_structure.monitoring_statistics(handles.selectedDataSet).D,...
                         offlimd95,...
@@ -830,7 +830,6 @@ else
 end
    
 if isvector(xtest) && size(xtest,1)>0
-    x = cell(size(xtest,1),1);
     for j=1:size(xtest,1)
         if size(xtest{j},2)~=size(handles.ParentFigure.s_screening.data{1,1},2)
             errordlg('The test data set does not contain the same number of variables with common sampling frequency as the calibration data set.');
@@ -842,45 +841,64 @@ else
    errordlg('Recall that the variable trajectories must be contained in a Matlab column-wise cell array.'); 
 end
    
-handles.calibration.test = [handles.calibration.test; {xtest}];
+% Identify those batches that contain missing data
+md = zeros(length(xtest),1);
 
-handles.calibration.test_batch = xtest{1};
-
-contents = strvcat(get(handles.popupmenuVar,'String'),filename); 
-set(handles.popupmenuVar,'String',contents); 
-set(handles.popupmenuVar,'Value',size(get(handles.popupmenuVar,'String'),1));
-set(handles.textData,'String',contents(size(contents,1),:));
-
-handles.selectedDataSet = size(contents,1);
-
-set(handles.popupmenuBat,'String','');
-for i=1:length(x)
-    contents = get(handles.popupmenuBat,'String');
-    set(handles.popupmenuBat,'String',strvcat(contents,[' ',num2str(i)]));
+for i=1:length(xtest)
+    if numel(find(isnan(xtest{i})))>0, md(i)=1; end
 end
 
-% Create a new instance of the Monitoring Parameters class object in each
-% model
-
-nmodels = length(handles.calibration.LVmodels);
-
-for n=1:nmodels 
-    ntestsets = length(handles.calibration.LVmodels(n).latent_structure.monitoring_statistics);
-    handles.calibration.LVmodels(n).latent_structure.monitoring_statistics(ntestsets+1) = LatentStructure.MonitoringParameters(filename);
-end
-
-
-% Update the user interface
-set(handles.popupmenuBat,'Value',1);
-set(handles.popupmenuVar,'Enable','on'); 
-set(handles.textVar,'Enable','on');
-set(handles.textData,'Enable','on');
-set(handles.popupmenuBat,'Enable','off');
-set(handles.textBat,'Enable','on');
-set(handles.pushbuttonPlo,'Enable','off');
+handles.BatcheslbIn = 1:length(xtest);
+handles.filename = filename;
+handles.xtest = xtest;
 
 % Update handles structure
 guidata(hObject,handles);
+
+% In case that that there exist missing values in any of the batches, call
+% the GUI for missing data imputation
+if numel(find(md))>0
+    MissingDataImputation(handles.output,md);
+else
+    handles.calibration.test = [handles.calibration.test; {xtest}];
+    handles.calibration.test_batch = xtest{1};
+    contents = strvcat(get(handles.popupmenuVar,'String'),filename);
+    set(handles.popupmenuVar,'String',contents);
+    set(handles.popupmenuVar,'Value',size(get(handles.popupmenuVar,'String'),1));
+    set(handles.textData,'String',contents(size(contents,1),:));
+    
+    handles.selectedDataSet = size(contents,1);
+    
+    set(handles.popupmenuBat,'String','');
+    for i=1:length(xtest)
+        contents = get(handles.popupmenuBat,'String');
+        set(handles.popupmenuBat,'String',strvcat(contents,[' ',num2str(i)]));
+    end
+    
+    % Create a new instance of the Monitoring Parameters class object in each
+    % model
+    
+    nmodels = length(handles.calibration.LVmodels);
+    
+    for n=1:nmodels
+        ntestsets = length(handles.calibration.LVmodels(n).latent_structure.monitoring_statistics);
+        handles.calibration.LVmodels(n).latent_structure.monitoring_statistics(ntestsets+1) = LatentStructure.MonitoringParameters(filename);
+    end
+    
+    
+    % Update the user interface
+    set(handles.popupmenuBat,'Value',1);
+    set(handles.popupmenuVar,'Enable','on');
+    set(handles.textVar,'Enable','on');
+    set(handles.textData,'Enable','on');
+    set(handles.popupmenuBat,'Enable','off');
+    set(handles.textBat,'Enable','on');
+    set(handles.pushbuttonPlo,'Enable','off');
+    
+    % Update handles structure
+    guidata(hObject,handles);
+    
+end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%                                                                    5.- AUXILIAR FUNCTIONS

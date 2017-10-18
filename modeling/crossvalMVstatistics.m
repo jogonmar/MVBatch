@@ -100,15 +100,15 @@ cvevolQ = nan(s(1),s(3));
 cvD     = nan(s(3),1);
 cvQ     = nan(s(3),1);
 % Online control limits
-limdo95cv = nan(s(3),1);
-limdo99cv = nan(s(3),1);
-limqo95cv = nan(s(3),1);
-limqo99cv = nan(s(3),1);
+limdo95cv = nan(s(1),1);
+limdo99cv = nan(s(1),1);
+limqo95cv = nan(s(1),1);
+limqo99cv = nan(s(1),1);
 % Offline control limits
-limd95cv = nan(s(1),1);
-limd99cv = nan(s(1),1);
-limq95cv = nan(s(1),1);
-limq99cv = nan(s(1),1);
+limd95cv = nan(s(3),1);
+limd99cv = nan(s(3),1);
+limq95cv = nan(s(3),1);
+limq99cv = nan(s(3),1);
 % Imposed online levels
 alpd95cv = 0.05;
 alpd99cv = 0.05;

@@ -121,12 +121,13 @@ array and calibration, and monitoring. It incorporates help messages to guide it
 GUI, type "MVBatch" in the command line of Matlab after the installation, as explained in Section 3. 
 
 Once the MBBatch user interface is launched, the user will have to load a data set whose structure 
-is the following: 
+is: 
 i)   data: (Ix1) cell array containing the 2-way arrays (KixJ) cotaining the batch trajectories
 ii)  batchNames: (Ix1) string cell array containing the Batch ID. 
 iii) varNames: (Jx1) string cell array containing the tagnames.
 
-Examples of this data structure can be found in folder "Examples".  
+Examples of this data structure can be found in folder "Examples". Note that a different naming of these structures
+will lead to an error prompted in the command window of Matlab.
 
 The Matlab function provide includes helping information, that can be seen by typing "help <command>" in 
 the command line of Matlab. This helping information includes examples on how to execute the corresponfing 
