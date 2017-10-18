@@ -1155,7 +1155,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
             handles.data.synchronization{handles.Stage2Syn}.maxIter = str2double(get(handles.editMaxIter,'String'));
             
             % Synchronize the batch trajectories using the classical DTW with the weights estimated as the geometric mean of Kassidas et al. and Ramaker et al.'s approach
-            [Wkass,~,~,~,~,handles.data.synchronization{handles.Stage2Syn}.diffW] = DTW_Kassidas(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.maxIter);
+            [Wkass,~,~,~,~,handles.data.synchronization{handles.Stage2Syn}.diffW] = DTW_Kassidas(handles.data.synchronization{handles.Stage2Syn}.nor_batches, handles.data.synchronization{handles.Stage2Syn}.Xref,handles.data.synchronization{handles.Stage2Syn}.Wconstr,handles.data.synchronization{handles.Stage2Syn}.maxIter);
             
             if ~isempty(find(handles.data.synchronization{handles.Stage2Syn}.diffW(end,:)>0.01))
                 bar(handles.data.synchronization{handles.Stage2Syn}.diffW(end-1:end,:));
