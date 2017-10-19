@@ -590,10 +590,10 @@ end
 % Save information related to the unit, process variables and batches
 % selected for bilinear process modelling
 % System variables keeping information about batches
-handles.ParentFigure.dataset.BatchesIn = handles.BatchesIn;
+handles.ParentFigure.s_screening.BatchesIn = handles.BatchesIn;
 
 % System variables keeping information about the process variables
-handles.ParentFigure.dataset.VariablesIn = handles.VariablesIn;
+handles.ParentFigure.s_screening.VariablesIn = handles.VariablesIn;
 
 % Update the track array of the bilinear modeling cycle
 handles.ParentFigure.track(:) = 1;
