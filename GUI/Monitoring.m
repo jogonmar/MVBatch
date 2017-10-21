@@ -1044,7 +1044,7 @@ case 'multisynchro'
 
         [~,asynDetection] = high_multisynchro(test,Xref,handles.alignment.synchronization{handles.alignment.stages}.W,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.k,handles.alignment.synchronization{handles.alignment.stages}.param.psih,handles.alignment.synchronization{handles.alignment.stages}.param.psiv,1);
         
-        {1,1} = test_batch(:,varIn);
+        test{1,1} = test_batch(:,varIn);
         [synTestBatch,warptest] = low_multisychro(test,handles.alignment.synchronization{handles.alignment.stages,1}.Xref,asynDetection,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.pcsMon,handles.alignment.synchronization{handles.alignment.stages,1}.maxIter,[],[],handles.alignment.synchronization{handles.alignment.stages}.specSynchronization);
         
         nsamplesToPlot = size(synTestBatch,1);
