@@ -161,8 +161,7 @@ see <http://www.gnu.org/licenses/>.
 
 Please, acknowledge the use of this software by referring it: 
 
-"Gonzalez-Martinez, J.M., Camacho, J., Ferrer, A. MVBatch: a Matlab graphical interface toolbox 
-for bilinear batch process modeling. Submitted to Chemometrics and Intelligent Laboratory Systems, 
+"Gonzalez-Martinez, J.M., Camacho, J., Ferrer, A. MVBatch: a Matlab toolbox for batch process modeling and monitoring. Submitted to Chemometrics and Intelligent Laboratory Systems, 
 available at https://github.com/jogonmar/MVBatch/releases/tag/v1.0" 
 
 ------------------------------------------------------------------------------------------------------
