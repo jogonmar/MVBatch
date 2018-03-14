@@ -22,7 +22,7 @@ function varargout = Monitoring(varargin)
 
 % Edit the above text to modify the response to help Monitoring
 
-% Last Modified by GUIDE v2.5 16-Jun-2017 11:02:45
+% Last Modified by GUIDE v2.5 14-Mar-2018 21:01:39
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -98,8 +98,7 @@ handles.statFaultDiagnosis = 0;
 handles.selectedDataSet = 1;
 
 % Enable the monitoring option for the calibration data set
-handles.calibration.test{1,1} = handles.alignment.synchronization{1,1}.nor_batches';
-
+handles.calibration.test{1,1} = handles.ParentFigure.s_screening.data(find(handles.ParentFigure.s_screening.BatchesIn))';
 set(handles.popupmenuVar,'String',' '); 
 set(handles.popupmenuVar,'String','calibration'); 
 set(handles.textData,'String','calibration'); 
