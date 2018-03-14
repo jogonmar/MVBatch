@@ -9,11 +9,11 @@ function [limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99c
 % resmod: [online version](IxJxK) residuals from the calibration data set, K(sampling times) x J(variables) x I(batches)
 %         [offline version - batcvh-wise](IxKJ) residuals in the calibration data, K(sampling times) x J(variables) x I(batches)
 %
-% cvD:    [online version] (KxI) online D-statistic values of I test batches.
-%         [offline version - batcvh-wise] (IxI) offline D-statistic values of I test batches.
+% cvD:    [online version] (KxI) K online D-statistic values for I test batches.
+%         [offline version - batcvh-wise] (Ix1) offline D-statistic values for I test batches.
 %
-% cvQ:    [online version] (KxI) online Q-statistic values of I test batches.
-%         [offline version - batcvh-wise] (IxI) offline Q-statistic values of I test batches.
+% cvQ:    [online version] (KxI) K online Q-statistic values for I test batches.
+%         [offline version - batcvh-wise] (Ix1) offline Q-statistic values of I test batches.
 %
 % limd95: [online version] (Kx1) 95% control limit of the D statistic 
 %         [offline version - batcvh-wise] (1x1) 95% control limit of the D statistic
@@ -70,7 +70,7 @@ function [limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99c
 
 % Parameters checking
 routine=dbstack;
-assert (nargin >= 8, 'Error in the number of input parameters. Type ''help %s'' for more info.', routine(1).name);
+assert (nargin == 9, 'Error in the number of input parameters. Type ''help %s'' for more info.', routine(1).name);
 
 % Initialization
 alpd95 = 0.05;
