@@ -34,13 +34,13 @@ function [limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99c
 %
 % OUTPUTS:
 %
-% limd95cv: (Kx1) or (1x1) cross-validated 95% control limit of the D statistic for offline and online applications, respectively.
+% limd95cv: (Kx1) or (1x1) cross-validated 95% control limit of the D statistic for online and offline applications, respectively.
 %
-% limd99cv: (Kx1) or (1x1) cross-validated 99% control limit of the D statistic for offline and online applications, respectively. 
+% limd99cv: (Kx1) or (1x1) cross-validated 99% control limit of the D statistic for online and offline applications, respectively. 
 %
-% limq95cv: (Kx1) or (1x1) cross-validated 95% control limit of the Q statistic for offline and online applications, respectively.
+% limq95cv: (Kx1) or (1x1) cross-validated 95% control limit of the Q statistic for online and offline applications, respectively.
 %
-% limq99cv: (Kx1) or (1x1) cross-validated 99% control limit of the Q statistic for offline and online applications, respectively. 
+% limq99cv: (Kx1) or (1x1) cross-validated 99% control limit of the Q statistic for online and offline applications, respectively. 
 %
 % alpd95cv: (1x1) cross-validated significance level (alpha) for the 99% control limit of the D statistic. 
 %
@@ -160,7 +160,7 @@ if ~ind2, ind2 = s(1); end;
 % Adjust of the confidence level to meet the imposed 99% confidence
 % level following Jackson & Mudholkar's approach
 if postbatch
-   alpq99cv = spe_pvalue(resmod,(limq99 * ind)); 
+   alpq99cv = spe_pvalue_box(resmod,(limq99 * ind)); 
    limq95cv = spe_lim(resmod,alpq95cv); 
    limq99cv = spe_lim(resmod,alpq99cv);
 else
