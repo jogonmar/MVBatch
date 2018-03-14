@@ -156,14 +156,32 @@ for p=1:sp(1), pcs = [pcs; phases(p,2)*ones(1,phases(p,5)-phases(p,4)+1)]; end
 
 % Cross-validate control limits
 % On-line 
+try
+h = waitbar(1/2,'Computing control limits for instantaneous D- and Q-statistics','Name','Cross-validation of the monitoring system');
 [limdo95cv,limdo99cv,limqo95cv,limqo99cv,alpdo95cv,alpdo99cv,alpqo95cv,alpqo99cv] = crossval_limits(reson,cvevolD,cvevolQ,limdo95,limdo99,limqo95,limqo99,s(3),pcs);
-% Off-linw
-if sp(1) == 1 && phases(1,3) == s(1)-1
-    xce = preprocess3D(xini,prep);
-    xu=unfold(xce,phases(1,3));
-    resoff = xu-to{1}(:,1:phases(1,2))*po{1}(:,1:phases(1,2))';
-    [limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99cv] = crossval_limits(resoff,cvD,cvQ,limd95,limd99,limq95,limq99,s(3),repmat(pcs(1),s(3),1));    
+waitbar(1,h,'Computing online control limits for instantaneous D- and Q-statistics','Name','Cross-validation of the monitoring system');
+catch err
+   error(err.message); 
+   close(h);
+   return;
 end
+close(h);
+% Off-line
+try
+    if sp(1) == 1 && phases(1,3) == s(1)-1
+        xce = preprocess3D(xini,prep);
+        xu=unfold(xce,phases(1,3));
+        resoff = xu-to{1}(:,1:phases(1,2))*po{1}(:,1:phases(1,2))';
+        h = waitbar(1/2,'Computing control limits for overall D- and Q-statistics','Name','Cross-validation of the monitoring system');
+        [limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99cv] = crossval_limits(resoff,cvD,cvQ,limd95,limd99,limq95,limq99,s(3),repmat(pcs(1),s(3),1));
+        waitbar(1,h,'Computing online control limits for overall D- and Q-statistics','Name','Cross-validation of the monitoring system');
+    end
+catch err
+    error(err.message);
+    close(h);
+    return;
+end
+close(h);
 
 
 end % CVMonitorParameters

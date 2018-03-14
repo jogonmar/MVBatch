@@ -156,7 +156,7 @@ if flagCont
     if sp(1)==1 && phases(1,3)== s(1)-1
         limd95 = (pcs(1)*(s(3)*s(3)-1)/(s(3)*(s(3)-pcs(1))))*finv(1-alpd95,pcs(1),s(3)-pcs(1)); 
         limd99 = (pcs(1)*(s(3)*s(3)-1)/(s(3)*(s(3)-pcs(1))))*finv(1-alpd99,pcs(1),s(3)-pcs(1)); 
-        limq95 = spe_lim_box(resa,alpq95); 
-        limq99 = spe_lim_box(resa,alpq99); 
+        limq95 = spe_lim(resa,alpq95); 
+        limq99 = spe_lim(resa,alpq99); 
     end
 end

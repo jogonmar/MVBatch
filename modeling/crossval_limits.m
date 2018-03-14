@@ -107,7 +107,7 @@ ind2 = mod(find(cvevolD1way==ind,1),s(1));
 if ~ind2, ind2 = s(1); end;
 alpd95cv=1-fcdf(((nbatches*(nbatches-pcs(ind2)))/(pcs(ind2)*(nbatches*nbatches-1)))*(limd95(ind2) * ind),pcs(ind2),nbatches-pcs(ind2));
 
-cvevolD1way = reshape(cvD./limd99,s(1)*s(2),1);
+cvevolD1way = reshape(cvD./repmat(limd99,1,size(cvD,2)),s(1)*s(2),1);
 cvevolD1waySorted = sort(cvevolD1way);
 
 lev = round(s(1)*s(2)*(1-alpd99));
@@ -131,7 +131,9 @@ end
 
 % Estimation of the SPE control limits following Jackson & Mudholkar's approach
 % Experimental limit
-cvevolQ1way = reshape(cvQ./limq95,s(1)*s(2),1);
+cvevolQ1way = reshape(cvQ./repmat(limq95,1,size(cvQ,2)),s(1)*s(2),1);
+
+
 cvevolQ1waySorted = sort(cvevolQ1way);
 
 lev = round(s(1)*s(2)*(1-alpq95));
@@ -142,12 +144,12 @@ if ~ind2, ind2 = s(1); end;
 % Adjust of the confidence level to meet the imposed 95% confidence
 % level following Jackson & Mudholkar's approach
 if postbatch
-    alpq95cv =spe_pvalue_box(resmod,(limq95 * ind));
+    alpq95cv =spe_pvalue(resmod,(limq95 * ind));
 else
-    alpq95cv =spe_pvalue_box(resmod(:,:,ind2),(limq95(ind2) * ind));
+    alpq95cv =spe_pvalue(resmod(:,:,ind2),(limq95(ind2) * ind));
 end
 
-cvevolQ1way = reshape(cvQ./limq99,s(1)*s(2),1);
+cvevolQ1way = reshape(cvQ./repmat(limq99,1,size(cvQ,2)),s(1)*s(2),1);
 cvevolQ1waySorted = sort(cvevolQ1way);
 
 lev = round(s(1)*s(2)*(1-alpq99));
@@ -158,14 +160,14 @@ if ~ind2, ind2 = s(1); end;
 % Adjust of the confidence level to meet the imposed 99% confidence
 % level following Jackson & Mudholkar's approach
 if postbatch
-   alpq99cv = spe_pvalue_box(resmod,(limq99 * ind)); 
-   limq95cv = spe_lim_box(resmod,alpq95cv); 
-   limq99cv = spe_lim_box(resmod,alpq99cv);
+   alpq99cv = spe_pvalue(resmod,(limq99 * ind)); 
+   limq95cv = spe_lim(resmod,alpq95cv); 
+   limq99cv = spe_lim(resmod,alpq99cv);
 else
-   alpq99cv =spe_pvalue_box(resmod(:,:,ind2),(limq99(ind2) * ind));
+   alpq99cv =spe_pvalue(resmod(:,:,ind2),(limq99(ind2) * ind));
    for i=1:s(1)
-         limq95cv(i)= spe_lim_box(resmod(:,:,i),alpq95cv); 
-         limq99cv(i)= spe_lim_box(resmod(:,:,i),alpq99cv); 
+         limq95cv(i)= spe_lim(resmod(:,:,i),alpq95cv); 
+         limq99cv(i)= spe_lim(resmod(:,:,i),alpq99cv); 
    end
 end
 
