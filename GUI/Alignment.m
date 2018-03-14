@@ -67,6 +67,7 @@ handles.SynStage = 0;
 % TO DO: identify the number of phases from variable #1
 handles.Stage2Syn = 1;
 
+handles.data.synchronization{handles.Stage2Syn}.nor_batches = cell(1,length(handles.data.x));
 for i=1:length(handles.data.x)
     handles.data.synchronization{handles.Stage2Syn}.nor_batches{i} = handles.data.x{i};
 end
