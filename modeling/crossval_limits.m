@@ -98,7 +98,7 @@ end
 %% D-statistic
 
 % Experimental limit
-cvevolD1way = reshape(cvD/repmat(limd95,1,size(cvD,2)),s(1)*s(2),1);
+cvevolD1way = reshape(cvD./repmat(limd95,1,size(cvD,2)),s(1)*s(2),1);
 cvevolD1waySorted = sort(cvevolD1way);
 
 lev = round(s(1)*s(2)*(1-alpd95));
