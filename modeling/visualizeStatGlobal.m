@@ -20,17 +20,17 @@ function visualizeStatGlobal(stat,lim95,lim99,lim95cv,lim99cv,scalingFlag,batchT
 %
 % INPUTS
 %
-% stat: (KxI) online D or Q statistic values for I batches
+% stat: (Ix1) D or Q statistic values for I batches
 %
-% lim95: (Kx1) theoretical 95% control limit of the online D statistic 
+% lim95: (1x1) theoretical 95% control limit of the online D statistic 
 %
-% lim99: (Kx1) theoretical 99% control limit of the online D statistic 
+% lim99: (1x1) theoretical 99% control limit of the online D statistic 
 %
-% lim95cv: (Kx1) cross-validated 95% control limit of the online D
+% lim95cv: (1x1) cross-validated 95% control limit of the online D
 % statistic (if theoretical and cross-validated control limits need to be
 % displayed)
 %
-% lim99cv: (Kx1) cross-validated 99% control limit of the online D statistic
+% lim99cv: (1x1) cross-validated 99% control limit of the online D statistic
 % (if theoretical and cross-validated control limits need to be
 % displayed)
 %
