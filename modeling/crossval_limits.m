@@ -157,17 +157,18 @@ ind = cvevolQ1waySorted(lev);
 ind2 = mod(find(cvevolQ1way==ind,1),s(1));
 if ~ind2, ind2 = s(1); end;
 
-% Adjust of the confidence level to meet the imposed 99% confidence
-% level following Jackson & Mudholkar's approach
+% Adjust of the confidence level to meet the imposed 95% and 99% confidence
+% level following Box's approximation. If this fails, use Jackson & Mudholkar's approach
 if postbatch
-   alpq99cv = spe_pvalue_box(resmod,(limq99 * ind)); 
-   limq95cv = spe_lim(resmod,alpq95cv); 
-   limq99cv = spe_lim(resmod,alpq99cv);
+   alpq99cv = spe_pvalue_box(resmod,(limq99 * ind)); limq95cv = spe_lim_box(resmod,alpq95cv);
+   alpq95cv = spe_pvalue_box(resmod,(limq95 * ind)); limq99cv = spe_lim_box(resmod,alpq99cv);
+   if alpq99cv==0, alpq99cv = spe_pvalue(resmod,(limq99 * ind)); limq99cv = spe_lim(resmod,alpq99cv); end
+    if alpq95cv==0, alpq95cv = spe_pvalue(resmod,(limq95 * ind)); limq95cv = spe_lim(resmod,alpq95cv); end
 else
    alpq99cv =spe_pvalue(resmod(:,:,ind2),(limq99(ind2) * ind));
    for i=1:s(1)
-         limq95cv(i)= spe_lim(resmod(:,:,i),alpq95cv); 
-         limq99cv(i)= spe_lim(resmod(:,:,i),alpq99cv); 
+         limq95cv(i)= spe_lim_box(resmod(:,:,i),alpq95cv); 
+         limq99cv(i)= spe_lim_box(resmod(:,:,i),alpq99cv); 
    end
 end
 
