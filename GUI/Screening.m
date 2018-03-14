@@ -749,10 +749,10 @@ else
     % show the unit, process variables and batches selected previously.
     
     % Setting the variables for the number of batches
-    handles.BatchesIn = handles.ParentFigure.dataset.BatchesIn;
+    handles.BatchesIn = handles.ParentFigure.s_screening.BatchesIn;
     
     % Number of process variables
-    handles.VariablesIn = handles.ParentFigure.dataset.VariablesIn;
+    handles.VariablesIn = handles.ParentFigure.s_screening.VariablesIn;
 end
 
 % Setting the variables for the number of batches
