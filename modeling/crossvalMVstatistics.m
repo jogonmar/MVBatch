@@ -152,7 +152,7 @@ end
 close(h);
 
 % Estimate the control limits
-for p=1:sp(1), pcs = [pcs; phases(p,2)*ones(1,phases(p,5)-phases(p,4)+1)]; end
+for p=1:sp(1), pcs = [pcs; [phases(p,2)*ones(1,phases(p,5)-phases(p,4)+1)]']; end
 
 % Cross-validate control limits
 % On-line 
@@ -175,13 +175,14 @@ try
         h = waitbar(1/2,'Computing control limits for overall D- and Q-statistics','Name','Cross-validation of the monitoring system');
         [limd95cv,limd99cv,limq95cv,limq99cv,alpd95cv,alpd99cv,alpq95cv,alpq99cv] = crossval_limits(resoff,cvD,cvQ,limd95,limd99,limq95,limq99,s(3),repmat(pcs(1),s(3),1));
         waitbar(1,h,'Computing online control limits for overall D- and Q-statistics','Name','Cross-validation of the monitoring system');
+        close(h);
     end
 catch err
     error(err.message);
     close(h);
     return;
 end
-close(h);
+
 
 
 end % CVMonitorParameters
