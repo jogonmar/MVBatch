@@ -1,4 +1,4 @@
-function  [varargout] = plot3D(x,clu,test,rows,vars)
+function  [varargout] = plot3D(x,clu,test,rows,vars,tagnames,units)
 
 % Plots 3-way batch data. 
 %
@@ -45,8 +45,9 @@ function  [varargout] = plot3D(x,clu,test,rows,vars)
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
 % last modification: 26/Aug/09
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2018  José M. González Martínez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -87,11 +88,11 @@ else
     tt = true;
 end;
 
-if nargin < 4, rows = 3; end;
+if nargin < 4 || isempty(rows), rows = 3; end;
 columns = round(rows*4/3);
 max_var = rows*columns;
 
-if nargin == 5, 
+if nargin >= 5 && ~isempty(vars), 
     switch data_type,
         case 1,
             s2 = 0;
@@ -159,6 +160,12 @@ if nargin == 5,
     
 end;
 
+if nargin <6, tagnames = []; end
+if nargin < 7,units = []; end
+
+
+
+
 % Computation
 
 hnd=[];
@@ -184,6 +191,17 @@ switch data_type,
             hnd = [hnd figure];
             indj = k:nanmin(s2,k+max_var-1);
             lenj = length(indj);
+            if ~isempty(tagnames)
+                if length(tagnames)~=lenj
+                    error('Incorrect number of tagnames.'); return;
+                end
+            end
+            if ~isempty(units)
+                if length(units)~=lenj
+                    error('Incorrect number of unit string.'); return;
+                end
+            end
+           
             for j=1:lenj,
                 subplot(rows,columns,j);
                 maxy = nanmax(x(1).data{ind_v(indj(j))}(:,ind_v2(indj(j))));
@@ -195,6 +213,9 @@ switch data_type,
                     maxy = nanmax(maxy,nanmax(x(i).data{ind_v(indj(j))}(:,ind_v2(indj(j)))));
                     miny = nanmin(miny,nanmin(x(i).data{ind_v(indj(j))}(:,ind_v2(indj(j)))));
                 end
+                if ~ismpety(tagnames), title(tagnames{j},'FontSize',12); end
+                if ~isempty(units), ylabel(units{j},'FontSize',12); end
+                xlabel('Batch time','FontSize',12);
                 if tt,
                     st = size(test);                   
                     for i=1:nanmax(st),
@@ -235,6 +256,17 @@ switch data_type,
             hnd = [hnd figure];
             indj = k:nanmin(s2(2),k+max_var-1);
             lenj = length(indj);
+            if ~isempty(tagnames)
+                if length(tagnames)~=lenj
+                    error('Incorrect number of tagnames.'); return;
+                end
+            end
+            if ~isempty(units)
+                if length(units)~=lenj
+                    error('Incorrect number of unit string.'); return;
+                end
+            end
+            
             for j=1:lenj,
                 subplot(rows,columns,j);
                 maxy = nanmax(x{1}(:,indj(j)));
@@ -260,18 +292,21 @@ switch data_type,
                     ind=find(clu==i,1);
                     plot([ind ind],[maxy miny],'k--');
                 end
-               axis tight;%axis([1 maxk miny maxy]);
+               
                 axes_h=get(hnd(end),'Children');
-%                 ticks=get(axes_h,'XTick');
-%                 tickl=get(axes_h,'XTickLabel');
-%                 if iscell(ticks),
-%                     set(axes_h,'XTick',ticks{1}([1:rows:end-rows end]))
-%                     set(axes_h,'XTickLabel',tickl{1}([1:rows:end-rows end],:))
-%                 else
-%                     set(axes_h,'XTick',ticks([1:rows:end-rows end]))
-%                     set(axes_h,'XTickLabel',tickl([1:rows:end-rows end],:))
-%                 end
-                axis tight
+                ticks=get(axes_h,'XTick');
+                tickl=get(axes_h,'XTickLabel');
+                if iscell(ticks),
+                    set(axes_h,'XTick',ticks{1}([1:rows:end-rows end]))
+                    set(axes_h,'XTickLabel',tickl{1}([1:rows:end-rows end],:))
+                else
+                    set(axes_h,'XTick',ticks([1:rows:end-rows end]))
+                    set(axes_h,'XTickLabel',tickl([1:rows:end-rows end],:))
+                end
+                if ~isempty(tagnames), title(tagnames{j},'FontSize',12); end
+                if ~isempty(units), ylabel(units{j},'FontSize',12); end
+                xlabel('Batch time','FontSize',12);
+                axis tight;%axis([1 maxk miny maxy]);
             end
         end
         
@@ -284,6 +319,16 @@ switch data_type,
             hnd = [hnd figure];
             indj = k:nanmin(s(2),k+max_var-1);
             lenj = length(indj);
+            if ~isempty(tagnames)
+                if length(tagnames)~=lenj
+                    error('Incorrect number of tagnames.'); return;
+                end
+            end
+            if ~isempty(units)
+                if length(units)~=lenj
+                    error('Incorrect number of unit string.'); return;
+                end
+            end
             for j=1:lenj,
                 subplot(rows,columns,j);
                 m = nanmin(nanmin(x(:,indj(j),:)));
@@ -307,19 +352,27 @@ switch data_type,
                     ind=find(clu==i);
                     plot([ind(1) ind(1)],[M m],'k--');
                 end
-%                axis([1 s(1) m M]);
-%                 axes_h=get(hnd(end),'Children');
-%                 ticks=get(axes_h,'XTick');
-%                 tickl=get(axes_h,'XTickLabel');
-%                 if iscell(ticks),
-%                     set(axes_h,'XTick',ticks{1}([1:rows:end-rows end]))
-%                     set(axes_h,'XTickLabel',tickl{1}([1:rows:end-rows end],:))
-%                 else
-%                     set(axes_h,'XTick',ticks([1:rows:end-rows end]))
-%                     set(axes_h,'XTickLabel',tickl([1:rows:end-rows end],:))
-%                 end
-                axis tight
+               axis([1 s(1) m M]);
+                axes_h=get(hnd(end),'Children');
+                ticks=get(axes_h,'XTick');
+                tickl=get(axes_h,'XTickLabel');
+                if iscell(ticks),
+                    set(axes_h,'XTick',ticks{1}([1:rows:end-rows end]))
+                    set(axes_h,'XTickLabel',tickl{1}([1:rows:end-rows end],:))
+                else
+                    set(axes_h,'XTick',ticks([1:rows:end-rows end]))
+                    set(axes_h,'XTickLabel',tickl([1:rows:end-rows end],:))
+                end
+                 axis tight
+                if ~isempty(tagnames) && ~isempty(tagnames{j}), 
+                    title(tagnames{j},'FontSize',10); 
+                end
+                if ~isempty(units) && ~isempty(units{j}), 
+                    ylabel(units{j},'FontSize',10); 
+                end
+                xlabel('Batch time','FontSize',10);
             end
+            axis tight
         end
 end
 
