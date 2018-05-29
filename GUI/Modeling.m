@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 29-May-2018 17:08:13
+% Last Modified by GUIDE v2.5 29-May-2018 18:39:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -1868,16 +1868,16 @@ set(handles.ParentFigure.pbMonitoring,'Enable','on');
 delete(handles.figure1);
 
 
-% --- Executes on button press in pushbutton32.
-function pushbutton32_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton32 (see GCBO)
+% --- Executes on button press in pushbutton3Close.
+function pushbutton3Close_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbutton3Close (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on button press in pushbutton33.
+% --- Executes on button press in pushbuttonApply.
 function pushbutton33_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton33 (see GCBO)
+% hObject    handle to pushbuttonApply (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -1990,33 +1990,33 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in pushbutton67.
-function pushbutton67_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton67 (see GCBO)
+% --- Executes on button press in pushbuttonExp2.
+function pushbuttonExp2_Callback(hObject, eventdata, handles)
+% hObject    handle to pushbuttonExp2 (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on button press in pushbutton68.
+% --- Executes on button press in pushbutton_man.
 function pushbutton68_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton68 (see GCBO)
+% hObject    handle to pushbutton_man (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
 
-% --- Executes on selection change in popupmenu10.
+% --- Executes on selection change in popupmenuMod.
 function popupmenu10_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu10 (see GCBO)
+% hObject    handle to popupmenuMod (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu10 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu10
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenuMod contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenuMod
 
 
 % --- Executes during object creation, after setting all properties.
 function popupmenu10_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu10 (see GCBO)
+% hObject    handle to popupmenuMod (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    empty - handles not created until after all CreateFcns called
 
@@ -2027,9 +2027,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in pushbutton34.
+% --- Executes on button press in pushbuttonMod.
 function pushbutton34_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton34 (see GCBO)
+% hObject    handle to pushbuttonMod (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -2057,9 +2057,9 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-% --- Executes on button press in pushbutton35.
+% --- Executes on button press in pushbuttonExp.
 function pushbutton35_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton35 (see GCBO)
+% hObject    handle to pushbuttonExp (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
@@ -2080,3 +2080,60 @@ function radiobutton41_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton41
+
+
+% --- Executes on selection change in popupmenu13.
+function popupmenu13_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenu13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu13 contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenu13
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu13_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenu13 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in popupmenuPhase.
+function popupmenu14_Callback(hObject, eventdata, handles)
+% hObject    handle to popupmenuPhase (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns popupmenuPhase contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from popupmenuPhase
+
+
+% --- Executes during object creation, after setting all properties.
+function popupmenu14_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to popupmenuPhase (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+% --- Executes on key press with focus on pushbuttonExp and none of its controls.
+function pushbuttonExp_KeyPressFcn(hObject, eventdata, handles)
+% hObject    handle to pushbuttonExp (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.UICONTROL)
+%	Key: name of the key that was pressed, in lower case
+%	Character: character interpretation of the key(s) that was pressed
+%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
+% handles    structure with handles and user data (see GUIDATA)
