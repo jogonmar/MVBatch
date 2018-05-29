@@ -23,7 +23,7 @@ function varargout = Alignment(varargin)
 
 % Edit the above text to modify the response to help Alignment
 
-% Last Modified by GUIDE v2.5 08-Oct-2017 17:41:28
+% Last Modified by GUIDE v2.5 29-May-2018 10:59:51
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -1026,7 +1026,9 @@ for l=1:length(handles.data.synchronization{handles.Stage2Syn}.nor_batches)
 end
 
 if get(handles.radiobuttonPlotResults,'Value')
-    plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches);
+    vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
+    units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];
+    plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches, [],[],[],[],vars_tags,units_labels);
 end
   
 % Once RGTW-synchronization has been performed, we set to 1 the
@@ -1284,7 +1286,10 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
                 axis tight
                 xlabel('Reference batch sampling point','FontSize',14);
                 ylabel('Test batch sampling point','FontSize',14);
-                plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches);
+                
+                vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
+                units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];
+                plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],[],[],[],vars_tags,units_labels);
          end  
         set(handles.pushbuttonApply,'Enable','on');
     end 
@@ -1403,7 +1408,9 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     end
 
     if get(handles.radiobuttonPlotResults,'Value')
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches);
+        vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
+        units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];        
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],[],[],[],vars_tags,units_labels);
         figure; plot(handles.data.synchronization{handles.Stage2Syn}.warp,'k-');
         xlabel('Reference batch sampling point','FontSize',14);
         ylabel('Test batch sampling point','FontSize',14);
@@ -1475,7 +1482,9 @@ elseif strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'iv')
     end
 
     if get(handles.radiobuttonPlotResults,'Value')
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches);
+        vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
+        units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches, [],[],[],[],vars_tags,units_labels);
     end
     
 end
@@ -1770,15 +1779,18 @@ function pushbuttonPlotBatches_Callback(hObject, eventdata, handles)
 
 asyn = find(handles.data.synchronization{handles.Stage2Syn}.asynchronisms==1);
 
+vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
+units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];
+    
 switch asyn(handles.selectedAsyn)
     case 1
-         plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I));
+         plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I),[],[],vars_tags,units_labels);
     case 2
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I));
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I),[],[],vars_tags,units_labels);
     case 3
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I));
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I),[],[],vars_tags,units_labels);
     case 4
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I));
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I),[],[],vars_tags,units_labels);
 end
         
 % --- Executes on button press in pushbuttonInfo.
@@ -2103,3 +2115,20 @@ switch eventdata.NewValue.Tag   % Get Tag of selected object
 end
 
 guidata(hObject,handles);
+
+
+% --------------------------------------------------------------------
+function menu_Plot_Callback(hObject, eventdata, handles)
+% hObject    handle to menu_Plot (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function PlotRawData_Callback(hObject, eventdata, handles)
+% hObject    handle to PlotRawData (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+plot3D(handles.data.synchronization{handles.Stage2Syn}.nor_batches,[],[],[],[],handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1),handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3));
+

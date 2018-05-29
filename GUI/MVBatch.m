@@ -207,7 +207,7 @@ if ~isequal(filename,0)
        load(strcat(pathname,filename));
        handles.s_screening.data = data;
        handles.s_screening.varNames = varNames;
-       handles.s_screening.batchNames = batchNames;
+       handles.s_screening.batchNames = strcat(strcat(cellstr(num2str([1:length(batchNames)]')),cellstr(repmat('-',length(batchNames),1))),batchNames);
        
     catch err
         % Give more information for mismatch.

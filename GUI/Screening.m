@@ -439,7 +439,7 @@ for j=1:size(handles.auxx{1},2)
     plot(handles.handles_subplots(j),handles.auxx{pos-1}(:,j),'r-','LineWidth',1);
 end
 
-set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
+set(handles.e_batch,'String',num2str(handles.selectedBatch));
 % Update handles structure
 guidata(hObject, handles);
 
@@ -462,7 +462,7 @@ for j=1:size(handles.auxx{1},2)
     plot(handles.handles_subplots(j),handles.auxx{pos+1}(:,j),'r-','LineWidth',1);
 end
 
-set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
+set(handles.e_batch,'String',num2str(handles.selectedBatch));
 
 % Update handles structure
 guidata(hObject, handles);
@@ -473,6 +473,30 @@ function e_batch_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % --- Executes during object creation, after setting all properties.
+
+batchIDsel = str2num(char(get(hObject, 'String')));
+
+if isempty(batchIDsel), errordlg('Incorrect entry. Batch selection number must be a positive integer'); set(hObject, 'String',num2str(handles.selectedBatch));return; end
+if batchIDsel<=0, errordlg('Incorrect entry. Batch selection number must be a positive integer');set(hObject, 'String',num2str(handles.selectedBatch));return; end
+pos_now = find(handles.BatcheslbIn == batchIDsel);
+if isempty(pos_now), errordlg('The batch selected is not in the list of included batches');set(hObject, 'String',num2str(handles.selectedBatch)); return; end
+
+pos_prev = find(handles.BatcheslbIn == handles.selectedBatch);
+
+
+for j=1:size(handles.auxx{1},2)
+    plot(handles.handles_subplots(j),handles.auxx{pos_prev}(:,j),'-','Color',[0.466667 0.533333 0.68],'LineWidth',1);
+    plot(handles.handles_subplots(j),handles.auxx{pos_now}(:,j),'r-','LineWidth',1);
+end
+
+set(handles.e_batch,'String',num2str(batchIDsel));
+
+handles.selectedBatch = batchIDsel;
+
+% Update handles structure
+guidata(hObject, handles);
+
+
 function e_batch_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to e_batch (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -640,7 +664,7 @@ handles.VariableslbIn = handles.VariableslbInprev;
 handles.selectedBatch = handles.BatcheslbIn(1);
 
 % Set the batch to plot
-set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
+set(handles.e_batch,'String',num2str(handles.selectedBatch));
 
 
 % Update the number of window plots
@@ -799,7 +823,7 @@ set(handles.lb_VariablesIn,'Value',1);
 set(handles.lb_VariablesOut,'Value',1);
 
 % Put the first batch of the list to plot
-set(handles.e_batch,'String',handles.s_screening.batchNames(handles.selectedBatch));
+set(handles.e_batch,'String',num2str(handles.selectedBatch));
 % Set the parameter of the number of plots windows in the GUI
 set(handles.e_variables,'String',['1-' num2str(min(9,length(handles.VariableslbIn))) '/' num2str(max(9,length(handles.VariableslbIn)))]);
 
