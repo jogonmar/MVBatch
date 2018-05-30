@@ -23,7 +23,7 @@ variable models based on Principal Component Analysis (PCA) and monitoring of hi
 In the market, there exist commercial software packages addressing these modeling steps from different 
 perspectives, such as ProMV Batch by ProSensus, Unscrambler X Batch Modeling by CAMO and SIMCA by MSK. 
 The intention of this toolbox is not to replace these standard tools, but proving the scientific 
-committee with the most recent analytical solutions that overcome limitations of methods already 
+community with the most recent analytical solutions that overcome limitations of methods already 
 available. Besides, the MVBatch Toolbox has been designed and implemented as a free software package 
 to enable the generation of new ideas in the scientific community. Contributions, additions and 
 improvements from the chemoetric comminuty is encouraged. 
@@ -120,8 +120,8 @@ cycle of batch processes: alignment, preprocessing, transformation of the three-
 array and calibration, and monitoring. It incorporates help messages to guide its use. To launch the main 
 GUI, type "MVBatch" in the command line of Matlab after the installation, as explained in Section 3. 
 
-Once the MBBatch user interface is launched, the user will have to load a data set whose structure 
-is: 
+Once the MVBatch user interface is launched, the user will have to load a .mat file which contains:
+ 
 i)   data: (Ix1) cell array containing the 2-way arrays (KixJ) cotaining the batch trajectories
 ii)  batchNames: (Ix1) string cell array containing the Batch ID. 
 iii) varNames: (Jx1) string cell array containing the tagnames.

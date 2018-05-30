@@ -187,6 +187,11 @@ function pbLoad_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% Select the example folder as current path. 
+addpath_str = mfilename('fullpath');
+cd(strcat(addpath_str(1:strfind(addpath_str,'\GUI\MVBatch')),'examples'));
+
+
 [filename, pathname] = uigetfile('*.mat', 'Select a MATLAB file');
 
 if ~isequal(filename,0)
@@ -207,7 +212,7 @@ if ~isequal(filename,0)
        load(strcat(pathname,filename));
        handles.s_screening.data = data;
        handles.s_screening.varNames = varNames;
-       handles.s_screening.batchNames = batchNames;
+       handles.s_screening.batchNames = strcat(strcat(cellstr(num2str([1:length(batchNames)]')),cellstr(repmat('-',length(batchNames),1))),batchNames);
        
     catch err
         % Give more information for mismatch.
