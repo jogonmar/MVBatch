@@ -1,9 +1,9 @@
-function text_tot = cprintMV(hconsole,text,text_tot,opt,delay)
+function text_tot = cprintMV(hconsole,text,text_tot,opt,delay,maxl,maxr)
 
 % Print a text on a hconsole.
 %
 % cprintMV(hconsole,text) % standard options
-% cprintMV(hconsole,text,text_tot,opt,delay) % complete call
+% cprintMV(hconsole,text,text_tot,opt,delay,maxl,maxr) % complete call
 %
 %
 % INPUTS:
@@ -22,6 +22,10 @@ function text_tot = cprintMV(hconsole,text,text_tot,opt,delay)
 %
 % delay: (1x1): delay in seconds after writting (0.1 by default).
 %
+% maxl: (1x1): maximum length of line (80 by default).
+%
+% maxr: (1x1): maximum number of lines (16 by default).
+%
 %
 % OUTPUTS:
 %
@@ -30,10 +34,10 @@ function text_tot = cprintMV(hconsole,text,text_tot,opt,delay)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 08/Sep/16
+% last modification: 30/May/18
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2018  University of Granada, Granada
+% Copyright (C) 2018  Jose Camacho Paez
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -53,6 +57,8 @@ function text_tot = cprintMV(hconsole,text,text_tot,opt,delay)
 if nargin < 3, text_tot=' '; end
 if nargin < 4, opt=1; end
 if nargin < 5, delay=0.1; end
+if nargin < 6, maxl=80; end
+if nargin < 7, maxr=16; end
 
 % Main code
 
@@ -61,8 +67,6 @@ if hconsole==0,
     return
 end
 
-maxl=65;
-maxr=19;
 
 switch opt,
     case -1,

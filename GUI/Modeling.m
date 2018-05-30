@@ -78,6 +78,7 @@ if length(varargin)>0,
         set(handles.textMod,'Enable','on');
         set(handles.popupmenuPhase,'Enable','on');
         set(handles.textPhase,'Enable','on');
+        set(handles.pushbuttonExp,'Enable','on');
         
 %         contents = get(handles.popupmenuCM,'String');
 %         contents = strvcat(contents(1:3,:));
@@ -232,7 +233,7 @@ function edit_init_Callback(hObject, eventdata, handles)
 %        str2double(get(hObject,'String')) returns contents of edit_init as a double
 
 init =  str2num(get(hObject,'String'));
-handles.cm.init = init;
+handles.init = init;
 guidata(hObject,handles);
 
 
@@ -263,7 +264,7 @@ if length(val)>2 && isequal(val(end-2:end),'end'),
     val = [val(1:end-3) num2str(size(handles.data.x,1))];
 end
 
-handles.cm.fint = str2num(val);
+handles.fint = str2num(val);
 
 guidata(hObject,handles);
 
@@ -280,37 +281,6 @@ function edit_fint_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_init2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_init2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-
-
-% --- Executes during object creation, after setting all properties.
-function edit_fint2_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_fint2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 
 
 
@@ -714,14 +684,14 @@ function pushbuttonCM_Callback(hObject, eventdata, handles)
 
 edit_vars_Callback(handles.edit_vars, eventdata, handles)
 handles=guidata(hObject);
-edit_init_Callback(handles.edit_init, eventdata, handles)
+edit_init_Callback(handles.edit_init, eventdata, handles);
 handles=guidata(hObject);
-edit_fint_Callback(handles.edit_fint, eventdata, handles)
+edit_fint_Callback(handles.edit_fint, eventdata, handles);
 handles=guidata(hObject);
 popupmenuCM_Callback(handles.popupmenuCM, eventdata, handles)
 handles=guidata(hObject);
 
-data = preprocess3D(handles.data.x(handles.cm.init:handles.cm.fint,handles.cm.vars,:),handles.data.prep);
+data = preprocess3D(handles.data.x(handles.init:handles.fint,handles.cm.vars,:),handles.data.prep);
 switch handles.cm.type,
     case {1,2,3}
          map = corr_map(data,0.9,handles.cm.type,0.1,1,handles.console);
@@ -736,7 +706,7 @@ switch handles.cm.type,
 %              model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
 %          end
 %          [t,e] = evalMP_s(model);
-%          map = corr_map(t(handles.cm.init:handles.cm.fint,handles.cm.vars,:),data,0.9,handles.cm.type-3,0.1,1,handles.console);                                                                
+%          map = corr_map(t(handles.init:handles.fint,handles.cm.vars,:),data,0.9,handles.cm.type-3,0.1,1,handles.console);                                                                
 %                                                                
 %     case {7,8,9}
 %          model = get(handles.popupmenuMod,'value');
@@ -748,7 +718,7 @@ switch handles.cm.type,
 %              model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
 %          end
 %          [t,e] = evalMP_s(model);
-%          map = corr_map(e(handles.cm.init:handles.cm.fint,handles.cm.vars,:),data,0.9,handles.cm.type-6,0.1,1,handles.console);                                                                
+%          map = corr_map(e(handles.init:handles.fint,handles.cm.vars,:),data,0.9,handles.cm.type-6,0.1,1,handles.console);                                                                
 
 end
 
@@ -865,25 +835,13 @@ function pushbuttonDyn_Callback(hObject, eventdata, handles)
 
 data=handles.data;
 
-init =  str2num(get(handles.edit_init2,'String'));
-handles.mv.init = init;
-val = get(handles.edit_fint2,'String');
-
-if length(val)>2 && isequal(val(end-2:end),'end'),
-    val = [val(1:end-3) num2str(size(handles.data.x,1))];
-end
-
-handles.mv.fint = str2num(val);
-
-mv=handles.mv;
-
-if mv.init>mv.fint,
+if handles.init>handles.fint,
     errordlg('Initial sampling time is posterior to final sampling time.')
 else
-    lags = min(10,floor((mv.fint-mv.init)/3));
+    lags = min(10,floor((handles.fint-handles.init)/3));
     if lags > 0,
         x = preprocess3D(data.x,data.prep);
-        mv_parreg(x(mv.init:mv.fint,:,:),lags,get(handles.radiobutton5,'Value')+1,0.1,1,get(handles.radiobutton3,'Value'),handles.console);
+        mv_parreg(x(handles.init:handles.fint,:,:),lags,get(handles.radiobutton5,'Value')+1,0.1,1,get(handles.radiobutton3,'Value'),handles.console);
     else
         errordlg('Insufficient phase length for time-series analysis.')
     end
@@ -1268,68 +1226,6 @@ function radiobutton5_Callback(hObject, eventdata, handles)
 
 % Hint: get(hObject,'Value') returns toggle state of radiobutton5
 
-
-
-
-
-function edit_man_init_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_man_init (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_man_init as text
-%        str2double(get(hObject,'String')) returns contents of edit_man_init as a double
-
-init =  str2num(get(hObject,'String'));
-handles.man.init = init;
-guidata(hObject,handles);
-
-% --- Executes during object creation, after setting all properties.
-function edit_man_init_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_man_init (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-edit_man_init_Callback(hObject, eventdata, handles)
-
-
-function fint = edit_man_fint_Callback(hObject, eventdata, handles)
-% hObject    handle to edit_man_fint (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit_man_fint as text
-%        str2double(get(hObject,'String')) returns contents of edit_man_fint as a double
-
-val = get(hObject,'String');
-if length(val)>2 && isequal(val(end-2:end),'end'),
-    val = [val(1:end-3) num2str(size(handles.data.x,1))];
-end
-
-handles.man.fint = str2num(val);
-guidata(hObject,handles);
-
-fint = handles.man.fint;
-
-% --- Executes during object creation, after setting all properties.
-function edit_man_fint_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit_man_fint (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
 function edit_man_LMVs_Callback(hObject, eventdata, handles)
 % hObject    handle to edit_man_LMVs (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -1393,7 +1289,14 @@ function pushbutton_man_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles.man.fint = edit_man_fint_Callback(handles.edit_man_fint, eventdata, handles);
+edit_init_Callback(handles.edit_init, eventdata, handles);
+handles=guidata(hObject);
+edit_fint_Callback(handles.edit_fint, eventdata, handles);
+handles=guidata(hObject);
+edit_man_PCs_Callback(handles.edit_man_PCs, eventdata, handles);
+handles=guidata(hObject);
+edit_man_LMVs_Callback(handles.edit_man_LMVs, eventdata, handles);
+handles=guidata(hObject);
 
 % Checking arguments
 ok=true;
@@ -1401,25 +1304,25 @@ if find(isnan(handles.man.pcs)) | find(handles.man.pcs<1),
     cprintMV(handles.console,'Incorrect number of PCs.'); ok=false; end;
 if find(isnan(handles.man.lmvs)) | find(handles.man.lmvs<0), 
     cprintMV(handles.console,'Incorrect number of LMVs.'); ok=false; end;
-if find(isnan(handles.man.init)) | find(handles.man.init<0) | find(handles.man.init>size(handles.data.x,1)), 
+if find(isnan(handles.init)) | find(handles.init<0) | find(handles.init>size(handles.data.x,1)), 
     cprintMV(handles.console,'Incorrect initial time point.'); ok=false; end;
-if find(isnan(handles.man.fint)) | find(handles.man.fint<0) | find(handles.man.fint>size(handles.data.x,1)), 
+if find(isnan(handles.fint)) | find(handles.fint<0) | find(handles.fint>size(handles.data.x,1)), 
     cprintMV(handles.console,'Incorrect final time point.'); ok=false; end;
 n_phases = length(handles.man.pcs);
 if n_phases ~= length(handles.man.lmvs), 
     cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
-if n_phases ~= length(handles.man.init),
+if n_phases ~= length(handles.init),
     cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
-if n_phases ~= length(handles.man.fint),
+if n_phases ~= length(handles.fint),
     cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
 for i=1:n_phases,
-    if handles.man.init(i)>handles.man.fint(i),
+    if handles.init(i)>handles.fint(i),
     cprintMV(handles.console,sprintf('Incorrect initial/final time in phase %d.',i)); ok=false; end;
     if isinf(handles.man.lmvs(i)),
-        handles.man.lmvs(i)=(handles.man.fint(i)-handles.man.init(i)); end;
-    if handles.man.lmvs(i)>(handles.man.fint(i)-handles.man.init(i)),
+        handles.man.lmvs(i)=(handles.fint(i)-handles.init(i)); end;
+    if handles.man.lmvs(i)>(handles.fint(i)-handles.init(i)),
     cprintMV(handles.console,sprintf('Incorrect number of LMVs in phase %d.',i)); ok=false; end;
-    if handles.man.pcs(i)>rank(unfold(handles.data.x(handles.man.init(i):handles.man.fint(i),:,:),handles.man.lmvs(i))),
+    if handles.man.pcs(i)>rank(unfold(handles.data.x(handles.init(i):handles.fint(i),:,:),handles.man.lmvs(i))),
     cprintMV(handles.console,sprintf('Number of PCs in phase %d above the rank.',i)); ok=false; end;
 end
     
@@ -1429,9 +1332,9 @@ if ok,
     lmvs=ones(n_phases,1);
     lmvs(:)=handles.man.lmvs;
     init=ones(n_phases,1);
-    init(:)=handles.man.init;
+    init(:)=handles.init;
     fint=ones(n_phases,1);
-    fint(:)=handles.man.fint;
+    fint(:)=handles.fint;
     
     d=init(2:end)-fint(1:end-1);
     if ~isempty(d) && ~isempty(find(d~=1)), ok=false; end;
@@ -1464,6 +1367,7 @@ if ok,
     set(handles.textMod,'Enable','on');
     set(handles.popupmenuPhase,'Enable','on');
     set(handles.textPhase,'Enable','on');
+    set(handles.pushbuttonExp,'Enable','on');
  
     contents = get(handles.popupmenuMod,'String');
     line = deblank(contents(length(handles.data.man_mp_group),:));
@@ -1507,7 +1411,14 @@ function pushbuttonPCs_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-handles.man.fint = edit_man_fint_Callback(handles.edit_man_fint, eventdata, handles);
+edit_init_Callback(handles.edit_init, eventdata, handles);
+handles=guidata(hObject);
+edit_fint_Callback(handles.edit_fint, eventdata, handles);
+handles=guidata(hObject);
+edit_man_PCs_Callback(handles.edit_man_PCs, eventdata, handles);
+handles=guidata(hObject);
+edit_man_LMVs_Callback(handles.edit_man_LMVs, eventdata, handles);
+handles=guidata(hObject);
 
 % Checking arguments
 ok=true;
@@ -1515,33 +1426,38 @@ if find(isnan(handles.man.pcs)) | find(handles.man.pcs<1),
     cprintMV(handles.console,'Incorrect number of PCs.'); ok=false; end;
 if find(isnan(handles.man.lmvs)) | find(handles.man.lmvs<0), 
     cprintMV(handles.console,'Incorrect number of LMVs.'); ok=false; end;
-if find(isnan(handles.man.init)) | find(handles.man.init<0) | find(handles.man.init>size(handles.data.x,1)), 
+if find(isnan(handles.init)) | find(handles.init<0) | find(handles.init>size(handles.data.x,1)), 
     cprintMV(handles.console,'Incorrect initial time point.'); ok=false; end;
-if find(isnan(handles.man.fint)) | find(handles.man.fint<0) | find(handles.man.fint>size(handles.data.x,1)), 
+if find(isnan(handles.fint)) | find(handles.fint<0) | find(handles.fint>size(handles.data.x,1)), 
     cprintMV(handles.console,'Incorrect final time point.'); ok=false; end;
 n_phases = length(handles.man.pcs);
 if n_phases ~= length(handles.man.lmvs), 
     cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
-if n_phases ~= length(handles.man.init),
+if n_phases ~= length(handles.init),
     cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
-if n_phases ~= length(handles.man.fint),
+if n_phases ~= length(handles.fint),
     cprintMV(handles.console,'Non consistent number of parameters.'); ok=false; end;
 for i=1:n_phases,
-    if handles.man.init(i)>handles.man.fint(i),
+    if handles.init(i)>handles.fint(i),
     cprintMV(handles.console,sprintf('Incorrect initial/final time in phase %d.',i)); ok=false; end;
     if isinf(handles.man.lmvs(i)),
-        handles.man.lmvs(i)=(handles.man.fint(i)-handles.man.init(i)); end;
-    if handles.man.lmvs(i)>(handles.man.fint(i)-handles.man.init(i)),
+        handles.man.lmvs(i)=(handles.fint(i)-handles.init(i)); end;
+    if handles.man.lmvs(i)>(handles.fint(i)-handles.init(i)),
     cprintMV(handles.console,sprintf('Incorrect number of LMVs in phase %d.',i)); ok=false; end;
-    if handles.man.pcs(i)>rank(unfold(handles.data.x(handles.man.init(i):handles.man.fint(i),:,:),handles.man.lmvs(i))),
+    if handles.man.pcs(i)>rank(unfold(handles.data.x(handles.init(i):handles.fint(i),:,:),handles.man.lmvs(i))),
     cprintMV(handles.console,sprintf('Number of PCs in phase %d above the rank.',i)); ok=false; end;
 end
 
+   
 if ok,
-    pcs=handles.man.pcs;
-    lmvs=handles.man.lmvs;
-    init=handles.man.init;
-    fint=handles.man.fint;
+    pcs=ones(n_phases,1);
+    pcs(:)=handles.man.pcs;
+    lmvs=ones(n_phases,1);
+    lmvs(:)=handles.man.lmvs;
+    init=ones(n_phases,1);
+    init(:)=handles.init;
+    fint=ones(n_phases,1);
+    fint(:)=handles.fint;
     
     d=init(2:end)-fint(1:end-1);
     if ~isempty(d) && ~isempty(find(d~=1)), ok=false; end;
@@ -1551,52 +1467,30 @@ end
 
 %Main code
 if ok,
-    arg=struct('xini',handles.data.x,'cross',handles.data.cross,'prep',handles.data.prep); 
+    data=handles.data;
+    x = preprocess3D(data.x,data.prep);
     
-    [ccs,av,st] = preprocess3D(handles.data.x,handles.data.prep);
-    
-    txt = cprintMV(handles.console,'Computing, please wait...',[],0);
-    for i=1:length(pcs),
-        c_2D = unfold(ccs(init(i):fint(i),:,:),lmvs(i));
-        % ----- MEDA Toolbox ----- %
-        [x_var,cumpress] = var_pca(c_2D,0:20,0,0); 
-        plot_vec([x_var cumpress/cumpress(1)],0:length(x_var)-1,[],{'#PCs',sprintf('Phase %d',i)},[],0,{'% Res. Var','ckf PRESS'});
-        legend('show');
-        % ----- MEDA Toolbox ----- %
+    if handles.init>handles.fint,
+        errordlg('Initial sampling time is posterior to final sampling time.');
     end
+    xu = unfold(x(handles.init:handles.fint,:,:),handles.man.lmvs);
+    if handles.PCAh~=0 & ishandle(handles.PCAh),
+        close(handles.PCAh);
+    end
+    handles.PCAh = PCA(xu,1:handles.man.pcs,0);
     
-    cprintMV(handles.console,'Done.',txt,1);
-
+    guidata(hObject,handles);
 else
-    cprintMV(handles.console,'Check the input for errors.');
+    cprintMV(handles.console,'Check the input for errors.');  
 end
 
-
-%     init =  str2num(get(handles.edit_init2,'String'));
-%     handles.mv.init = init;
-%     val = get(handles.edit_fint2,'String');
-%     
-%     if length(val)>2 && isequal(val(end-2:end),'end'),
-%         val = [val(1:end-3) num2str(size(handles.data.x,1))];
-%     end
-%     
-%     handles.mv.fint = str2num(val);
-%     mv=handles.mv;
-%     
-%     if mv.init>mv.fint,
-%         errordlg('Initial sampling time is posterior to final sampling time.');
-%     end
-%     xu = unfold(x(mv.init:mv.fint,:,:),0);
-%     if handles.PCAh~=0 & ishandle(handles.PCAh), 
-%         close(handles.PCAh); 
-%     end
-%     handles.PCAh = PCA(xu,[],0); 
 
 % --- Executes on button press in pushbuttonExp.
 function pushbuttonExp_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonExp (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
 
 data=handles.data;
 x = preprocess3D(data.x,data.prep);   
