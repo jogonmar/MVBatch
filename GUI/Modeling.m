@@ -23,7 +23,7 @@ function varargout = Modeling(varargin)
 
 % Edit the above text to modify the response to help Modeling
 
-% Last Modified by GUIDE v2.5 29-May-2018 18:39:51
+% Last Modified by GUIDE v2.5 08-Nov-2016 16:33:22
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 0;
@@ -78,7 +78,6 @@ if length(varargin)>0,
         set(handles.textMod,'Enable','on');
         set(handles.popupmenuPhase,'Enable','on');
         set(handles.textPhase,'Enable','on');
-        set(handles.radiobutton1,'Enable','on');
         
 %         contents = get(handles.popupmenuCM,'String');
 %         contents = strvcat(contents(1:3,:));
@@ -282,19 +281,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-% function edit_init2_Callback(hObject, eventdata, handles)
-% % hObject    handle to edit_init2 (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hints: get(hObject,'String') returns contents of edit_init2 as text
-% %        str2double(get(hObject,'String')) returns contents of edit_init2 as a double
-% 
-% init =  str2num(get(hObject,'String'));
-% handles.mv.init = init;
-% guidata(hObject,handles);
-% 
-% radiobutton2_Callback(hObject, eventdata, handles)
+
 
 % --- Executes during object creation, after setting all properties.
 function edit_init2_CreateFcn(hObject, eventdata, handles)
@@ -308,25 +295,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
-% function edit_fint2_Callback(hObject, eventdata, handles)
-% % hObject    handle to edit_fint2 (see GCBO)
-% % eventdata  reserved - to be defined in a future version of MATLAB
-% % handles    structure with handles and user data (see GUIDATA)
-% 
-% % Hints: get(hObject,'String') returns contents of edit_fint2 as text
-% %        str2double(get(hObject,'String')) returns contents of edit_fint2 as a double
-% 
-% val = get(hObject,'String');
-% if length(val)>2 && isequal(val(end-2:end),'end'),
-%     val = [val(1:end-3) num2str(size(handles.data.x,1))];
-% end
-% 
-% handles.mv.fint = str2num(val);
-% guidata(hObject,handles);
-% 
-% radiobutton2_Callback(hObject, eventdata, handles)
 
 
 
@@ -521,7 +489,6 @@ set(handles.popupmenuMod,'Enable','on');
 set(handles.textMod,'Enable','on');
 set(handles.popupmenuPhase,'Enable','on');
 set(handles.textPhase,'Enable','on');
-set(handles.radiobutton1,'Enable','on');
 
 % contents = get(handles.popupmenuCM,'String');
 % if size(contents,1)<=3,
@@ -721,7 +688,6 @@ function popupmenuPhase_Callback(hObject, eventdata, handles)
 % Hints: contents = get(hObject,'String') returns popupmenuPhase contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from popupmenuPhase
 
-radiobutton1_Callback(hObject, eventdata, handles);
 
     
 
@@ -898,56 +864,31 @@ function pushbuttonDyn_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 data=handles.data;
-if get(handles.radiobutton1,'Value'),    
-   
-    model = get(handles.popupmenuMod,'value');
-    if model <= length(handles.data.man_mp_group),             
-        model = handles.data.man_mp_group{model};
-    elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
-        model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
-    else
-        model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
-    end
-    
-    phase = get(handles.popupmenuPhase,'value');
-    phase = model.phases(phase,:);
-    
-    if phase(4)>phase(5),
-        errordlg('Initial sampling time is posterior to final sampling time.');
-    else
-        lags = min(10,floor((phase(5)-phase(4))/3));
-        if lags > 0,
-            x = preprocess3D(data.x,data.prep);
-            mv_parreg(x(phase(4):phase(5),:,:),lags,get(handles.radiobutton5,'Value')+1,0.1,1,get(handles.radiobutton3,'Value'),handles.console);
-        else
-            errordlg('Insufficient phase length for time-series analysis.')
-        end
-    end
-else
-    init =  str2num(get(handles.edit_init2,'String'));
-    handles.mv.init = init;
-    val = get(handles.edit_fint2,'String');
-    
-    if length(val)>2 && isequal(val(end-2:end),'end'),
-        val = [val(1:end-3) num2str(size(handles.data.x,1))];
-    end
-    
-    handles.mv.fint = str2num(val);
-    
-    mv=handles.mv;
 
-    if mv.init>mv.fint,
-        errordlg('Initial sampling time is posterior to final sampling time.')
+init =  str2num(get(handles.edit_init2,'String'));
+handles.mv.init = init;
+val = get(handles.edit_fint2,'String');
+
+if length(val)>2 && isequal(val(end-2:end),'end'),
+    val = [val(1:end-3) num2str(size(handles.data.x,1))];
+end
+
+handles.mv.fint = str2num(val);
+
+mv=handles.mv;
+
+if mv.init>mv.fint,
+    errordlg('Initial sampling time is posterior to final sampling time.')
+else
+    lags = min(10,floor((mv.fint-mv.init)/3));
+    if lags > 0,
+        x = preprocess3D(data.x,data.prep);
+        mv_parreg(x(mv.init:mv.fint,:,:),lags,get(handles.radiobutton5,'Value')+1,0.1,1,get(handles.radiobutton3,'Value'),handles.console);
     else
-        lags = min(10,floor((mv.fint-mv.init)/3));
-        if lags > 0,
-            x = preprocess3D(data.x,data.prep);
-            mv_parreg(x(mv.init:mv.fint,:,:),lags,get(handles.radiobutton5,'Value')+1,0.1,1,get(handles.radiobutton3,'Value'),handles.console); 
-        else
-            errordlg('Insufficient phase length for time-series analysis.')
-        end
+        errordlg('Insufficient phase length for time-series analysis.')
     end
 end
+
 
 
 % --------------------------------------------------------------------
@@ -1046,7 +987,6 @@ if ~isequal(file, 0)
         set(handles.edit_Tm,'Enable','off');
         set(handles.popupmenuM,'Enable','off');
         set(handles.pushbutton_SS,'Enable','off');
-        set(handles.radiobutton1,'Enable','off');
 
         contents = get(handles.popupmenuCM,'String');
         contents = strvcat(contents);
@@ -1059,7 +999,6 @@ if ~isequal(file, 0)
         set(handles.textMod,'Enable','on');
         set(handles.popupmenuPhase,'Enable','on');
         set(handles.textPhase,'Enable','on');
-        set(handles.radiobutton1,'Enable','on');
         
 %         contents = get(handles.popupmenuCM,'String');
 %         contents = strvcat(contents(1:3,:));
@@ -1137,31 +1076,6 @@ open(file)
 
 
 
-% --- Executes on button press in radiobutton1.
-function radiobutton1_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton1 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton1
-
-set(handles.radiobutton2,'Value',0)
-set(handles.radiobutton1,'Value',1);
-
-
-% --- Executes on button press in radiobutton2.
-function radiobutton2_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton2
-
-if isequal('on',get(handles.radiobutton1,'Enable')),
-    set(handles.radiobutton1,'Value',0)
-end
-
-set(handles.radiobutton2,'Value',1);
 
 
 % --- Executes on button press in radiobutton3.
@@ -1550,7 +1464,6 @@ if ok,
     set(handles.textMod,'Enable','on');
     set(handles.popupmenuPhase,'Enable','on');
     set(handles.textPhase,'Enable','on');
-    set(handles.radiobutton1,'Enable','on');
  
     contents = get(handles.popupmenuMod,'String');
     line = deblank(contents(length(handles.data.man_mp_group),:));
@@ -1659,6 +1572,26 @@ else
 end
 
 
+%     init =  str2num(get(handles.edit_init2,'String'));
+%     handles.mv.init = init;
+%     val = get(handles.edit_fint2,'String');
+%     
+%     if length(val)>2 && isequal(val(end-2:end),'end'),
+%         val = [val(1:end-3) num2str(size(handles.data.x,1))];
+%     end
+%     
+%     handles.mv.fint = str2num(val);
+%     mv=handles.mv;
+%     
+%     if mv.init>mv.fint,
+%         errordlg('Initial sampling time is posterior to final sampling time.');
+%     end
+%     xu = unfold(x(mv.init:mv.fint,:,:),0);
+%     if handles.PCAh~=0 & ishandle(handles.PCAh), 
+%         close(handles.PCAh); 
+%     end
+%     handles.PCAh = PCA(xu,[],0); 
+
 % --- Executes on button press in pushbuttonExp.
 function pushbuttonExp_Callback(hObject, eventdata, handles)
 % hObject    handle to pushbuttonExp (see GCBO)
@@ -1666,52 +1599,29 @@ function pushbuttonExp_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 data=handles.data;
-x = preprocess3D(data.x,data.prep);
-if get(handles.radiobutton1,'Value'),    
+x = preprocess3D(data.x,data.prep);   
   
-    model = get(handles.popupmenuMod,'value');
-    if model <= length(handles.data.man_mp_group),             
-        model = handles.data.man_mp_group{model};
-    elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
-        model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
-    else
-        model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
-    end
-    
-    phase = get(handles.popupmenuPhase,'value');
-    phase = model.phases(phase,:);
-    
-    if phase(4)>phase(5),
-        errordlg('Initial sampling time is posterior to final sampling time.');
-    end
-    
-    xu = unfold(x(phase(4):phase(5),:,:),phase(3));
-    if handles.PCAh~=0 & ishandle(handles.PCAh), 
-        close(handles.PCAh); 
-    end
-    handles.PCAh = PCA(xu,1:phase(2),0);    
+model = get(handles.popupmenuMod,'value');
+if model <= length(handles.data.man_mp_group),
+    model = handles.data.man_mp_group{model};
+elseif model  <= length(handles.data.man_mp_group)+length(handles.data.mp_group),
+    model = handles.data.mp_group{model-length(handles.data.man_mp_group)};
 else
-    
-    init =  str2num(get(handles.edit_init2,'String'));
-    handles.mv.init = init;
-    val = get(handles.edit_fint2,'String');
-    
-    if length(val)>2 && isequal(val(end-2:end),'end'),
-        val = [val(1:end-3) num2str(size(handles.data.x,1))];
-    end
-    
-    handles.mv.fint = str2num(val);
-    mv=handles.mv;
-    
-    if mv.init>mv.fint,
-        errordlg('Initial sampling time is posterior to final sampling time.');
-    end
-    xu = unfold(x(mv.init:mv.fint,:,:),0);
-    if handles.PCAh~=0 & ishandle(handles.PCAh), 
-        close(handles.PCAh); 
-    end
-    handles.PCAh = PCA(xu,[],0);  
+    model = handles.data.mp_group2{model-length(handles.data.man_mp_group)-length(handles.data.mp_group)};
 end
+
+phase = get(handles.popupmenuPhase,'value');
+phase = model.phases(phase,:);
+
+if phase(4)>phase(5),
+    errordlg('Initial sampling time is posterior to final sampling time.');
+end
+
+xu = unfold(x(phase(4):phase(5),:,:),phase(3));
+if handles.PCAh~=0 & ishandle(handles.PCAh),
+    close(handles.PCAh);
+end
+handles.PCAh = PCA(xu,1:phase(2),0); 
 
 guidata(hObject,handles);
 
@@ -1866,274 +1776,3 @@ set(handles.ParentFigure.pbMonitoring,'Enable','on');
 
 % Delete the current user interface
 delete(handles.figure1);
-
-
-% --- Executes on button press in pushbutton3Close.
-function pushbutton3Close_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton3Close (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbuttonApply.
-function pushbutton33_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonApply (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in radiobutton42.
-function radiobutton42_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton42 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton42
-
-
-% --- Executes on button press in pushbutton64.
-function pushbutton64_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton64 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-
-function edit81_Callback(hObject, eventdata, handles)
-% hObject    handle to edit81 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit81 as text
-%        str2double(get(hObject,'String')) returns contents of edit81 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit81_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit81 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit82_Callback(hObject, eventdata, handles)
-% hObject    handle to edit82 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit82 as text
-%        str2double(get(hObject,'String')) returns contents of edit82 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit82_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit82 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit83_Callback(hObject, eventdata, handles)
-% hObject    handle to edit83 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit83 as text
-%        str2double(get(hObject,'String')) returns contents of edit83 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit83_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit83 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function edit84_Callback(hObject, eventdata, handles)
-% hObject    handle to edit84 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit84 as text
-%        str2double(get(hObject,'String')) returns contents of edit84 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit84_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit84 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbuttonExp2.
-function pushbuttonExp2_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonExp2 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in pushbutton_man.
-function pushbutton68_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbutton_man (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on selection change in popupmenuMod.
-function popupmenu10_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenuMod (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenuMod contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenuMod
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu10_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenuMod (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbuttonMod.
-function pushbutton34_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonMod (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on selection change in popupmenu11.
-function popupmenu11_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu11 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu11
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu11_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu11 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on button press in pushbuttonExp.
-function pushbutton35_Callback(hObject, eventdata, handles)
-% hObject    handle to pushbuttonExp (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --- Executes on button press in radiobutton40.
-function radiobutton40_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton40 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton40
-
-
-% --- Executes on button press in radiobutton41.
-function radiobutton41_Callback(hObject, eventdata, handles)
-% hObject    handle to radiobutton41 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of radiobutton41
-
-
-% --- Executes on selection change in popupmenu13.
-function popupmenu13_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenu13 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenu13 contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenu13
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu13_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenu13 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-% --- Executes on selection change in popupmenuPhase.
-function popupmenu14_Callback(hObject, eventdata, handles)
-% hObject    handle to popupmenuPhase (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns popupmenuPhase contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from popupmenuPhase
-
-
-% --- Executes during object creation, after setting all properties.
-function popupmenu14_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to popupmenuPhase (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-% --- Executes on key press with focus on pushbuttonExp and none of its controls.
-function pushbuttonExp_KeyPressFcn(hObject, eventdata, handles)
-% hObject    handle to pushbuttonExp (see GCBO)
-% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.UICONTROL)
-%	Key: name of the key that was pressed, in lower case
-%	Character: character interpretation of the key(s) that was pressed
-%	Modifier: name(s) of the modifier key(s) (i.e., control, shift) pressed
-% handles    structure with handles and user data (see GUIDATA)
