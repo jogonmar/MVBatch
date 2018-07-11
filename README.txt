@@ -80,7 +80,7 @@ A functional installation of MATLAB 7.0 or later is required. Compatibility has 
 Matlab 9.1. To get full functionality, the MATLAB statistics toolbox and the Multivariate Exploratory 
 Data Analysis (MEDA) Toolbox. The latter is an open-source software used for visualization and exploratory
 data analysis through the latent structures. A stable version of the MEDA toolbox can be download at 
-https://github.com/josecamachop/MEDA-Toolbox/releases/tag/v1.1.
+https://github.com/josecamachop/MEDA-Toolbox/releases.
 
 Note that the MVBatch toolbox has been tested in Matlab running under Window Vista and Windows 7 Operative 
 Systems. Due to potential incompatibilities with Windows 10 API, the visualization of the MVBatch toolbox 
