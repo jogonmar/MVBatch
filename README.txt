@@ -70,7 +70,7 @@ Component Analysis)
 
 
 The MVBatch toolbox for MATLAB is freely available for download at
-https://github.com/jogonmar/MVBatch/releases/tag/v1.0. 
+https://github.com/jogonmar/MVBatch. 
 
 ------------------------------------------------------------------------------------------------------
 2. Requirements
