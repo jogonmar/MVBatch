@@ -129,47 +129,41 @@ end
 
 %% SPE 
 
-% Estimation of the SPE control limits following Jackson & Mudholkar's approach
-% Experimental limit
-cvevolQ1way = reshape(cvQ./repmat(limq95,1,size(cvQ,2)),s(1)*s(2),1);
-
-
-cvevolQ1waySorted = sort(cvevolQ1way);
+% Identify the value close to the alpha % for the imposed level at 95%
+cvevolQ95way = reshape(cvQ./repmat(limq95,1,size(cvQ,2)),s(1)*s(2),1);
+cvevolQ95waySorted = sort(cvevolQ95way);
 
 lev = round(s(1)*s(2)*(1-alpq95));
-ind = cvevolQ1waySorted(lev);
-ind2 = mod(find(cvevolQ1way==ind,1),s(1));
-if ~ind2, ind2 = s(1); end;
+ind95 = cvevolQ95waySorted(lev);
+ind95b = mod(find(cvevolQ95way==ind95,1),s(1));
+if ~ind95b, ind95b = s(1); end;
 
-% Adjust of the confidence level to meet the imposed 95% confidence
-% level following Jackson & Mudholkar's approach
-if postbatch
-    alpq95cv =spe_pvalue(resmod,(limq95 * ind));
-else
-    alpq95cv =spe_pvalue(resmod(:,:,ind2),(limq95(ind2) * ind));
-end
-
-cvevolQ1way = reshape(cvQ./repmat(limq99,1,size(cvQ,2)),s(1)*s(2),1);
-cvevolQ1waySorted = sort(cvevolQ1way);
+% Identify the value close to the alpha % for the imposed level at 99%
+cvevolQ99way = reshape(cvQ./repmat(limq99,1,size(cvQ,2)),s(1)*s(2),1);
+cvevolQ99waySorted = sort(cvevolQ99way);
 
 lev = round(s(1)*s(2)*(1-alpq99));
-ind = cvevolQ1waySorted(lev);
-ind2 = mod(find(cvevolQ1way==ind,1),s(1));
-if ~ind2, ind2 = s(1); end;
+ind99 = cvevolQ99waySorted(lev);
+ind99b = mod(find(cvevolQ99way==ind99,1),s(1));
+if ~ind99b, ind99b = s(1); end
 
 % Adjust of the confidence level to meet the imposed 95% and 99% confidence
 % level following Box's approximation. If this fails, use Jackson & Mudholkar's approach
 if postbatch
-   alpq99cv = spe_pvalue_box(resmod,(limq99 * ind)); limq95cv = spe_lim_box(resmod,alpq95cv);
-   alpq95cv = spe_pvalue_box(resmod,(limq95 * ind)); limq99cv = spe_lim_box(resmod,alpq99cv);
-   if alpq99cv==0, alpq99cv = spe_pvalue(resmod,(limq99 * ind)); limq99cv = spe_lim(resmod,alpq99cv); end
-    if alpq95cv==0, alpq95cv = spe_pvalue(resmod,(limq95 * ind)); limq95cv = spe_lim(resmod,alpq95cv); end
+   alpq95cv = spe_pvalue_box(resmod,(limq95 * ind95)); limq95cv = spe_lim_box(resmod,alpq95cv);
+   alpq99cv = spe_pvalue_box(resmod,(limq99 * ind99)); limq99cv = spe_lim_box(resmod,alpq99cv);
+   if alpq95cv==0 || alpq99cv==0
+       alpq95cv = spe_pvalue(resmod,(limq95 * ind95)); limq95cv = spe_lim(resmod,alpq95cv); 
+       alpq99cv = spe_pvalue(resmod,(limq99 * ind99)); limq99cv = spe_lim(resmod,alpq99cv); 
+   end
 else
-   alpq99cv =spe_pvalue(resmod(:,:,ind2),(limq99(ind2) * ind));
+   alpq95cv =spe_pvalue_box(resmod(:,:,ind95b),(limq95(ind95b) * ind95));
+   alpq99cv =spe_pvalue_box(resmod(:,:,ind99b),(limq99(ind99b) * ind99));
+   
    for i=1:s(1)
          limq95cv(i)= spe_lim_box(resmod(:,:,i),alpq95cv); 
          limq99cv(i)= spe_lim_box(resmod(:,:,i),alpq99cv); 
    end
-end 
+end  
 
 end
