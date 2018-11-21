@@ -162,7 +162,7 @@ else
    
    for i=1:s(1)
          limq95cv(i)= spe_lim_box(resmod(:,:,i),alpq95cv); 
-         limq99cv(i)= spe_lim_box(resmod(:,:,i),alpq99cv); 
+         limq99cv(i)= spe_lim_box(resmod(:,:,i),alpq99cv);  
    end
 end  
 
