@@ -66,7 +66,7 @@ Component Analysis)
 - Multi-phase: Journal of Chemometrics, 22:632-643, 2008.
 
 (1.6) Exploratory data analysis
-- MEDA toolbox: Chemometrics and Intelligent Laboratory Systems, 143:49–57, 2015.
+- MEDA toolbox: Chemometrics and Intelligent Laboratory Systems, 143:49â€“57, 2015.
 
 
 The MVBatch toolbox for MATLAB is freely available for download at
@@ -161,12 +161,12 @@ see <http://www.gnu.org/licenses/>.
 
 Please, acknowledge the use of this software by referring it: 
 
-"Gonzalez-Martinez, J.M., Camacho, J., Ferrer, A. MVBatch: a Matlab toolbox for batch process modeling and monitoring. Submitted to Chemometrics and Intelligent Laboratory Systems, 
-available at https://github.com/jogonmar/MVBatch/releases/tag/v1.0" 
+"Gonzalez-Martinez, J.M., Camacho, J., Ferrer, A. MVBatch: a Matlab toolbox for batch process modeling and monitoring. Chemometrics and Intelligent Laboratory Systems 183 (2018) 122â€“133. 
+Software available at https://github.com/jogonmar/MVBatch/releases/tag/v1.0".
 
 ------------------------------------------------------------------------------------------------------
 7. Feedback
 ------------------------------------------------------------------------------------------------------
 
-Please send comments to José María González Martínez <jogonmar@gmail.com> or
-José Camacho Páez <josecamacho@go.ugr.es>
+Please send comments to JosÃ© MarÃ­a GonzÃ¡lez MartÃ­nez <jogonmar@gmail.com> or
+JosÃ© Camacho PÃ¡ez <josecamacho@go.ugr.es>
