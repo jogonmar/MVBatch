@@ -91,7 +91,7 @@ might be affected. In case of API issues, the authors suggest running the code v
 ------------------------------------------------------------------------------------------------------
 
 a) Unzip the MATLAB source files (*.m and *.mat) of the MVBatch toolbox into any directory of choice 
-<directory_path>
+<directory_path>. Note that the user has to name the folder as ¨MVBatch¨.
 
 . 
 
