@@ -102,7 +102,7 @@ refs = scale_(ref,rng);
  h = waitbar(0/nBatches,sprintf('Synchronizing batches - Iteration %d',iter+1),'Name','Synchronization by Kassidas et al. DTW algorithm');
 
  
-while(flag || iter <=4)
+while(flag || iter <=3)
     
     if iter < 3
         Bref = refs;
@@ -142,7 +142,7 @@ while(flag || iter <=4)
 
     Wnew = diag((diag(Wnew)./sum(diag(Wnew)))*nVariables);    
     diffW = [diffW; diag(abs(Wnew) - abs(W))'];
-    if  isempty(find(diffW(end,:) > 0.01)) || iter == maxIter
+    if  isempty(find(diffW(end,:) > 0.01)) || iter == maxIter-1
         flag = false;
     end 
     W = Wnew;
