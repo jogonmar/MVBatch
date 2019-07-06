@@ -100,10 +100,11 @@ handles.data.synchronization{handles.Stage2Syn}.var = 1;
 handles.data.synchronization{handles.Stage2Syn}.method = 'linear';
 handles.data.synchronization{handles.Stage2Syn}.steps = 100;
         
-
-
 % Set IV the synchronization by default for the first stage
-handles.data.synchronization{1}.methodsyn = 'iv';
+handles.data.synchronization{handles.Stage2Syn}.methodsyn = 'iv';
+
+% Make copy
+handles.final_synchronization = [];
 
 % Center GUI
 set(gcf,'Units','pixels');
@@ -168,6 +169,12 @@ txt=contents{get(hObject,'Value')};
 
 set(handles.text_syn_method,'Enable','on');
 nVariables = size(handles.data.synchronization{handles.Stage2Syn}.nor_batches{1},2);
+nor_batches = handles.data.synchronization{handles.Stage2Syn}.nor_batches;
+
+% Clean up the structure with the information of the previous
+% synchronization if any
+handles.data.synchronization{handles.Stage2Syn} = [];
+handles.data.synchronization{handles.Stage2Syn}.nor_batches = nor_batches;
 
 switch txt
     case ' Indicator Variable'
@@ -213,6 +220,7 @@ switch txt
         set(handles.uite_DTW_Weights,'String',' ');
         set(handles.uipu_DTW_Weights,'Value',1);
         set(handles.uipu_DTW_Reference,'Value',1);
+        handles.data.synchronization{handles.Stage2Syn}.methodBref = 'median';
         set(handles.uite_DTW_Reference,'Enable','off');
         handles.data.synchronization{handles.Stage2Syn}.Bref = -1;
         set(handles.uite_DTW_Reference,'String',' ');
@@ -269,7 +277,7 @@ switch txt
         
         % Setting parameters to apply Multi-synchro
         handles.data.synchronization{handles.Stage2Syn}.methodsyn = 'multisynchro';
-        handles.data.synchronization{handles.Stage2Syn}.method = 'Select';
+        handles.data.synchronization{handles.Stage2Syn}.methodBref = 'median';
         handles.data.synchronization{handles.Stage2Syn}.Bref = -1; 
         handles.data.synchronization{handles.Stage2Syn}.W = ones(nVariables,1);
         handles.data.synchronization{handles.Stage2Syn}.Wconstr = zeros(nVariables,1);
@@ -645,6 +653,8 @@ switch txt,
        handles.data.synchronization{handles.Stage2Syn}.Bref = 1;
         set(handles.uite_DTW_Reference,'String',num2str(1));
 end
+
+handles.data.synchronization{handles.Stage2Syn}.methodBref = txt;
         
 % Update handles structure
 guidata(hObject, handles);
@@ -802,6 +812,8 @@ function editMaxIter_Callback(hObject, eventdata, handles)
 
 maxIter = str2double(get(handles.editMaxIter,'String'));
 if isnan(maxIter), set(handles.editMaxIter,'String','20'); end
+if maxIter < 3, set(handles.editMaxIter,'String','3'); end
+if maxIter > 100, set(handles.editMaxIter,'String','100'); end
 
 % --- Executes during object creation, after setting all properties.
 function editMaxIter_CreateFcn(hObject, eventdata, handles)
@@ -1028,13 +1040,15 @@ end
 if get(handles.radiobuttonPlotResults,'Value')
     vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
     units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];
-    plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches, [],[],[],[],vars_tags,units_labels);
+    plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches, [],[],ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
 end
   
 % Once RGTW-synchronization has been performed, we set to 1 the
 % corresponding stage at the Stages vector to know that it has been
 % already synchronized.
 handles.flagStagesSyn(handles.Stage2Syn) = 1;
+
+handles.data.synchronization{handles.Stage2Syn}.methodsyn = 'rgtw';
 
 if handles.SynStage
     % Remove the stage from the pending one to be synchronized and add it
@@ -1065,6 +1079,9 @@ else
     % Retrieve data from the handles updated by the previous call
     handles=guidata(handles.output);
 end
+
+handles.final_synchronization = handles.data.synchronization{handles.Stage2Syn};
+
 guidata(hObject, handles);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1099,7 +1116,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     % Store the reference batch that is going to be used for synchronization
-    if handles.data.synchronization{handles.Stage2Syn}.Bref == -1, handles.data.synchronization{handles.Stage2Syn}.Bref = refBatch(handles.data.synchronization{handles.Stage2Syn}.nor_batches,'median');end
+    if handles.data.synchronization{handles.Stage2Syn}.Bref == -1, handles.data.synchronization{handles.Stage2Syn}.Bref = refBatch(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.methodBref);end
     handles.data.synchronization{handles.Stage2Syn}.Xref = handles.data.synchronization{handles.Stage2Syn}.nor_batches{handles.data.synchronization{handles.Stage2Syn}.Bref};
 
     % Disabling the panel corresponding to the RGTW panel. Firstly, off-line synchronization based on DTW must be performed.
@@ -1289,7 +1306,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
                 
                 vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
                 units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];
-                plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],[],[],[],vars_tags,units_labels);
+                plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],[],ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
          end  
         set(handles.pushbuttonApply,'Enable','on');
     end 
@@ -1300,7 +1317,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     %%                                                                MULTI-SYNCHRO
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-    if handles.data.synchronization{handles.Stage2Syn}.Bref == -1, handles.data.synchronization{handles.Stage2Syn}.Bref = refBatch(handles.data.synchronization{handles.Stage2Syn}.nor_batches,'median');end
+    if handles.data.synchronization{handles.Stage2Syn}.Bref == -1, handles.data.synchronization{handles.Stage2Syn}.Bref = refBatch(handles.data.synchronization{handles.Stage2Syn}.nor_batches,handles.data.synchronization{handles.Stage2Syn}.methodBref);end
     % Store the reference batch that is going to be used for synchronization
     handles.data.synchronization{handles.Stage2Syn}.Xref = handles.data.synchronization{handles.Stage2Syn}.nor_batches{handles.data.synchronization{handles.Stage2Syn}.Bref};
     
@@ -1410,7 +1427,7 @@ if strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'dtw')
     if get(handles.radiobuttonPlotResults,'Value')
         vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
         units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];        
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],[],[],[],vars_tags,units_labels);
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],[],ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
         figure; plot(handles.data.synchronization{handles.Stage2Syn}.warp,'k-');
         xlabel('Reference batch sampling point','FontSize',14);
         ylabel('Test batch sampling point','FontSize',14);
@@ -1484,10 +1501,12 @@ elseif strcmp(handles.data.synchronization{handles.Stage2Syn}.methodsyn,'iv')
     if get(handles.radiobuttonPlotResults,'Value')
         vars_tags = ['Warping'; handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1)];
         units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3)];
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches, [],[],[],[],vars_tags,units_labels);
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches, [],[],ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
     end
     
 end
+
+handles.final_synchronization = handles.data.synchronization{handles.Stage2Syn};
 
 guidata(hObject,handles);
 
@@ -1510,7 +1529,11 @@ function SaveMenuItem_Callback(hObject, eventdata, handles)
 
 [file, pathname] = uiputfile('*.mat','Save to File');
 if ~isequal(file, 0)
-    dataAlig=handles.data;
+    if ~isempty(handles.final_synchronization)
+        handles.data.synchronization{handles.Stage2Syn} = handles.final_synchronization;
+    else
+        dataAlig=handles.data;
+    end
     eval(['save ' fullfile(pathname, file) ' dataAlig']);
 end
  
@@ -1520,6 +1543,10 @@ function SaveWMenuItem_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+ if ~isempty(handles.final_synchronization)
+        handles.data.synchronization{handles.Stage2Syn} = handles.final_synchronization;
+ end
+    
 assignin('base','dataAlig',handles.data);
 
 
@@ -1535,7 +1562,7 @@ function pushbuttonApply_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-% Merge all the synchronized data sets.
+% Merge all the synchronized data sets
 
 K = 0;
 for i=1:length(handles.data.synchronization)
@@ -1784,13 +1811,13 @@ units_labels = [' ';handles.ParentFigure.s_screening.varNames(find(handles.Paren
     
 switch asyn(handles.selectedAsyn)
     case 1
-         plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I),[],[],vars_tags,units_labels);
+         plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcI_II.I),ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
     case 2
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I),[],[],vars_tags,units_labels);
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII.I),ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
     case 3
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I),[],[],vars_tags,units_labels);
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIV.I),ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
     case 4
-        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I),[],[],vars_tags,units_labels);
+        plot3D(handles.data.synchronization{handles.Stage2Syn}.alg_batches,[],handles.data.synchronization{handles.Stage2Syn}.alg_batches(:,:,handles.data.synchronization{handles.Stage2Syn}.asynDetection.batchcIII_IV.I),ceil(size(handles.data.synchronization{handles.Stage2Syn}.alg_batches,2)/4),[],vars_tags,units_labels);
 end
         
 % --- Executes on button press in pushbuttonInfo.
@@ -2130,5 +2157,6 @@ function PlotRawData_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-plot3D(handles.data.synchronization{handles.Stage2Syn}.nor_batches,[],[],[],[],handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1),handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3));
+nvars = size(handles.data.synchronization{handles.Stage2Syn}.nor_batches{1},2);
+plot3D(handles.data.synchronization{handles.Stage2Syn}.nor_batches,[],[],ceil(nvars/4),[],handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),1),handles.ParentFigure.s_screening.varNames(find(handles.ParentFigure.s_screening.VariablesIn),3));
 
