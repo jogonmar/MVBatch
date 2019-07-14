@@ -93,8 +93,6 @@ might be affected. In case of API issues, the authors suggest running the code v
 a) Unzip the MATLAB source files (*.m and *.mat) of the MVBatch toolbox into any directory of choice 
 <directory_path>. Note that the user has to name the folder as ¨MVBatch¨.
 
-. 
-
 b) Unzip the Matlab files of the MEDA toolbox into the directory <directory_path>.
  
 c) Add to the MATLAB path the following directories (use command addpath, e.g. addpath '<path>'):
