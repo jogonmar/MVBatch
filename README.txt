@@ -13,7 +13,7 @@ Contents
 7. Feedback 
 
 ------------------------------------------------------------------------------------------------------
-1. Key features
+1. Key features 
 ------------------------------------------------------------------------------------------------------
 
 The MVBatch toolbox is a graphical user-friendly interface for process understanding, troubleshooting
