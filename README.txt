@@ -1,4 +1,4 @@
-------------------------------------------------------------------------------------------------------
+﻿------------------------------------------------------------------------------------------------------
 MVBATCH toolbox for bilinear batch process modeling
 ------------------------------------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ see <http://www.gnu.org/licenses/>.
 Please, acknowledge the use of this software by referring it: 
 
 "Gonzalez-Martinez, J.M., Camacho, J., Ferrer, A. MVBatch: a Matlab toolbox for batch process modeling and monitoring. Chemometrics and Intelligent Laboratory Systems 183 (2018) 122–133. 
-Software available at https://github.com/jogonmar/MVBatch/releases/tag/v1.0".
+Software available at https://github.com/jogonmar/MVBatch/releases".
 
 ------------------------------------------------------------------------------------------------------
 7. Feedback
