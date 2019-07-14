@@ -10,7 +10,7 @@ Contents
 4. Getting started
 5. License
 6. Citing
-7. Feedback 
+7. Feedback  
 
 ------------------------------------------------------------------------------------------------------
 1. Key features 
