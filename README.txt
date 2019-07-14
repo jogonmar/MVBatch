@@ -165,5 +165,4 @@ Software available at https://github.com/jogonmar/MVBatch/releases".
 7. Feedback
 ------------------------------------------------------------------------------------------------------
 
-Please send comments to José María González Martínez <J.Gonzalez-Martinez@shell.com> or
-José Camacho Páez <josecamacho@go.ugr.es>
+Please send comments to José María González Martínez <J.Gonzalez-Martinez@shell.com> or José Camacho Páez <josecamacho@go.ugr.es>
