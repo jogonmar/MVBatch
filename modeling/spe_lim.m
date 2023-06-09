@@ -51,7 +51,7 @@ if (pcs_left<0), error('Incorrect value of pcs_left.'); end;
 
 % Computation
 
-lambda = eig(1/(s(1)-1)*res'*res);
+lambda = sort(eig(1/(s(1)-1)*res'*res),'descend');
 
 theta1 = sum(lambda(1:pcs_left));
 theta2 = sum(lambda(1:pcs_left).^2);
