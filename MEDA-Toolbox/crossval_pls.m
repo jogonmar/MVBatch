@@ -48,11 +48,10 @@ function [cumpress,press] = crossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 % cumpress = crossval_pls(X,Y,lvs);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -137,13 +136,15 @@ for i=1:blocks_r,
     scs = preprocess2Dapp(sample,av,st);
     scs_y = preprocess2Dapp(sample_y,av_y,st_y);
     
-    [beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,0:max(lvs));
+    %[beta,W,P,Q,R] = kernel_pls(ccs'*ccs,ccs'*ccs_y,0:max(lvs));
     
     for lv=1:length(lvs),
     
         if lvs(lv) > 0,
-            beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
-            srec = scs*beta;
+            %beta = R(:,1:min(lvs(lv),end))*Q(:,1:min(lvs(lv),end))';
+            %srec = scs*beta;
+            [~,~,~,~,beta] = plsregress(ccs,ccs_y,lvs(lv));
+            srec = scs*beta(2:end,:);  
             
             pem = scs_y-srec;
             

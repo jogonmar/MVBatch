@@ -49,11 +49,10 @@ function [Qm,Q,lvso] = dcrossval_pls(x,y,lvs,blocks_r,prepx,prepy,opt)
 % Q = dcrossval_pls(X,Y,lvs);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 04/Apr/18.
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -132,9 +131,11 @@ for i=1:blocks_r,
     vcs = preprocess2Dapp(val,av,st);
     vcs_y = preprocess2Dapp(val_y,av_y,st_y);
         
-    beta = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:lvso(i));
-    srec = vcs*beta;
-    
+    %beta = kernel_pls(ccs'*ccs,ccs'*ccs_y,1:lvso(i));
+    %srec = vcs*beta;
+    [~,~,~,~,beta] = plsregress(ccs,ccs_y,lvso(i));
+    srec = vcs*beta(2:end,:);   
+
     Q(i) = 1 - sum(sum((vcs_y-srec).^2))/sum(sum(vcs_y.^2));
     
 end

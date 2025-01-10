@@ -77,11 +77,10 @@ function [ypred,testypred] = pred_pls(x,y,lvs,test,prepx,prepy,opt,label,classes
 % pred_pls(X,Y,1,test);
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% coded by: Jose Camacho (josecamacho@ugr.es)
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -171,7 +170,11 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 7th argument must cont
 [xcs,m,sd] = preprocess2D(x,prepx);
 [ycs,my,sdy] = preprocess2D(y,prepy);
 
-beta = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+%beta = kernel_pls(xcs'*xcs,xcs'*ycs,lvs);
+
+[~,~,~,~,beta] = plsregress(xcs,ycs,max(lvs));
+beta = beta(2:end,:);  
+
 ypred = (xcs*beta).*(ones(N,1)*sdy) + (ones(N,1)*my);
 
 if ~isempty(test),

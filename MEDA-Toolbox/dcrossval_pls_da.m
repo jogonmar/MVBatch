@@ -51,12 +51,11 @@ function [AUCm,AUC,lvso] = dcrossval_pls_da(x,y,lvs,blocks_r,prepx,prepy,opt)
 % [AUCm,AUC,lvso] = dcrossval_pls_da(X,Y,lvs,5)
 %
 %
-% coded by: Jose Camacho Paez (josecamacho@ugr.es)
+% coded by: Jose Camacho (josecamacho@ugr.es)
 %           Edoardo Saccenti (edoardo.saccenti@wur.nl )
-% last modification: 04/Apr/18.
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2018  University of Granada, Granada
-% Copyright (C) 2018  Jose Camacho Paez, Edoardo Saccenti
+% Copyright (C) 2025  University of Granada, Granada
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -164,12 +163,15 @@ for i=1:blocks_r,
         
         X = ccs;
         Y = ccs_y;
-        XY = X'*Y;
-        XX = X'*X;
+        %XY = X'*Y;
+        %XX = X'*X;
         
-        beta = kernel_pls(XX,XY,1:lvso(i));
+        %beta = kernel_pls(XX,XY,1:lvso(i));
+        %srec = vcs*beta;
+
+        [~,~,~,~,beta] = plsregress(X,Y,lvso(i));
         
-        srec = vcs*beta;
+        srec = vcs*beta(2:end,:);
         [~,~,~,AUC(i)] = perfcurve(val_y,srec,1);
         
     else
