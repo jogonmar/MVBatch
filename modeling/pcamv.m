@@ -19,10 +19,9 @@ function [p,t] = pcamv(x,pc)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/09/16
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -37,6 +36,10 @@ function [p,t] = pcamv(x,pc)
 % You should have received a copy of the GNU General Public License
 % along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-[p,t] = pca_pp(x,pc);
+%[p,t] = pca_pp(x,pc);
+[p,t] = pca(x,'Centered',false,'NumComponents',pc);
+
+p = p(:,end);
+t = t(:,end);
 
 

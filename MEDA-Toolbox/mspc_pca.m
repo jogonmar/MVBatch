@@ -93,10 +93,9 @@ function [Dst,Qst,Dstt,Qstt,UCLd,UCLq] = mspc_pca(x,pcs,test,prep,opt,label,clas
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Jan/2017
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -203,7 +202,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 %% Main code
 
 [xcs,m,sc] = preprocess2D(x,prep);
-[P,T] = pca_pp(xcs,pcs);
+%[P,T] = pca_pp(xcs,pcs);
+P = pca(xcs,'Centered',false,'NumComponents',max(pcs));
+P = P(:,pcs);
 
 [Dst,Qst] = mspc(xcs,inv(cov(T)),P);
 

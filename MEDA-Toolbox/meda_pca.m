@@ -59,10 +59,9 @@ function [meda_map,ind,ord] = meda_pca(x,pcs,prep,thres,opt,label,vars)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 31/Oct/17
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -134,8 +133,10 @@ label = label(vars);
 
 x2 = preprocess2D(x,prep);
 
-P = pca_pp(x2,pcs);
-        
+%P = pca_pp(x2,pcs);
+P = pca(xcs,'Centered',false,'NumComponents',max(pcs));
+P = P(:,pcs);
+
 meda_map = meda(x2'*x2,P,P);
 
 if opt(3) == '1'

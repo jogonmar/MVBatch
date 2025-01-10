@@ -56,10 +56,9 @@ function [r2,alpha,q2,res_cross,alpha_cross] = SVIplot(x,pcs,var,groups,prep,opt
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 09/Jan/2025
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -117,7 +116,8 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 %% Main code
 
 xcs = preprocess2D(x,prep);
-p = pca_pp(xcs,1:max(pcs));
+%p = pca_pp(xcs,1:max(pcs));
+p = pca(xcs,'Centered',false,'NumComponents',max(pcs));
 
 alpha=0;
 betas=zeros(M-1,1);
@@ -147,7 +147,9 @@ for j=1:groups,
     [cal_c,m,sd] = preprocess2D(cal,prep);
     test_c = preprocess2Dapp(test,m,sd);
     
-    p = pca_pp(cal_c,1:max(pcs));
+    %p = pca_pp(cal_c,1:max(pcs));
+    p = pca(cal_c,'Centered',false,'NumComponents',max(pcs));
+    
     alpha2=0;
     res2 = test_c(:,var);
     for i=1:length(pcs),

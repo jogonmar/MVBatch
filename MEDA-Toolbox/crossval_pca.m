@@ -50,10 +50,9 @@ function [cumpress,press] = crossval_pca(x,pcs,leave_m,blocks_r,blocks_c,prep,op
 %
 %
 % codified by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 19/Apr/2016
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2016  University of Granada, Granada
-% Copyright (C) 2016  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -154,7 +153,8 @@ for i=1:blocks_r,
   
     scs = preprocess2Dapp(sample,av,st);
      
-    p = pca_pp(ccs,0:max(pcs));
+    %p = pca_pp(ccs,0:max(pcs));
+    p = pca(ccs,'Centered',false,'NumComponents',max(pcs));
     
     for pc=1:length(pcs),
         
@@ -198,7 +198,9 @@ for i=1:blocks_r,
                     rec_sam = t_sest*p2';
                     for j=1:blocks_c,
                         ind_j = c_ind(round((j-1)*elem_c+1):round(j*elem_c)); % Variables selection
-                        p3 = pca_pp([ccs rec(:,ind_j)],pc);
+                        %p3 = pca_pp([ccs rec(:,ind_j)],pc);
+                        p3 = pca([ccs rec(:,ind_j)],'Centered',false,'NumComponents',pc);
+                        p3 = p3(:,end);
                         scs2 = [scs rec_sam(:,ind_j)];
                         scs2(:,ind_j) = avs_prep(:,ind_j);
                         t_est = scs2*p3;

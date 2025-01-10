@@ -1,7 +1,7 @@
 ﻿MEDA Toolbox for its use in MATLAB. 
 
 Contact person: José Camacho Páez (josecamacho@ugr.es)
-Last modification of this document: 02/Mar/18
+Last modification of this document: 09/Jan/25
 
 Installation
 
@@ -31,7 +31,7 @@ Items in the folder:
 
 - toolbox routines:
 
-	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA), sparsepls2 (SPLS) 
+	- projection models: pca_pp.m (PCA), kernel_pls.m (PLS), gia & gpca (GPCA), sparsepls2 (SPLS). Yet, for the MVBatch, all PCA and PLS calls are made to the official Matlab routines (pca and plsregress) 
 
 	- exploratory & visualization tools: SVIplot.m (SVI plots), scores_pca.m & scores_pls.m (Socre plots), loadings_pca.m & loadings_pls.m (Loading plots), 
 		meda_pca.m & meda_pls.m (MEDA), omeda_pca.m & omeda_pls.m (oMEDA), mspc_pca.m & mspc_pls.m (MSPC), leverages_pca.m & leverages_pls.m (leverages of variables)

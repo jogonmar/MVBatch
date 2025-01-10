@@ -72,10 +72,9 @@ function [omeda_vec,lim] = omeda_pca(x,pcs,test,dummy,prep,opt,label)
 %
 %
 % coded by: Jose Camacho Paez (josecamacho@ugr.es)
-% last modification: 22/Jan/17.
+% last modification: 10/Jan/2025
 %
-% Copyright (C) 2017  University of Granada, Granada
-% Copyright (C) 2017  Jose Camacho Paez
+% Copyright (C) 2025  University of Granada, Granada
 % 
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU General Public License as published by
@@ -141,7 +140,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 6th argument must cont
 
 [xcs,m,sd] = preprocess2D(x,prep);
 
-P = pca_pp(xcs,pcs);
+%P = pca_pp(xcs,pcs);
+P = pca(xcs,'Centered',false,'NumComponents',max(pcs));
+P = P(:,pcs);
     
 testcs = preprocess2Dapp(test,m,sd);
 omeda_vec = omeda(testcs,dummy,P);
