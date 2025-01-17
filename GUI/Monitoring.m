@@ -1046,8 +1046,15 @@ case 'multisynchro'
         test{1,1} = test_batch(:,varIn);
         [synTestBatch,warptest] = low_multisychro(test,handles.alignment.synchronization{handles.alignment.stages,1}.Xref,asynDetection,handles.alignment.synchronization{handles.alignment.stages}.Wconstr,handles.alignment.synchronization{handles.alignment.stages}.param.pcsMon,handles.alignment.synchronization{handles.alignment.stages,1}.maxIter,[],[],handles.alignment.synchronization{handles.alignment.stages}.specSynchronization);
         
+        nsamplesToPlot = size(synTestBatch,1);     
+ case 'rgtw'
+        Bref = scale_(handles.alignment.synchronization{handles.alignment.stages,1}.Xref,handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        sr = size(Bref);
+        %test = scale_(test_batch(:,varIn),handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        [synTestBatch, warptest] = onSyn(test_batch(:,varIn),Bref, handles.alignment.synchronization{handles.alignment.stages,1}.band,diag(handles.alignment.synchronization{handles.alignment.stages,1}.W), handles.alignment.synchronization{handles.alignment.stages,1}.zeta, handles.alignment.synchronization{handles.alignment.stages,1}.rng);
+        st = size(synTestBatch,1);
+        synTestBatch = [synTestBatch; repmat(synTestBatch(st(1),:), sr(1)-st(1),1)];
         nsamplesToPlot = size(synTestBatch,1);
-
     otherwise
         errordlg('An error has ocurred in the selection of the synchronization method.','Synchronization Error');
 end
