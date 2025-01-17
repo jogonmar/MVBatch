@@ -203,8 +203,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 
 [xcs,m,sc] = preprocess2D(x,prep);
 %[P,T] = pca_pp(xcs,pcs);
-P = pca(xcs,'Centered',false,'NumComponents',max(pcs));
+[P,T] = pca(xcs,'Centered',false,'NumComponents',max(pcs));
 P = P(:,pcs);
+T = T(:,pcs);
 
 [Dst,Qst] = mspc(xcs,inv(cov(T)),P);
 

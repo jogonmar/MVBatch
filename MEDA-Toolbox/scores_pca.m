@@ -157,8 +157,9 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 5th argument must cont
 
 [xcs,m,sd] = preprocess2D(x,prep);
 %[P,T] = pca_pp(xcs,pcs);
-P = pca(xcs,'Centered',false,'NumComponents',max(pcs));
+[P,T] = pca(xcs,'Centered',false,'NumComponents',max(pcs));
 P = P(:,pcs);
+T = T(:,pcs);
 
 if ~isempty(test),
     testcs = preprocess2Dapp(test,m,sd);
@@ -172,7 +173,7 @@ end
 
 if opt(1) == '1',
     
-     if opt(3) == '0'
+    if opt(3) == '0'
         Tt = [T;TT];
     else
         Tt = TT;
