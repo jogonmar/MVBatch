@@ -109,7 +109,7 @@ assert (isempty(find(opt~='0' & opt~='1')), 'Value Error: 4th argument must cont
 xcs = preprocess2D(x,prep); 
 
 %[P,T] = pca_pp(xcs,1:max(pcs));
-P = pca(xcs,'Centered',false,'NumComponents',max(pcs));
+[P,T] = pca(xcs,'Centered',false,'NumComponents',max(pcs));
 pcs(find(pcs>size(P,2))) = [];
 
 totalVx = sum(sum(xcs.^2));
