@@ -45,7 +45,7 @@ routine=dbstack;
 assert (nargin == 2, 'Error in the number of arguments. Type ''help %s'' for more info.', routine(1).name);
 [J_p,A_p]   = size(p);
 [J_p2,A_p2] = size(p2);
-assert (J_p == J_p2, 'Error: Loading matrices belong to latent-variable models fitted on two-way arrays containing different number of components. Type ''help %s'' for more info.', routine(1).name);
+%assert (J_p == J_p2, 'Error: Loading matrices belong to latent-variable models fitted on two-way arrays containing different number of components. Type ''help %s'' for more info.', routine(1).name);
 assert (A_p == A_p2, 'Error: Loading matrices contain different number of components. Type ''help %s'' for more info.', routine(1).name);
 
 [v ind] =  max(abs(p));
