@@ -189,10 +189,10 @@ for i=1:nBatches
         k_2 = numel(find(warpBn{i}(:,1)==2));
         k_1 = numel(find(warpBn{i}(:,1)==3));
         k_0 = numel(find(warpBn{i}(:,1)==4));
-        if k_0 > max(k_3,max(k_1,k_2)), auxvkini(i) = 4; hn(i) = k_0; end 
-        if k_1 > max(k_0,max(k_2,k_3)), auxvkini(i) = 3; hn(i) = k_1; end
-        if k_2 > max(k_0,max(k_1,k_3)), auxvkini(i) = 2; hn(i) = k_2; end
-        if k_3 > max(k_0,max(k_1,k_2)), auxvkini(i) = 1; hn(i) = k_3; end
+        if k_0 > max(k_3,max(k_1,k_2)), auxvkini(i) = find(warpBn{i}(:,1)==4,1,'last'); hn(i) = k_0; end %%%% Sept 1 2025
+        if k_1 > max(k_0,max(k_2,k_3)), auxvkini(i) = find(warpBn{i}(:,1)==3,1,'last'); hn(i) = k_1; end %%%% Sept 1 2025
+        if k_2 > max(k_0,max(k_1,k_3)), auxvkini(i) = find(warpBn{i}(:,1)==2,1,'last'); hn(i) = k_2; end %%%% Sept 1 2025
+        if k_3 > max(k_0,max(k_1,k_2)), auxvkini(i) = find(warpBn{i}(:,1)==1,1,'last'); hn(i) = k_3; end %%%% Sept 1 2025
         batchDuration(i) = size(cal{i},1);
     end
 
@@ -228,6 +228,7 @@ if ~mode
     asynDetection.batchcI_II.I = batchcI_II.I;
     asynDetection.batchcIII.I = batchcIII.I;
     asynDetection.batchcIV.I = batchcIV.I;
+    asynDetection.batchcIV.kini = batchcIV.kini; % Sept 1 2025
     asynDetection.batchcIII_IV.I = batchcIII_IV.I;
 end
 

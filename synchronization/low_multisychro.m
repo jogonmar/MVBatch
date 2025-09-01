@@ -284,8 +284,12 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     warpX3  = cell(numel(asynDetection.batchcIV.I),1);
     warpingX3 = cell(numel(asynDetection.batchcIV.I),1);
     for i=1:numel(asynDetection.batchcIV.I)
-        [synX3, warpX3{i}, warpingX3{i}] = DTW(scale_(cal{asynDetection.batchcIV.I(i)},specSynchronization.rng),scale_(ref,specSynchronization.rng),diag(specSynchronization.W),[],specSynchronization.Wconstr);
+        [synX3, warpX3{i}, warpingX3{i}] = DTW(scale_(cal{asynDetection.batchcIV.I(i)}(asynDetection.batchcIV.kini(i):end,:),specSynchronization.rng),scale_(ref,specSynchronization.rng),diag(specSynchronization.W),[],specSynchronization.Wconstr); % Sept 1 2025
         X3{i}= synX3.*repmat(specSynchronization.rng,size(synX3,1),1);
+        % warping_reference Sept 1 2025
+        warpX3{i} = warpX3{i} + (asynDetection.batchcIV.kini(i)-1);
+        % warping_default Sept 1 2025
+        warpingX3{i}(:,2) = warpingX3{i}(:,2) + (asynDetection.batchcIV.kini(i)-1);
     end
 
     % CLASS III AND IV: DTW-BASED SYNCHRONIZATION WITH RELAXED STARTING AND END POINT
@@ -299,16 +303,8 @@ if isempty(asynDetection.batchcI_II.I) && ~mode, errordlg('The Multisynchro appr
     end
 
     % TSR-based imputation of CLASS III AND IV aynchronisms
-%      for i=1:size(X4,1)   
-%         X4s{i} = reconstructX(X4{i,1},specSynchronization.t,specSynchronization.p,specSynchronization.pcs,specSynchronization.Xi,specSynchronization.Omega); 
-%      end
-     
       for i=1:size(X4,1)  
-        %if  size(X4{i,1},1) < 0.4*nTime
-        %     X4s{i} = [X4{i,1}; ones(nTime-size(X4{i,1},1),size(X4{i,1},2)).*NaN];
-        %else
         X4s{i} = reconstructX(X4{i,1},specSynchronization.t,specSynchronization.p,specSynchronization.pcs,specSynchronization.Xi,specSynchronization.Omega); 
-        %end
      end
 
 %% MERGE STEP 
